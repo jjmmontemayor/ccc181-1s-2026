@@ -1,0 +1,923 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Week 3: User-Centered Interface Development</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400..700&amp;display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&amp;display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&amp;display=swap">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:#0d1424;overflow:hidden;font-family:'IBM Plex Sans',Arial,sans-serif}
+#viewport{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
+#stage{position:relative;width:1920px;height:1080px;transform-origin:center center;flex:none}
+.frame{position:absolute;inset:0;display:none}
+.frame.active{display:block}
+.frame>section{position:relative;width:1920px;height:1080px;overflow:hidden;display:flex;flex-direction:column;
+  font-size:32px;line-height:1.4;color:#1B2438;font-family:'IBM Plex Sans',Arial,sans-serif}
+section div{display:flex;flex-direction:column;min-width:0}
+section h1{font-size:96px;font-weight:600;line-height:1.1}
+section h2{font-size:64px;font-weight:600;line-height:1.15}
+section h3{font-size:44px;font-weight:600;line-height:1.2}
+section ul,section ol{padding-left:1.2em}
+section table{width:100%;border-collapse:collapse;table-layout:fixed}
+section th,section td{padding:.35em .6em;text-align:left;vertical-align:top;border-bottom:1px solid rgba(27,36,56,.14)}
+section th{font-weight:600}
+section svg{display:block;flex:none}
+x-shape{display:block;flex:none}
+x-shape[kind="arrow-right"]{clip-path:polygon(0 30%,60% 30%,60% 0,100% 50%,60% 100%,60% 70%,0 70%)}
+x-shape[kind="arrow-left"]{clip-path:polygon(100% 30%,40% 30%,40% 0,0 50%,40% 100%,40% 70%,100% 70%)}
+x-shape[kind="arrow-down"]{clip-path:polygon(30% 0,70% 0,70% 60%,100% 60%,50% 100%,0 60%,30% 60%)}
+x-shape[kind="arrow-up"]{clip-path:polygon(30% 100%,70% 100%,70% 40%,100% 40%,50% 0,0 40%,30% 40%)}
+x-shape[kind="ellipse"]{border-radius:50%}
+x-shape[kind="diamond"]{clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%)}
+.xi{flex:none}
+#bar{position:fixed;left:0;right:0;bottom:0;height:4px;background:rgba(255,255,255,.08);z-index:5}
+#bar i{display:block;height:100%;width:0;background:#F2A46E;transition:width .2s}
+#hud{position:fixed;right:16px;bottom:14px;display:flex;gap:8px;align-items:center;z-index:6;
+  font:500 14px 'IBM Plex Sans',Arial,sans-serif;color:#C5CEDD;opacity:.25;transition:opacity .2s}
+#hud:hover,#hud:focus-within{opacity:1}
+#hud button{background:#22304C;color:#F6F4EE;border:1px solid #3A4A6A;border-radius:8px;padding:6px 12px;font:inherit;cursor:pointer}
+#hud button:focus-visible{outline:2px solid #F2A46E;outline-offset:2px}
+#notes{position:fixed;left:16px;right:16px;bottom:56px;max-height:34vh;overflow:auto;display:none;z-index:6;
+  background:rgba(22,34,58,.96);color:#F6F4EE;border:1px solid #3A4A6A;border-radius:12px;padding:16px 20px;
+  font:400 17px/1.55 'IBM Plex Sans',Arial,sans-serif}
+#notes.show{display:block}
+#notes b{color:#F2A46E;font-weight:600}
+#help{position:fixed;top:14px;right:16px;z-index:6;font:400 13px 'IBM Plex Sans',Arial,sans-serif;color:#8A97AD;opacity:0;transition:opacity .4s}
+body.fresh #help{opacity:1}
+@media print{
+  @page{size:1920px 1080px;margin:0}
+  html,body{overflow:visible;background:none;height:auto}
+  #viewport{position:static;display:block}
+  #stage{transform:none!important;width:auto;height:auto}
+  .frame{position:relative;display:block;page-break-after:always;break-after:page;width:1920px;height:1080px}
+  #bar,#hud,#notes,#help{display:none!important}
+}
+</style>
+</head>
+<body class="fresh">
+<div id="viewport"><div id="stage">
+<div class="frame" data-notes="Week 1 defined the problem, the users and the MVP. Week 2 set up Git, GitHub and a Flask app with routes and templates. This week we design and build the interface: how content is organized, how screens are sketched, and how they become semantic, styled, responsive, accessible and interactive pages in Flask templates. The running example stays ClinicQ, the campus clinic queue app." aria-label="Slide 1">
+<section id="cover" data-transition="fade" style="display:flex; flex-direction:column; justify-content:space-between; padding:128px; background:#16223a">
+  <div style="position:absolute; top:0; left:0; width:24px; height:1080px; display:flex; flex-direction:column; background:#f2a46e">
+  </div>
+  <p style="font-family:'IBM Plex Sans', Arial, sans-serif; font-size:26px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#f2a46e">CCC181 · Application Development and Emerging Technologies</p>
+  <div style="display:flex; flex-direction:column; gap:40px">
+    <h1 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:120px; font-weight:700; line-height:1.02; letter-spacing:-2px; color:#f6f4ee">User-centered<br>interface development</h1>
+    <p style="width:1400px; font-family:'IBM Plex Sans', Arial, sans-serif; font-size:36px; line-height:1.4; color:#c5cedd">Information architecture, wireframes, semantic HTML, CSS and Bootstrap, responsive design, accessibility, and interactivity with JavaScript</p>
+  </div>
+  <div style="display:flex; flex-direction:row; align-items:end; justify-content:space-between">
+    <p style="font-family:'IBM Plex Sans', Arial, sans-serif; font-size:28px; color:#c5cedd">Week 2</p>
+  </div>
+</section>
+</div>
+<div class="frame" data-notes="Eight blocks, in the order you would actually build an interface: decide what content exists and where it lives, sketch it, mark it up with meaning, style it, make it adapt to screen sizes, make it usable by everyone, and finally add behavior. The persona from Week 1 is the yardstick throughout: Ana&#x27;s budget Android phone and limited data should shape layout, page weight and interaction choices." aria-label="Slide 2">
+<section id="agenda" data-transition="fade" style="background:#F6F4EE; color:#1B2438; font-family:'IBM Plex Sans', Arial, sans-serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:36px">
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#B4501E">This week</p>
+    <h2 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:64px; font-weight:700; line-height:1.1; color:#16223A">From MVP to screens people can use</h2>
+  </div>
+  <div style="display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:18px">
+    <div style="display:flex; flex-direction:column; gap:8px; background:#FFFDF8; border:1px solid #E2DED3; border-top:6px solid #B4501E; border-radius:14px; padding:24px"><p style="font-family:'Space Grotesk', Arial, sans-serif; font-size:36px; font-weight:700; line-height:1; color:#B4501E">01</p><h3 style="font-size:28px; font-weight:600; color:#16223A">Information architecture</h3><p style="font-size:24px; line-height:1.35; color:#4A5366">Organize content and navigation</p></div>
+    <div style="display:flex; flex-direction:column; gap:8px; background:#FFFDF8; border:1px solid #E2DED3; border-top:6px solid #B4501E; border-radius:14px; padding:24px"><p style="font-family:'Space Grotesk', Arial, sans-serif; font-size:36px; font-weight:700; line-height:1; color:#B4501E">02</p><h3 style="font-size:28px; font-weight:600; color:#16223A">Wireframes</h3><p style="font-size:24px; line-height:1.35; color:#4A5366">Sketch screens before code</p></div>
+    <div style="display:flex; flex-direction:column; gap:8px; background:#FFFDF8; border:1px solid #E2DED3; border-top:6px solid #B4501E; border-radius:14px; padding:24px"><p style="font-family:'Space Grotesk', Arial, sans-serif; font-size:36px; font-weight:700; line-height:1; color:#B4501E">03</p><h3 style="font-size:28px; font-weight:600; color:#16223A">Semantic HTML</h3><p style="font-size:24px; line-height:1.35; color:#4A5366">Structure with meaning</p></div>
+    <div style="display:flex; flex-direction:column; gap:8px; background:#FFFDF8; border:1px solid #E2DED3; border-top:6px solid #B4501E; border-radius:14px; padding:24px"><p style="font-family:'Space Grotesk', Arial, sans-serif; font-size:36px; font-weight:700; line-height:1; color:#B4501E">04</p><h3 style="font-size:28px; font-weight:600; color:#16223A">CSS &amp; Bootstrap</h3><p style="font-size:24px; line-height:1.35; color:#4A5366">Style, layout, components</p></div>
+    <div style="display:flex; flex-direction:column; gap:8px; background:#FFFDF8; border:1px solid #E2DED3; border-top:6px solid #2D6F78; border-radius:14px; padding:24px"><p style="font-family:'Space Grotesk', Arial, sans-serif; font-size:36px; font-weight:700; line-height:1; color:#2D6F78">05</p><h3 style="font-size:28px; font-weight:600; color:#16223A">Responsive design</h3><p style="font-size:24px; line-height:1.35; color:#4A5366">One page, every screen size</p></div>
+    <div style="display:flex; flex-direction:column; gap:8px; background:#FFFDF8; border:1px solid #E2DED3; border-top:6px solid #2D6F78; border-radius:14px; padding:24px"><p style="font-family:'Space Grotesk', Arial, sans-serif; font-size:36px; font-weight:700; line-height:1; color:#2D6F78">06</p><h3 style="font-size:28px; font-weight:600; color:#16223A">Accessibility</h3><p style="font-size:24px; line-height:1.35; color:#4A5366">Usable by everyone</p></div>
+    <div style="display:flex; flex-direction:column; gap:8px; background:#FFFDF8; border:1px solid #E2DED3; border-top:6px solid #2D6F78; border-radius:14px; padding:24px"><p style="font-family:'Space Grotesk', Arial, sans-serif; font-size:36px; font-weight:700; line-height:1; color:#2D6F78">07</p><h3 style="font-size:28px; font-weight:600; color:#16223A">JavaScript</h3><p style="font-size:24px; line-height:1.35; color:#4A5366">Interactivity and feedback</p></div>
+    <div style="display:flex; flex-direction:column; gap:8px; background:#16223A; border-radius:14px; padding:24px"><p style="font-family:'Space Grotesk', Arial, sans-serif; font-size:36px; font-weight:700; line-height:1; color:#F2A46E">08</p><h3 style="font-size:28px; font-weight:600; color:#F6F4EE">Lab</h3><p style="font-size:24px; line-height:1.35; color:#C5CEDD">Build two MVP screens</p></div>
+  </div>
+  <p style="font-size:28px; line-height:1.4; color:#1B2438; background:#FBE9DC; padding:22px 30px; border-radius:12px"><b>Thread through the week:</b> every choice starts from your persona. Ana uses a budget phone on patchy campus Wi-Fi.</p>
+  <p style="position:absolute; left:128px; bottom:64px; width:1300px; font-size:24px; color:#5A6272">CCC181 · Week 3 · User-centered interface development</p>
+  <p style="position:absolute; right:128px; bottom:64px; width:120px; font-size:24px; color:#5A6272; text-align:right">02</p>
+</section>
+</div>
+<div class="frame" data-notes="This is the design thinking loop from Week 1 applied to interfaces. ISO 9241-210 is the international standard for human-centred design of interactive systems; its core idea is that design is based on an explicit understanding of users, tasks and environments, and is iterated with user evaluation. Ask: whose laptop has the fastest connection in the room? That is not the device to design for." aria-label="Slide 3">
+<section id="ucd" data-transition="fade" style="background:#F6F4EE; color:#1B2438; font-family:'IBM Plex Sans', Arial, sans-serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:36px">
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#B4501E">User-centered design</p>
+    <h2 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:64px; font-weight:700; line-height:1.1; color:#16223A">The interface is where requirements meet people</h2>
+  </div>
+  <div style="display:flex; flex-direction:row; align-items:center; gap:12px">
+    <div style="flex:1; display:flex; flex-direction:column; gap:8px; background:#FFFDF8; border:1px solid #E2DED3; border-radius:14px; padding:24px"><p style="font-size:24px; font-weight:700; color:#B4501E">1</p><h3 style="font-size:28px; font-weight:600">Understand</h3><p style="font-size:24px; line-height:1.35; color:#4A5366">Persona, tasks, context</p></div>
+    <x-shape kind="arrow-right" style="width:40px; height:20px; background:#B4501E"></x-shape>
+    <div style="flex:1; display:flex; flex-direction:column; gap:8px; background:#FFFDF8; border:1px solid #E2DED3; border-radius:14px; padding:24px"><p style="font-size:24px; font-weight:700; color:#B4501E">2</p><h3 style="font-size:28px; font-weight:600">Organize</h3><p style="font-size:24px; line-height:1.35; color:#4A5366">Information architecture</p></div>
+    <x-shape kind="arrow-right" style="width:40px; height:20px; background:#B4501E"></x-shape>
+    <div style="flex:1; display:flex; flex-direction:column; gap:8px; background:#FFFDF8; border:1px solid #E2DED3; border-radius:14px; padding:24px"><p style="font-size:24px; font-weight:700; color:#B4501E">3</p><h3 style="font-size:28px; font-weight:600">Sketch</h3><p style="font-size:24px; line-height:1.35; color:#4A5366">Wireframes</p></div>
+    <x-shape kind="arrow-right" style="width:40px; height:20px; background:#B4501E"></x-shape>
+    <div style="flex:1; display:flex; flex-direction:column; gap:8px; background:#FFFDF8; border:1px solid #E2DED3; border-radius:14px; padding:24px"><p style="font-size:24px; font-weight:700; color:#B4501E">4</p><h3 style="font-size:28px; font-weight:600">Build</h3><p style="font-size:24px; line-height:1.35; color:#4A5366">HTML, CSS, JS</p></div>
+    <x-shape kind="arrow-right" style="width:40px; height:20px; background:#B4501E"></x-shape>
+    <div style="flex:1; display:flex; flex-direction:column; gap:8px; background:#16223A; border-radius:14px; padding:24px"><p style="font-size:24px; font-weight:700; color:#F2A46E">5</p><h3 style="font-size:28px; font-weight:600; color:#F6F4EE">Test</h3><p style="font-size:24px; line-height:1.35; color:#C5CEDD">With real users</p></div>
+  </div>
+  <div style="display:flex; flex-direction:row; align-items:center; gap:16px; background:#ECE8DE; border-radius:12px; padding:16px 26px">
+    <x-shape kind="arrow-left" style="width:88px; height:36px; background:#5A6272"></x-shape>
+    <p style="font-size:26px; line-height:1.4">What you learn in testing loops back to every earlier step.</p>
+  </div>
+  <div style="display:flex; flex-direction:row; gap:24px">
+    <div style="flex:1; display:flex; flex-direction:column; gap:8px; background:#FFFDF8; border-left:6px solid #2D6F78; border-radius:0px 12px 12px 0px; padding:20px 26px"><h3 style="font-size:28px; font-weight:600; color:#2D6F78">Design for real conditions</h3><p style="font-size:25px; line-height:1.4">The persona's device, network and situation, not your laptop on fast Wi-Fi.</p></div>
+    <div style="flex:1; display:flex; flex-direction:column; gap:8px; background:#FFFDF8; border-left:6px solid #2D6F78; border-radius:0px 12px 12px 0px; padding:20px 26px"><h3 style="font-family:'IBM Plex Sans', Arial, sans-serif; font-size:28px; font-weight:600; color:#2D6F78">Design for the main task</h3><p style="font-size:25px; line-height:1.4">Make the Must features obvious; everything else steps back.</p></div>
+  </div>
+  <p style="position:absolute; left:128px; bottom:64px; width:1300px; font-size:24px; color:#5A6272">Human-centred design process: ISO 9241-210</p>
+  <p style="position:absolute; right:128px; bottom:64px; width:120px; font-size:24px; color:#5A6272; text-align:right">03</p>
+</section>
+</div>
+<div class="frame" data-notes="IA is invisible when it works and painful when it does not. The four systems come from the classic &quot;polar bear book&quot;. Labeling tip: use the words users used in your interviews; students say &quot;line&quot; or &quot;pila&quot;, not &quot;patient queue management&quot;. For a small MVP, search is often unnecessary; organization, labels and navigation matter most. Ask: think of your school portal. Where did you last get lost, and which of the four systems failed?" aria-label="Slide 4">
+<section id="ia-what" data-section="Information architecture: organizing content, navigation and user flows" data-transition="fade" style="background:#F6F4EE; color:#1B2438; font-family:'IBM Plex Sans', Arial, sans-serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:36px">
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#B4501E">Information architecture</p>
+    <h2 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:64px; font-weight:700; line-height:1.1; color:#16223A">What information architecture is</h2>
+  </div>
+  <div style="display:flex; flex-direction:column; gap:10px; background:#16223A; border-radius:16px; padding:30px 36px">
+    <p style="font-size:24px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:#F2A46E">Definition</p>
+    <p style="font-family:'Space Grotesk', Arial, sans-serif; font-size:34px; font-weight:500; line-height:1.35; color:#F6F4EE">The structure of an app's content: how it is grouped, named and connected, so users can find what they need and understand where they are.</p>
+  </div>
+  <div style="display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:18px">
+    <div style="display:flex; flex-direction:column; gap:10px; background:#FFFDF8; border:1px solid #E2DED3; border-radius:14px; padding:24px"><svg class="xi" style="width:36px; height:36px; color:#B4501E" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/><path d="M3 12c0 1.66 4 3 9 3s9-1.34 9-3"/></svg><h3 style="font-size:28px; font-weight:600">Organization</h3><p style="font-size:24px; line-height:1.4; color:#4A5366">How content is grouped: by task, audience, topic or time</p></div>
+    <div style="display:flex; flex-direction:column; gap:10px; background:#FFFDF8; border:1px solid #E2DED3; border-radius:14px; padding:24px"><svg class="xi" style="width:36px; height:36px; color:#B4501E" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg><h3 style="font-size:28px; font-weight:600">Labeling</h3><p style="font-size:24px; line-height:1.4; color:#4A5366">What things are called, in the users' words</p></div>
+    <div style="display:flex; flex-direction:column; gap:10px; background:#FFFDF8; border:1px solid #E2DED3; border-radius:14px; padding:24px"><svg class="xi" style="width:36px; height:36px; color:#B4501E" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg><h3 style="font-size:28px; font-weight:600">Navigation</h3><p style="font-size:24px; line-height:1.4; color:#4A5366">How users move between parts and know where they are</p></div>
+    <div style="display:flex; flex-direction:column; gap:10px; background:#FFFDF8; border:1px solid #E2DED3; border-radius:14px; padding:24px"><svg class="xi" style="width:36px; height:36px; color:#B4501E" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><h3 style="font-family:'IBM Plex Sans', Arial, sans-serif; font-size:28px; font-weight:600">Search</h3><p style="font-size:24px; line-height:1.4; color:#4A5366">How users look things up when browsing is not enough</p></div>
+  </div>
+  <p style="position:absolute; left:128px; bottom:64px; width:1300px; font-size:24px; color:#5A6272">The four systems: Rosenfeld, Morville &amp; Arango, <i>Information Architecture</i> (4th ed., 2015)</p>
+  <p style="position:absolute; right:128px; bottom:64px; width:120px; font-size:24px; color:#5A6272; text-align:right">04</p>
+</section>
+</div>
+<div class="frame" data-notes="Start with a content inventory built from your Must requirements; everything on it needs a place in the structure. An open card sort shows how users naturally group things and what they call them; a closed sort checks a structure you already proposed. A tree test checks findability with no visual design at all, which isolates the IA from the styling. Online tools exist (for example Optimal Workshop), but paper works well for a class project." aria-label="Slide 5">
+<section id="ia-methods" data-transition="fade" style="background:#F6F4EE; color:#1B2438; font-family:'IBM Plex Sans', Arial, sans-serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:36px">
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#B4501E">Information architecture</p>
+    <h2 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:64px; font-weight:700; line-height:1.1; color:#16223A">Methods for building an IA</h2>
+  </div>
+  <table style="font-size:26px; color:#1B2438; font-family:'IBM Plex Sans', Arial, sans-serif; background:#FFFDF8; border:1px solid #E2DED3">
+    <tr style="background:#16223A"><th style="width:24%; color:#F6F4EE">Method</th><th style="width:42%; color:#F6F4EE">How it works</th><th style="width:34%; color:#F6F4EE">What you get</th></tr>
+    <tr><td><b>Content inventory</b></td><td>List every piece of content and feature the MVP needs</td><td>What must have a home</td></tr>
+    <tr style="background:#F1EEE6"><td><b>Open card sort</b></td><td>Users group cards and name the groups themselves</td><td>Users' mental model and labels</td></tr>
+    <tr><td><b>Closed card sort</b></td><td>Users place cards into categories you defined</td><td>Whether your groups make sense</td></tr>
+    <tr style="background:#F1EEE6"><td><b>Tree test</b></td><td>Users find items in a text-only menu tree</td><td>Whether navigation works, before any design</td></tr>
+    <tr><td><b>User flow</b></td><td>Map the steps a user takes to finish one task</td><td>Screens needed, and where users could stall</td></tr>
+  </table>
+  <p style="font-size:26px; line-height:1.4; color:#1B2438; background:#E3EFF0; padding:20px 28px; border-radius:12px"><b>Low-cost version:</b> index cards or sticky notes and five classmates are enough for a card sort.</p>
+  <p style="position:absolute; left:128px; bottom:64px; width:1300px; font-size:24px; color:#5A6272">CCC181 · Week 3 · User-centered interface development</p>
+  <p style="position:absolute; right:128px; bottom:64px; width:120px; font-size:24px; color:#5A6272; text-align:right">05</p>
+</section>
+</div>
+<div class="frame" data-notes="A sitemap shows the structure: every page and how it nests. A user flow shows one task as a sequence of steps. Together they tell you which screens to wireframe and which Flask routes to create. Notice the Must features sit one tap from Home, and the staff area is separate because it has a different user. Count the steps in the flow: every extra step is a chance for Ana to give up. Could &quot;reason for visit&quot; be optional to shorten the flow? That is a real design trade-off with the clinic&#x27;s organizational need for data." aria-label="Slide 6">
+<section id="sitemap" data-transition="fade" style="background:#F6F4EE; color:#1B2438; font-family:'IBM Plex Sans', Arial, sans-serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:28px">
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#B4501E">Information architecture</p>
+    <h2 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:64px; font-weight:700; line-height:1.1; color:#16223A">ClinicQ: sitemap and user flow</h2>
+  </div>
+  <div style="display:flex; flex-direction:column; gap:14px; background:#FFFDF8; border:1px solid #E2DED3; border-radius:16px; padding:26px 30px">
+    <p style="font-size:24px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:#B4501E">Sitemap</p>
+    <div style="display:flex; flex-direction:row; justify-content:center">
+      <p style="font-size:26px; font-weight:700; color:#F6F4EE; background:#16223A; padding:12px 32px; border-radius:10px">Home</p>
+    </div>
+    <div style="display:flex; flex-direction:row; justify-content:center"><x-shape kind="arrow-down" style="width:24px; height:28px; background:#8A8F99"></x-shape></div>
+    <div style="display:flex; flex-direction:row; gap:16px">
+      <div style="flex:1; display:flex; flex-direction:column; gap:6px; background:#FBE9DC; border-radius:10px; padding:14px 18px"><p style="font-size:25px; font-weight:700">Join the queue</p><p style="font-size:24px; color:#4A5366">/join</p></div>
+      <div style="flex:1; display:flex; flex-direction:column; gap:6px; background:#FBE9DC; border-radius:10px; padding:14px 18px"><p style="font-size:25px; font-weight:700">My place</p><p style="font-size:24px; color:#4A5366">/queue/&lt;id&gt;</p></div>
+      <div style="flex:1; display:flex; flex-direction:column; gap:6px; background:#ECE8DE; border-radius:10px; padding:14px 18px"><p style="font-size:25px; font-weight:700">Clinic info</p><p style="font-size:24px; color:#4A5366">/about</p></div>
+      <div style="flex:1; display:flex; flex-direction:column; gap:6px; background:#E3EFF0; border-radius:10px; padding:14px 18px"><p style="font-size:25px; font-weight:700">Staff dashboard</p><p style="font-size:24px; color:#4A5366">/staff (login)</p></div>
+    </div>
+  </div>
+  <div style="display:flex; flex-direction:column; gap:14px">
+    <p style="font-size:24px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:#2D6F78">User flow: “join the queue”</p>
+    <div style="display:flex; flex-direction:row; align-items:center; gap:10px">
+      <p style="flex:1; font-size:25px; line-height:1.3; background:#FFFDF8; border:1px solid #E2DED3; padding:14px 16px; border-radius:10px">Open link</p>
+      <x-shape kind="arrow-right" style="width:32px; height:16px; background:#2D6F78"></x-shape>
+      <p style="flex:1; font-size:25px; line-height:1.3; background:#FFFDF8; border:1px solid #E2DED3; padding:14px 16px; border-radius:10px">Sign in</p>
+      <x-shape kind="arrow-right" style="width:32px; height:16px; background:#2D6F78"></x-shape>
+      <p style="flex:1; font-size:25px; line-height:1.3; background:#FFFDF8; border:1px solid #E2DED3; padding:14px 16px; border-radius:10px">Reason for visit</p>
+      <x-shape kind="arrow-right" style="width:32px; height:16px; background:#2D6F78"></x-shape>
+      <p style="flex:1; font-size:25px; line-height:1.3; background:#FFFDF8; border:1px solid #E2DED3; padding:14px 16px; border-radius:10px">See position</p>
+      <x-shape kind="arrow-right" style="width:32px; height:16px; background:#2D6F78"></x-shape>
+      <p style="flex:1; font-size:25px; line-height:1.3; background:#16223A; color:#F6F4EE; padding:14px 16px; border-radius:10px">Get alert, go</p>
+    </div>
+  </div>
+  <p style="position:absolute; left:128px; bottom:64px; width:1300px; font-size:24px; color:#5A6272">Orange: Must features · gray: supporting page · teal: secondary users</p>
+  <p style="position:absolute; right:128px; bottom:64px; width:120px; font-size:24px; color:#5A6272; text-align:right">06</p>
+</section>
+</div>
+<div class="frame" data-notes="Wireframes separate structure decisions from visual decisions. Low-fidelity sketches invite honest feedback because nobody is attached to them; people criticize a polished mockup&#x27;s colors instead of its layout. Suggest sketching at least three different layouts for the main screen before choosing one. Figma has free education plans; Penpot and Excalidraw are free and open source." aria-label="Slide 7">
+<section id="fidelity" data-section="Wireframes: fidelity levels and mapping screens to Flask routes" data-transition="fade" style="background:#F6F4EE; color:#1B2438; font-family:'IBM Plex Sans', Arial, sans-serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:36px">
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#B4501E">Wireframes</p>
+    <h2 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:64px; font-weight:700; line-height:1.1; color:#16223A">Wireframes and levels of fidelity</h2>
+  </div>
+  <p style="font-size:28px; line-height:1.45">A <b>wireframe</b> is a simplified sketch of a screen that shows layout, content and hierarchy, without final colors or styling.</p>
+  <div style="display:flex; flex-direction:row; gap:24px">
+    <div style="flex:1; display:flex; flex-direction:column; gap:12px; background:#FFFDF8; border:2px dashed #8A8F99; border-radius:16px; padding:28px">
+      <h3 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:32px; font-weight:700; color:#5A6272">Low fidelity</h3>
+      <p style="font-size:25px; line-height:1.4">Paper or whiteboard boxes. Minutes to make, easy to throw away.</p>
+      <p style="font-size:24px; line-height:1.4; color:#2D6F78"><b>Use for:</b> exploring many layouts</p>
+      <p style="font-size:24px; color:#5A6272">Paper, Excalidraw</p>
+    </div>
+    <div style="flex:1; display:flex; flex-direction:column; gap:12px; background:#FFFDF8; border:2px solid #8A8F99; border-radius:16px; padding:28px">
+      <h3 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:32px; font-weight:700; color:#16223A">Mid fidelity</h3>
+      <p style="font-size:25px; line-height:1.4">Digital grayscale layout with real labels and content.</p>
+      <p style="font-size:24px; line-height:1.4; color:#2D6F78"><b>Use for:</b> agreeing on structure</p>
+      <p style="font-size:24px; color:#5A6272">Figma, Balsamiq, Penpot</p>
+    </div>
+    <div style="flex:1; display:flex; flex-direction:column; gap:12px; background:#16223A; border-radius:16px; padding:28px">
+      <h3 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:32px; font-weight:700; color:#F2A46E">High fidelity</h3>
+      <p style="font-size:25px; line-height:1.4; color:#F6F4EE">Final look: color, type, images; often clickable.</p>
+      <p style="font-size:24px; line-height:1.4; color:#9FD3D9"><b>Use for:</b> usability tests, handoff</p>
+      <p style="font-size:24px; color:#C5CEDD">Figma prototypes</p>
+    </div>
+  </div>
+  <p style="font-size:26px; line-height:1.4; background:#FBE9DC; padding:20px 28px; border-radius:12px"><b>Rule of thumb:</b> the less sure you are, the lower the fidelity. Do not polish a layout you have not tested.</p>
+  <p style="position:absolute; left:128px; bottom:64px; width:1300px; font-size:24px; color:#5A6272">CCC181 · Week 3 · User-centered interface development</p>
+  <p style="position:absolute; right:128px; bottom:64px; width:120px; font-size:24px; color:#5A6272; text-align:right">07</p>
+</section>
+</div>
+<div class="frame" data-notes="An annotated mid-fidelity wireframe of the most important ClinicQ screen. Walk through the numbered annotations: each one ties back to a pain point or requirement from Week 1 (unknown queue length, needs to wait in class, spotty Wi-Fi). Annotations are what turn a sketch into a design decision others can review. Point out that the phone view comes first because that is the persona&#x27;s device; the desktop layout is an adaptation, not the original." aria-label="Slide 8">
+<section id="wireframe" data-transition="fade" style="background:#F6F4EE; color:#1B2438; font-family:'IBM Plex Sans', Arial, sans-serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:28px">
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#B4501E">Wireframes</p>
+    <h2 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:64px; font-weight:700; line-height:1.1; color:#16223A">Example: the “My place” screen</h2>
+  </div>
+  <div style="display:flex; flex-direction:row; gap:48px; align-items:start">
+    <div style="width:400px; display:flex; flex-direction:column; gap:14px; background:#FFFDF8; border:6px solid #1B2438; border-radius:36px; padding:22px 20px">
+      <div style="display:flex; flex-direction:row; justify-content:space-between; align-items:center; background:#D9D6CE; border-radius:8px; padding:10px 16px"><p style="font-size:24px; font-weight:700">ClinicQ</p><p style="font-size:24px; font-weight:700">☰</p></div>
+      <div style="display:flex; flex-direction:column; align-items:center; gap:4px; border:2px dashed #8A8F99; border-radius:10px; padding:18px"><p style="font-size:24px; color:#4A5366">Your place in line</p><p style="font-family:'Space Grotesk', Arial, sans-serif; font-size:96px; font-weight:700; line-height:1">4</p><p style="font-size:24px; color:#4A5366">about 20 min</p></div>
+      <div style="background:#D9D6CE; border-radius:8px; padding:10px 16px"><p style="font-size:24px">Ticket #12 · Consultation</p></div>
+      <p style="font-size:24px; font-weight:700; text-align:center; background:#8A8F99; color:#FFFDF8; padding:14px; border-radius:8px">Leave the queue</p>
+      <p style="font-size:24px; text-align:center; color:#4A5366">Updated just now</p>
+    </div>
+    <div style="flex:1; display:flex; flex-direction:column; gap:16px">
+      <div style="display:flex; flex-direction:row; gap:18px; align-items:start"><p style="font-family:'Space Grotesk', Arial, sans-serif; font-size:30px; font-weight:700; color:#FBF3EA; background:#B4501E; padding:2px 16px; border-radius:999px">1</p><p style="flex:1; font-size:26px; line-height:1.4"><b>One big number.</b> The position is the answer to the user's only question.</p></div>
+      <div style="display:flex; flex-direction:row; gap:18px; align-items:start"><p style="font-family:'Space Grotesk', Arial, sans-serif; font-size:30px; font-weight:700; color:#FBF3EA; background:#B4501E; padding:2px 16px; border-radius:999px">2</p><p style="flex:1; font-size:26px; line-height:1.4"><b>Estimated wait</b> in plain words, next to the number.</p></div>
+      <div style="display:flex; flex-direction:row; gap:18px; align-items:start"><p style="font-family:'Space Grotesk', Arial, sans-serif; font-size:30px; font-weight:700; color:#FBF3EA; background:#B4501E; padding:2px 16px; border-radius:999px">3</p><p style="flex:1; font-size:26px; line-height:1.4"><b>One action</b>, placed within thumb reach.</p></div>
+      <div style="display:flex; flex-direction:row; gap:18px; align-items:start"><p style="font-family:'Space Grotesk', Arial, sans-serif; font-size:30px; font-weight:700; color:#FBF3EA; background:#B4501E; padding:2px 16px; border-radius:999px">4</p><p style="flex:1; font-size:26px; line-height:1.4"><b>Freshness cue</b> so users trust the number on patchy Wi-Fi.</p></div>
+      <p style="font-size:24px; line-height:1.4; color:#4A5366; background:#ECE8DE; padding:16px 22px; border-radius:10px">Grayscale on purpose: layout and hierarchy first, colors later. Draw the phone view first.</p>
+    </div>
+  </div>
+  <p style="position:absolute; left:128px; bottom:64px; width:1300px; font-size:24px; color:#5A6272">CCC181 · Week 3 · User-centered interface development</p>
+  <p style="position:absolute; right:128px; bottom:64px; width:120px; font-size:24px; color:#5A6272; text-align:right">08</p>
+</section>
+</div>
+<div class="frame" data-notes="This slide links the design work to last week&#x27;s Flask foundations. The sitemap gives the routes; the wireframes give the template contents; the requirement IDs trace each screen back to the milestone. Build order follows priority: Must screens first. The shared layout, navigation and footer go in base.html so they are written once. Students should keep this table in their README as a living map of the app." aria-label="Slide 9">
+<section id="screens-routes" data-transition="fade" style="background:#F6F4EE; color:#1B2438; font-family:'IBM Plex Sans', Arial, sans-serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:36px">
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#B4501E">Wireframes</p>
+    <h2 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:64px; font-weight:700; line-height:1.1; color:#16223A">From wireframes to Flask routes and templates</h2>
+  </div>
+  <table style="font-size:25px; color:#1B2438; font-family:'IBM Plex Sans', Arial, sans-serif; background:#FFFDF8; border:1px solid #E2DED3">
+    <tr style="background:#16223A"><th style="width:22%; color:#F6F4EE">Screen</th><th style="width:26%; color:#F6F4EE">Route</th><th style="width:26%; color:#F6F4EE">Template</th><th style="width:26%; color:#F6F4EE">Requirement</th></tr>
+    <tr><td><b>Home</b></td><td style="font-family:'JetBrains Mono', 'Courier New', monospace">/</td><td style="font-family:'JetBrains Mono', 'Courier New', monospace">index.html</td><td>Entry point</td></tr>
+    <tr style="background:#F1EEE6"><td><b>Join the queue</b></td><td style="font-family:'JetBrains Mono', 'Courier New', monospace">/join</td><td style="font-family:'JetBrains Mono', 'Courier New', monospace">join.html</td><td>FR-01 · Must</td></tr>
+    <tr><td><b>My place</b></td><td style="font-family:'JetBrains Mono', 'Courier New', monospace">/queue/&lt;int:id&gt;</td><td style="font-family:'JetBrains Mono', 'Courier New', monospace">queue.html</td><td>FR-02 · Must</td></tr>
+    <tr style="background:#F1EEE6"><td><b>Staff dashboard</b></td><td style="font-family:'JetBrains Mono', 'Courier New', monospace">/staff</td><td style="font-family:'JetBrains Mono', 'Courier New', monospace">staff.html</td><td>FR-03 · Should</td></tr>
+    <tr><td><b>Shared layout</b></td><td>(every page)</td><td style="font-family:'JetBrains Mono', 'Courier New', monospace">base.html</td><td>Navigation, footer</td></tr>
+  </table>
+  <p style="font-size:27px; line-height:1.45; background:#E3EFF0; padding:20px 28px; border-radius:12px">Each screen in your wireframes becomes a route and a template that <b>extends base.html</b>. Anything repeated on every screen belongs in base.html.</p>
+  <p style="position:absolute; left:128px; bottom:64px; width:1300px; font-size:24px; color:#5A6272">CCC181 · Week 3 · User-centered interface development</p>
+  <p style="position:absolute; right:128px; bottom:64px; width:120px; font-size:24px; color:#5A6272; text-align:right">09</p>
+</section>
+</div>
+<div class="frame" data-notes="Both versions can be styled to look identical, but only the right one tells the browser, assistive technology and other developers what each part is. The clickable div is the classic mistake: it cannot be reached with the Tab key, does not respond to Enter or Space, and a screen reader does not announce it as a button. Rebuilding all that by hand takes tabindex, a role and key handlers; a real button gives it for free. Rule: use the element whose meaning matches the content, then style it." aria-label="Slide 10">
+<section id="semantic" data-section="Semantic HTML: meaningful structure, landmarks and forms" data-transition="fade" style="background:#F6F4EE; color:#1B2438; font-family:'IBM Plex Sans', Arial, sans-serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:32px">
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#B4501E">Semantic HTML</p>
+    <h2 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:64px; font-weight:700; line-height:1.1; color:#16223A">Semantic HTML: elements that say what they are</h2>
+  </div>
+  <div style="display:flex; flex-direction:row; gap:28px">
+    <div style="flex:1; display:flex; flex-direction:column; gap:12px">
+      <p style="font-size:26px; font-weight:700; color:#8A3A14">“Div soup”</p>
+      <div style="background:#16223A; border-radius:14px; padding:24px 28px">
+        <p style="font-family:'JetBrains Mono', 'Courier New', monospace; font-size:24px; line-height:1.55; color:#E6EAF2">&lt;div class="top"&gt;<br>&#160;&#160;&lt;div class="links"&gt;…&lt;/div&gt;<br>&lt;/div&gt;<br>&lt;div class="big"&gt;Your place&lt;/div&gt;<br>&lt;div onclick="leave()"&gt;<br>&#160;&#160;Leave<br>&lt;/div&gt;</p>
+      </div>
+    </div>
+    <div style="flex:1; display:flex; flex-direction:column; gap:12px">
+      <p style="font-size:26px; font-weight:700; color:#1F5058">Semantic</p>
+      <div style="background:#16223A; border-radius:14px; padding:24px 28px">
+        <p style="font-family:'JetBrains Mono', 'Courier New', monospace; font-size:24px; line-height:1.55; color:#E6EAF2"><span style="color:#9FD3D9">&lt;header&gt;</span><br>&#160;&#160;<span style="color:#9FD3D9">&lt;nav&gt;</span>…<span style="color:#9FD3D9">&lt;/nav&gt;</span><br><span style="color:#9FD3D9">&lt;/header&gt;</span><br><span style="color:#9FD3D9">&lt;h1&gt;</span>Your place<span style="color:#9FD3D9">&lt;/h1&gt;</span><br><span style="color:#9FD3D9">&lt;button type="button"&gt;</span><br>&#160;&#160;Leave<br><span style="color:#9FD3D9">&lt;/button&gt;</span></p>
+      </div>
+    </div>
+  </div>
+  <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:18px">
+    <div style="display:flex; flex-direction:column; gap:6px; background:#FFFDF8; border:1px solid #E2DED3; border-radius:12px; padding:20px 24px"><h3 style="font-size:27px; font-weight:600; color:#2D6F78">Accessibility</h3><p style="font-size:24px; line-height:1.4">Screen readers announce landmarks, headings and buttons</p></div>
+    <div style="display:flex; flex-direction:column; gap:6px; background:#FFFDF8; border:1px solid #E2DED3; border-radius:12px; padding:20px 24px"><h3 style="font-size:27px; font-weight:600; color:#2D6F78">Free behavior</h3><p style="font-size:24px; line-height:1.4">A button is focusable and works with Enter and Space</p></div>
+    <div style="display:flex; flex-direction:column; gap:6px; background:#FFFDF8; border:1px solid #E2DED3; border-radius:12px; padding:20px 24px"><h3 style="font-size:27px; font-weight:600; color:#2D6F78">Maintainable</h3><p style="font-size:24px; line-height:1.4">Code reads like its structure; search engines understand it too</p></div>
+  </div>
+  <p style="position:absolute; left:128px; bottom:64px; width:1300px; font-size:24px; color:#5A6272">CCC181 · Week 3 · User-centered interface development</p>
+  <p style="position:absolute; right:128px; bottom:64px; width:120px; font-size:24px; color:#5A6272; text-align:right">10</p>
+</section>
+</div>
+<div class="frame" data-notes="Landmarks let screen-reader users jump straight to the navigation or the main content, the way sighted users glance at a page. Headings work as a table of contents: many screen-reader users navigate by heading first. Skipping levels (h1 to h4) or choosing h3 because it looks the right size breaks that outline; control size with CSS instead. In Flask, header, nav and footer live in base.html; main contains the block that each page fills." aria-label="Slide 11">
+<section id="landmarks" data-transition="fade" style="background:#F6F4EE; color:#1B2438; font-family:'IBM Plex Sans', Arial, sans-serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:32px">
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#B4501E">Semantic HTML</p>
+    <h2 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:64px; font-weight:700; line-height:1.1; color:#16223A">Page landmarks and headings</h2>
+  </div>
+  <div style="display:flex; flex-direction:row; gap:36px">
+    <div style="flex:1.1; display:flex; flex-direction:column; gap:10px">
+      <div style="display:flex; flex-direction:column; gap:8px; background:#16223A; border-radius:10px; padding:14px 20px"><p style="font-family:'JetBrains Mono', 'Courier New', monospace; font-size:24px; font-weight:700; color:#F2A46E">&lt;header&gt;</p><p style="font-family:'JetBrains Mono', 'Courier New', monospace; font-size:24px; color:#E6EAF2; background:#22304C; padding:6px 14px; border-radius:6px">&lt;nav&gt;</p></div>
+      <div style="display:flex; flex-direction:row; gap:10px">
+        <div style="flex:3; display:flex; flex-direction:column; gap:8px; background:#FBE9DC; border-radius:10px; padding:14px 20px"><p style="font-family:'JetBrains Mono', 'Courier New', monospace; font-size:24px; font-weight:700; color:#8A3A14">&lt;main&gt;</p><p style="font-family:'JetBrains Mono', 'Courier New', monospace; font-size:24px; background:#FFFDF8; padding:6px 14px; border-radius:6px">&lt;h1&gt;</p><p style="font-family:'JetBrains Mono', 'Courier New', monospace; font-size:24px; background:#FFFDF8; padding:6px 14px; border-radius:6px">&lt;section&gt; &lt;h2&gt;</p><p style="font-family:'JetBrains Mono', 'Courier New', monospace; font-size:24px; background:#FFFDF8; padding:6px 14px; border-radius:6px">&lt;article&gt;</p></div>
+        <div style="flex:1.4; display:flex; flex-direction:column; gap:8px; background:#E3EFF0; border-radius:10px; padding:14px 20px"><p style="font-family:'JetBrains Mono', 'Courier New', monospace; font-size:24px; font-weight:700; color:#1F5058">&lt;aside&gt;</p></div>
+      </div>
+      <div style="background:#16223A; border-radius:10px; padding:14px 20px"><p style="font-family:'JetBrains Mono', 'Courier New', monospace; font-size:24px; font-weight:700; color:#F2A46E">&lt;footer&gt;</p></div>
+    </div>
+    <div style="flex:1; display:flex; flex-direction:column; gap:12px">
+      <p style="font-size:25px; line-height:1.4"><b>header / footer:</b> site identity and closing info</p>
+      <p style="font-size:25px; line-height:1.4"><b>nav:</b> main navigation links</p>
+      <p style="font-size:25px; line-height:1.4"><b>main:</b> the page's unique content; one per page</p>
+      <p style="font-size:25px; line-height:1.4"><b>section / article:</b> themed groups; standalone items</p>
+      <p style="font-size:25px; line-height:1.4"><b>aside:</b> related but secondary content</p>
+      <p style="font-size:25px; line-height:1.4; background:#FBE9DC; padding:14px 20px; border-radius:10px"><b>Headings:</b> one h1 per page, then h2, h3 in order. Never pick a heading for its size.</p>
+    </div>
+  </div>
+  <p style="position:absolute; left:128px; bottom:64px; width:1300px; font-size:24px; color:#5A6272">CCC181 · Week 3 · User-centered interface development</p>
+  <p style="position:absolute; right:128px; bottom:64px; width:120px; font-size:24px; color:#5A6272; text-align:right">11</p>
+</section>
+</div>
+<div class="frame" data-notes="Forms are where most usability and accessibility problems concentrate. Each point here costs nothing to implement. type=&quot;email&quot; brings up the @ keyboard on Ana&#x27;s phone and gives basic validation; autocomplete lets the browser fill it in. The name attribute is what Flask reads: request.form[&quot;email&quot;]. Placeholder-only fields fail users who forget what the field was for after typing, and low-contrast placeholder text is often unreadable. Remind students the form&#x27;s action and method must match a Flask route with methods=[&quot;GET&quot;, &quot;POST&quot;]." aria-label="Slide 12">
+<section id="forms" data-transition="fade" style="background:#F6F4EE; color:#1B2438; font-family:'IBM Plex Sans', Arial, sans-serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:32px">
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#B4501E">Semantic HTML</p>
+    <h2 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:64px; font-weight:700; line-height:1.1; color:#16223A">Accessible forms</h2>
+  </div>
+  <div style="display:flex; flex-direction:row; gap:32px">
+    <div style="flex:1.35; background:#16223A; border-radius:16px; padding:26px 30px">
+      <p style="font-family:'JetBrains Mono', 'Courier New', monospace; font-size:24px; line-height:1.5; color:#E6EAF2">&lt;form method="post" action="/join"&gt;<br>&#160;&#160;<span style="color:#F2A46E">&lt;label for="email"&gt;</span>School email<span style="color:#F2A46E">&lt;/label&gt;</span><br>&#160;&#160;&lt;input id="email" name="email"<br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span style="color:#9FD3D9">type="email"</span> <span style="color:#9FD3D9">required</span><br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;autocomplete="email"&gt;<br><br>&#160;&#160;<span style="color:#F2A46E">&lt;label for="reason"&gt;</span>Reason for visit<span style="color:#F2A46E">&lt;/label&gt;</span><br>&#160;&#160;&lt;select id="reason" name="reason"&gt;…&lt;/select&gt;<br><br>&#160;&#160;&lt;button <span style="color:#9FD3D9">type="submit"</span>&gt;Join the queue&lt;/button&gt;<br>&lt;/form&gt;</p>
+    </div>
+    <div style="flex:1; display:flex; flex-direction:column; gap:14px">
+      <div style="display:flex; flex-direction:row; gap:14px; align-items:start"><svg class="xi" style="width:30px; height:30px; color:#2D6F78" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><p style="font-size:25px; line-height:1.4"><b>label for = input id:</b> read aloud, and tapping the label focuses the field</p></div>
+      <div style="display:flex; flex-direction:row; gap:14px; align-items:start"><svg class="xi" style="width:30px; height:30px; color:#2D6F78" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><p style="font-size:25px; line-height:1.4"><b>Input types</b> (email, tel, number, date) show the right phone keyboard</p></div>
+      <div style="display:flex; flex-direction:row; gap:14px; align-items:start"><svg class="xi" style="width:30px; height:30px; color:#2D6F78" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><p style="font-size:25px; line-height:1.4"><b>required, autocomplete</b>: built-in checks and autofill</p></div>
+      <div style="display:flex; flex-direction:row; gap:14px; align-items:start"><svg class="xi" style="width:30px; height:30px; color:#2D6F78" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><p style="font-size:25px; line-height:1.4"><b>A real submit button</b>, so Enter submits the form</p></div>
+      <p style="font-size:24px; line-height:1.4; background:#FBE9DC; padding:14px 20px; border-radius:10px">A placeholder is not a label: it disappears when you type.</p>
+    </div>
+  </div>
+  <p style="position:absolute; left:128px; bottom:64px; width:1300px; font-size:24px; color:#5A6272">CCC181 · Week 3 · User-centered interface development</p>
+  <p style="position:absolute; right:128px; bottom:64px; width:120px; font-size:24px; color:#5A6272; text-align:right">12</p>
+</section>
+</div>
+<div class="frame" data-notes="Two ideas explain most CSS confusion. First, the box model: content, then padding, border and margin around it. By default, width applies to the content only, so padding and border make boxes bigger than expected; border-box fixes that, and Bootstrap sets it globally. Second, the cascade: when two rules target the same element, higher specificity wins, and at equal specificity the later rule wins. Classes keep specificity low and predictable, which matters when you override Bootstrap&#x27;s styles with your own stylesheet loaded after it." aria-label="Slide 13">
+<section id="css-basics" data-section="CSS fundamentals and Bootstrap 5" data-transition="fade" style="background:#F6F4EE; color:#1B2438; font-family:'IBM Plex Sans', Arial, sans-serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:32px">
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#B4501E">CSS</p>
+    <h2 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:64px; font-weight:700; line-height:1.1; color:#16223A">CSS fundamentals: the box model and the cascade</h2>
+  </div>
+  <div style="display:flex; flex-direction:row; gap:32px">
+    <div style="flex:1; display:flex; flex-direction:column; gap:12px">
+      <h3 style="font-size:28px; font-weight:600; color:#16223A">Every element is a box</h3>
+      <div style="display:flex; flex-direction:column; gap:8px; border:3px dashed #8A8F99; border-radius:10px; padding:16px 20px">
+        <p style="font-size:24px; font-weight:700; color:#5A6272">margin</p>
+        <div style="display:flex; flex-direction:column; gap:8px; border:6px solid #B4501E; border-radius:8px; padding:12px 18px">
+          <p style="font-size:24px; font-weight:700; color:#B4501E">border</p>
+          <div style="display:flex; flex-direction:column; gap:8px; background:#E3EFF0; border-radius:6px; padding:12px 18px">
+            <p style="font-size:24px; font-weight:700; color:#1F5058">padding</p>
+            <p style="font-size:24px; font-weight:700; text-align:center; background:#16223A; color:#F6F4EE; padding:14px; border-radius:6px">content</p>
+          </div>
+        </div>
+      </div>
+      <p style="font-size:24px; line-height:1.4; color:#4A5366">Tip: <b>box-sizing: border-box</b> makes width include padding and border.</p>
+    </div>
+    <div style="flex:1; display:flex; flex-direction:column; gap:12px">
+      <h3 style="font-size:28px; font-weight:600; color:#16223A">When rules conflict, which wins?</h3>
+      <table style="font-size:24px; color:#1B2438; background:#FFFDF8; border:1px solid #E2DED3">
+        <tr style="background:#16223A"><th style="width:52%; color:#F6F4EE">Selector</th><th style="width:48%; color:#F6F4EE">Specificity</th></tr>
+        <tr><td style="font-family:'JetBrains Mono', 'Courier New', monospace">p</td><td>low (element)</td></tr>
+        <tr style="background:#F1EEE6"><td style="font-family:'JetBrains Mono', 'Courier New', monospace">.position</td><td>medium (class)</td></tr>
+        <tr><td style="font-family:'JetBrains Mono', 'Courier New', monospace">#ticket</td><td>high (id)</td></tr>
+        <tr style="background:#F1EEE6"><td style="font-family:'JetBrains Mono', 'Courier New', monospace">style="…"</td><td>highest (inline)</td></tr>
+      </table>
+      <p style="font-size:24px; line-height:1.4">Equal specificity? The <b>later rule wins</b>. That is the “cascade”.</p>
+      <p style="font-size:24px; line-height:1.4; background:#FBE9DC; padding:14px 20px; border-radius:10px">Style with classes. Avoid ids, inline styles and <b>!important</b>.</p>
+    </div>
+  </div>
+  <p style="position:absolute; left:128px; bottom:64px; width:1300px; font-size:24px; color:#5A6272">CCC181 · Week 3 · User-centered interface development</p>
+  <p style="position:absolute; right:128px; bottom:64px; width:120px; font-size:24px; color:#5A6272; text-align:right">13</p>
+</section>
+</div>
+<div class="frame" data-notes="Modern CSS layout comes down to these two tools; floats and tables for layout are obsolete. Flexbox arranges items along one axis and distributes space between them. Grid defines rows and columns together. The grid example is worth pausing on: repeat(auto-fit, minmax(12rem, 1fr)) makes as many columns as fit, each at least 12rem wide, so the layout becomes responsive without a single media query. Use rem units for spacing and type so layouts respect the user&#x27;s browser font-size setting." aria-label="Slide 14">
+<section id="css-layout" data-transition="fade" style="background:#F6F4EE; color:#1B2438; font-family:'IBM Plex Sans', Arial, sans-serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:32px">
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#B4501E">CSS</p>
+    <h2 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:64px; font-weight:700; line-height:1.1; color:#16223A">Layout with Flexbox and Grid</h2>
+  </div>
+  <div style="display:flex; flex-direction:row; gap:32px">
+    <div style="flex:1; display:flex; flex-direction:column; gap:14px">
+      <h3 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:32px; font-weight:700; color:#B4501E">Flexbox: one direction</h3>
+      <div style="display:flex; flex-direction:row; gap:10px; background:#FFFDF8; border:1px solid #E2DED3; border-radius:12px; padding:16px">
+        <p style="font-size:24px; background:#FBE9DC; padding:12px 18px; border-radius:8px">Logo</p><div style="flex:1"></div><p style="font-size:24px; background:#FBE9DC; padding:12px 18px; border-radius:8px">Queue</p><p style="font-size:24px; background:#FBE9DC; padding:12px 18px; border-radius:8px">About</p>
+      </div>
+      <div style="background:#16223A; border-radius:14px; padding:22px 26px">
+        <p style="font-family:'JetBrains Mono', 'Courier New', monospace; font-size:24px; line-height:1.5; color:#E6EAF2">.navbar {<br>&#160;&#160;display: flex;<br>&#160;&#160;justify-content: space-between;<br>&#160;&#160;align-items: center;<br>&#160;&#160;gap: 1rem;<br>}</p>
+      </div>
+      <p style="font-size:24px; line-height:1.4; color:#4A5366">Rows or columns of items: navbars, toolbars, button groups.</p>
+    </div>
+    <div style="flex:1; display:flex; flex-direction:column; gap:14px">
+      <h3 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:32px; font-weight:700; color:#2D6F78">Grid: two directions</h3>
+      <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; background:#FFFDF8; border:1px solid #E2DED3; border-radius:12px; padding:16px">
+        <p style="font-size:24px; background:#E3EFF0; padding:12px 18px; border-radius:8px">#12</p><p style="font-size:24px; background:#E3EFF0; padding:12px 18px; border-radius:8px">#13</p><p style="font-size:24px; background:#E3EFF0; padding:12px 18px; border-radius:8px">#14</p>
+      </div>
+      <div style="background:#16223A; border-radius:14px; padding:22px 26px">
+        <p style="font-family:'JetBrains Mono', 'Courier New', monospace; font-size:24px; line-height:1.5; color:#E6EAF2">.tickets {<br>&#160;&#160;display: grid;<br>&#160;&#160;grid-template-columns:<br>&#160;&#160;&#160;&#160;repeat(auto-fit, minmax(12rem, 1fr));<br>&#160;&#160;gap: 1rem;<br>}</p>
+      </div>
+      <p style="font-size:24px; line-height:1.4; color:#4A5366">Rows and columns at once: dashboards, card layouts.</p>
+    </div>
+  </div>
+  <p style="position:absolute; left:128px; bottom:64px; width:1300px; font-size:24px; color:#5A6272">CCC181 · Week 3 · User-centered interface development</p>
+  <p style="position:absolute; right:128px; bottom:64px; width:120px; font-size:24px; color:#5A6272; text-align:right">14</p>
+</section>
+</div>
+<div class="frame" data-notes="CSS custom properties (variables) are the simplest form of a design system: a small set of named decisions reused everywhere. They keep a student project visually consistent and make re-theming trivial. Bootstrap 5.3 is built on CSS variables, for example --bs-primary and --bs-body-font-family, so students can customize it without Sass. Load style.css after Bootstrap in base.html so your rules win at equal specificity." aria-label="Slide 15">
+<section id="css-tokens" data-transition="fade" style="background:#F6F4EE; color:#1B2438; font-family:'IBM Plex Sans', Arial, sans-serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:32px">
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#B4501E">CSS</p>
+    <h2 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:64px; font-weight:700; line-height:1.1; color:#16223A">Consistency with custom properties</h2>
+  </div>
+  <div style="display:flex; flex-direction:row; gap:32px">
+    <div style="flex:1.2; display:flex; flex-direction:column; gap:12px">
+      <p style="font-family:'JetBrains Mono', 'Courier New', monospace; font-size:24px; font-weight:700; color:#5A6272">static/css/style.css</p>
+      <div style="background:#16223A; border-radius:16px; padding:26px 30px">
+        <p style="font-family:'JetBrains Mono', 'Courier New', monospace; font-size:24px; line-height:1.5; color:#E6EAF2"><span style="color:#F2A46E">:root</span> {<br>&#160;&#160;--brand: #2d6f78;<br>&#160;&#160;--text: #1b2438;<br>&#160;&#160;--radius: 0.75rem;<br>&#160;&#160;--space: 1rem;<br>}<br><br><span style="color:#F2A46E">.position</span> {<br>&#160;&#160;color: <span style="color:#9FD3D9">var(--brand)</span>;<br>&#160;&#160;padding: <span style="color:#9FD3D9">var(--space)</span>;<br>&#160;&#160;border-radius: <span style="color:#9FD3D9">var(--radius)</span>;<br>}</p>
+      </div>
+    </div>
+    <div style="flex:1; display:flex; flex-direction:column; gap:16px">
+      <p style="font-size:27px; line-height:1.45">Define colors, spacing and radii <b>once</b>, then reuse them everywhere.</p>
+      <div style="display:flex; flex-direction:column; gap:8px; background:#FFFDF8; border:1px solid #E2DED3; border-radius:12px; padding:20px 24px"><h3 style="font-size:27px; font-weight:600; color:#2D6F78">Change in one place</h3><p style="font-size:24px; line-height:1.4">A new brand color updates the whole app</p></div>
+      <div style="display:flex; flex-direction:column; gap:8px; background:#FFFDF8; border:1px solid #E2DED3; border-radius:12px; padding:20px 24px"><h3 style="font-size:27px; font-weight:600; color:#2D6F78">Works with Bootstrap</h3><p style="font-size:24px; line-height:1.4">Bootstrap 5.3 exposes its own --bs-* variables to override</p></div>
+      <div style="display:flex; flex-direction:column; gap:8px; background:#FFFDF8; border:1px solid #E2DED3; border-radius:12px; padding:20px 24px"><h3 style="font-size:27px; font-weight:600; color:#2D6F78">Pick accessible values</h3><p style="font-size:24px; line-height:1.4">Check text-on-background contrast once, reuse it safely</p></div>
+    </div>
+  </div>
+  <p style="position:absolute; left:128px; bottom:64px; width:1300px; font-size:24px; color:#5A6272">CCC181 · Week 3 · User-centered interface development</p>
+  <p style="position:absolute; right:128px; bottom:64px; width:120px; font-size:24px; color:#5A6272; text-align:right">15</p>
+</section>
+</div>
+<div class="frame" data-notes="Because every page extends base.html, Bootstrap is added once and applies everywhere. The CDN links are shortened on the slide; copy the full links, including the integrity hashes, from getbootstrap.com&#x27;s &quot;Quick start&quot; so the version is current. Three lines matter besides Bootstrap itself: lang=&quot;en&quot; tells screen readers which language to speak; the viewport meta tag is required for responsive design (without it, phones render a zoomed-out desktop page); and the script goes at the end of body. Note: if the app must work offline or on a campus network that blocks CDNs, download Bootstrap into static/ instead." aria-label="Slide 16">
+<section id="bootstrap" data-transition="fade" style="background:#F6F4EE; color:#1B2438; font-family:'IBM Plex Sans', Arial, sans-serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:32px">
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#B4501E">Bootstrap</p>
+    <h2 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:64px; font-weight:700; line-height:1.1; color:#16223A">Bootstrap 5 in your Flask base template</h2>
+  </div>
+  <div style="display:flex; flex-direction:row; gap:32px">
+    <div style="flex:1.45; display:flex; flex-direction:column; gap:12px">
+      <p style="font-family:'JetBrains Mono', 'Courier New', monospace; font-size:24px; font-weight:700; color:#5A6272">templates/base.html</p>
+      <div style="background:#16223A; border-radius:16px; padding:24px 28px">
+        <p style="font-family:'JetBrains Mono', 'Courier New', monospace; font-size:24px; line-height:1.5; color:#E6EAF2">&lt;!doctype html&gt;<br>&lt;html lang="en"&gt;<br>&lt;head&gt;<br>&#160;&#160;&lt;meta charset="utf-8"&gt;<br>&#160;&#160;<span style="color:#F2A46E">&lt;meta name="viewport"</span><br>&#160;&#160;&#160;&#160;<span style="color:#F2A46E">content="width=device-width, initial-scale=1"&gt;</span><br>&#160;&#160;&lt;link rel="stylesheet" href="<span style="color:#9FD3D9">…/bootstrap.min.css</span>"&gt;<br>&#160;&#160;&lt;link rel="stylesheet"<br>&#160;&#160;&#160;&#160;href="{{ url_for('static', filename='css/style.css') }}"&gt;<br>&lt;/head&gt;<br>&lt;body&gt;<br>&#160;&#160;{% block content %}{% endblock %}<br>&#160;&#160;&lt;script src="<span style="color:#9FD3D9">…/bootstrap.bundle.min.js</span>"&gt;&lt;/script&gt;<br>&lt;/body&gt;</p>
+      </div>
+    </div>
+    <div style="flex:1; display:flex; flex-direction:column; gap:16px">
+      <p style="font-size:26px; line-height:1.45"><b>Bootstrap</b> is a CSS and JavaScript toolkit: a responsive grid, ready-made components and utility classes.</p>
+      <div style="display:flex; flex-direction:column; gap:8px; background:#FFFDF8; border:1px solid #E2DED3; border-radius:12px; padding:18px 22px"><p style="font-size:24px; line-height:1.4">Copy the current CDN links from <b>getbootstrap.com</b> (version 5.3.x)</p></div>
+      <div style="display:flex; flex-direction:column; gap:8px; background:#FFFDF8; border:1px solid #E2DED3; border-radius:12px; padding:18px 22px"><p style="font-size:24px; line-height:1.4">Bootstrap 5 needs <b>no jQuery</b>; the bundle includes Popper</p></div>
+      <div style="display:flex; flex-direction:column; gap:8px; background:#FFFDF8; border:1px solid #E2DED3; border-radius:12px; padding:18px 22px"><p style="font-size:24px; line-height:1.4">Your style.css loads <b>after</b> Bootstrap, so it can override</p></div>
+    </div>
+  </div>
+  <p style="position:absolute; left:128px; bottom:64px; width:1300px; font-size:24px; color:#5A6272">CCC181 · Week 3 · User-centered interface development</p>
+  <p style="position:absolute; right:128px; bottom:64px; width:120px; font-size:24px; color:#5A6272; text-align:right">16</p>
+</section>
+</div>
+<div class="frame" data-notes="The grid is container, then row, then columns; column numbers in a row add up to 12. Classes without an infix apply to all sizes; col-md-8 applies from 768px up, so on phones the col-12 rule stays in force and columns stack. This is mobile-first: the unprefixed class describes the phone layout and larger breakpoints add changes. Semantic elements such as main and aside can carry grid classes directly, so structure and layout stay together." aria-label="Slide 17">
+<section id="bs-grid" data-transition="fade" style="background:#F6F4EE; color:#1B2438; font-family:'IBM Plex Sans', Arial, sans-serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:32px">
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#B4501E">Bootstrap</p>
+    <h2 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:64px; font-weight:700; line-height:1.1; color:#16223A">The 12-column grid and breakpoints</h2>
+  </div>
+  <div style="display:flex; flex-direction:row; gap:32px">
+    <div style="flex:1.2; display:flex; flex-direction:column; gap:14px">
+      <div style="background:#16223A; border-radius:16px; padding:24px 28px">
+        <p style="font-family:'JetBrains Mono', 'Courier New', monospace; font-size:24px; line-height:1.5; color:#E6EAF2">&lt;div class="<span style="color:#F2A46E">container</span>"&gt;<br>&#160;&#160;&lt;div class="<span style="color:#F2A46E">row</span>"&gt;<br>&#160;&#160;&#160;&#160;&lt;main class="<span style="color:#9FD3D9">col-12 col-md-8</span>"&gt;<br>&#160;&#160;&#160;&#160;&#160;&#160;Your place in line<br>&#160;&#160;&#160;&#160;&lt;/main&gt;<br>&#160;&#160;&#160;&#160;&lt;aside class="<span style="color:#9FD3D9">col-12 col-md-4</span>"&gt;<br>&#160;&#160;&#160;&#160;&#160;&#160;Clinic hours<br>&#160;&#160;&#160;&#160;&lt;/aside&gt;<br>&#160;&#160;&lt;/div&gt;<br>&lt;/div&gt;</p>
+      </div>
+      <p style="font-size:25px; line-height:1.45">Phones: both columns full width, stacked. From <b>md</b> up: 8 + 4 of 12 columns, side by side.</p>
+    </div>
+    <div style="flex:1; display:flex; flex-direction:column; gap:12px">
+      <table style="font-size:24px; color:#1B2438; background:#FFFDF8; border:1px solid #E2DED3">
+        <tr style="background:#16223A"><th style="width:40%; color:#F6F4EE">Breakpoint</th><th style="width:28%; color:#F6F4EE">Infix</th><th style="width:32%; color:#F6F4EE">Min width</th></tr>
+        <tr><td>Extra small</td><td>(none)</td><td>&lt; 576px</td></tr>
+        <tr style="background:#F1EEE6"><td>Small</td><td style="font-family:'JetBrains Mono', 'Courier New', monospace">sm</td><td>≥ 576px</td></tr>
+        <tr><td>Medium</td><td style="font-family:'JetBrains Mono', 'Courier New', monospace">md</td><td>≥ 768px</td></tr>
+        <tr style="background:#F1EEE6"><td>Large</td><td style="font-family:'JetBrains Mono', 'Courier New', monospace">lg</td><td>≥ 992px</td></tr>
+        <tr><td>Extra large</td><td style="font-family:'JetBrains Mono', 'Courier New', monospace">xl</td><td>≥ 1200px</td></tr>
+        <tr style="background:#F1EEE6"><td>XXL</td><td style="font-family:'JetBrains Mono', 'Courier New', monospace">xxl</td><td>≥ 1400px</td></tr>
+      </table>
+      <p style="font-size:24px; line-height:1.4; color:#4A5366">A class applies from its breakpoint <b>upward</b>. Mobile-first by design.</p>
+    </div>
+  </div>
+  <p style="position:absolute; left:128px; bottom:64px; width:1300px; font-size:24px; color:#5A6272">Breakpoints: Bootstrap 5.3 documentation</p>
+  <p style="position:absolute; right:128px; bottom:64px; width:120px; font-size:24px; color:#5A6272; text-align:right">17</p>
+</section>
+</div>
+<div class="frame" data-notes="Components are pre-built, tested patterns; most already handle keyboard use and ARIA attributes, such as the navbar toggler and modal. Utilities let you adjust spacing and layout without writing CSS. Caution students on two points: Bootstrap does not make a page accessible on its own, since you still need labels, headings and alt text; and relying only on defaults makes every student app look identical, so customize the palette and typography. The card example maps directly to the wireframe from slide 8." aria-label="Slide 18">
+<section id="bs-components" data-transition="fade" style="background:#F6F4EE; color:#1B2438; font-family:'IBM Plex Sans', Arial, sans-serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:32px">
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#B4501E">Bootstrap</p>
+    <h2 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:64px; font-weight:700; line-height:1.1; color:#16223A">Components and utility classes</h2>
+  </div>
+  <div style="display:flex; flex-direction:row; gap:32px">
+    <div style="flex:1; display:flex; flex-direction:column; gap:14px">
+      <h3 style="font-size:28px; font-weight:600; color:#B4501E">Components for your MVP</h3>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px">
+        <p style="font-size:24px; line-height:1.35; background:#FFFDF8; border:1px solid #E2DED3; padding:14px 18px; border-radius:10px"><b>Navbar</b>: collapses on phones</p>
+        <p style="font-size:24px; line-height:1.35; background:#FFFDF8; border:1px solid #E2DED3; padding:14px 18px; border-radius:10px"><b>Card</b>: ticket, info box</p>
+        <p style="font-size:24px; line-height:1.35; background:#FFFDF8; border:1px solid #E2DED3; padding:14px 18px; border-radius:10px"><b>Forms</b>: form-control, form-label</p>
+        <p style="font-size:24px; line-height:1.35; background:#FFFDF8; border:1px solid #E2DED3; padding:14px 18px; border-radius:10px"><b>Buttons</b>: btn btn-primary</p>
+        <p style="font-size:24px; line-height:1.35; background:#FFFDF8; border:1px solid #E2DED3; padding:14px 18px; border-radius:10px"><b>Alerts</b>: success, error messages</p>
+        <p style="font-size:24px; line-height:1.35; background:#FFFDF8; border:1px solid #E2DED3; padding:14px 18px; border-radius:10px"><b>Modal</b>: confirm “Leave queue?”</p>
+      </div>
+      <h3 style="font-size:28px; font-weight:600; color:#2D6F78">Utilities: small single-purpose classes</h3>
+      <p style="font-family:'JetBrains Mono', 'Courier New', monospace; font-size:24px; line-height:1.5; background:#16223A; color:#E6EAF2; padding:18px 24px; border-radius:12px">mt-3 · p-4 · d-flex · gap-2<br>text-center · fw-bold · w-100</p>
+    </div>
+    <div style="flex:1; display:flex; flex-direction:column; gap:14px">
+      <p style="font-family:'JetBrains Mono', 'Courier New', monospace; font-size:24px; font-weight:700; color:#5A6272">A ticket card</p>
+      <div style="background:#16223A; border-radius:16px; padding:24px 28px">
+        <p style="font-family:'JetBrains Mono', 'Courier New', monospace; font-size:24px; line-height:1.5; color:#E6EAF2">&lt;section class="<span style="color:#F2A46E">card text-center</span>"&gt;<br>&#160;&#160;&lt;div class="<span style="color:#F2A46E">card-body</span>"&gt;<br>&#160;&#160;&#160;&#160;&lt;h1 class="<span style="color:#9FD3D9">display-1</span>"&gt;4&lt;/h1&gt;<br>&#160;&#160;&#160;&#160;&lt;p&gt;Your place in line&lt;/p&gt;<br>&#160;&#160;&#160;&#160;&lt;button class="<span style="color:#9FD3D9">btn btn-outline-danger w-100</span>"&gt;<br>&#160;&#160;&#160;&#160;&#160;&#160;Leave the queue&lt;/button&gt;<br>&#160;&#160;&lt;/div&gt;<br>&lt;/section&gt;</p>
+      </div>
+      <p style="font-size:24px; line-height:1.4; background:#FBE9DC; padding:14px 20px; border-radius:10px"><b>Avoid the “default Bootstrap look”:</b> set your own colors and fonts with variables.</p>
+    </div>
+  </div>
+  <p style="position:absolute; left:128px; bottom:64px; width:1300px; font-size:24px; color:#5A6272">CCC181 · Week 3 · User-centered interface development</p>
+  <p style="position:absolute; right:128px; bottom:64px; width:120px; font-size:24px; color:#5A6272; text-align:right">18</p>
+</section>
+</div>
+<div class="frame" data-notes="Responsive design means one codebase that adapts to any screen, rather than a separate mobile site. Mobile-first means base styles target phones and min-width media queries add enhancements for bigger screens; this matches Bootstrap and tends to produce lighter pages for phones. Choose breakpoints where your content breaks, not for specific devices. On touch targets: WCAG 2.2 sets a minimum of 24 by 24 CSS pixels (Target Size, Minimum, level AA), while 44 by 44 is the common recommended comfortable size and the level AAA target in WCAG 2.1." aria-label="Slide 19">
+<section id="responsive" data-section="Responsive design across phones and desktops" data-transition="fade" style="background:#F6F4EE; color:#1B2438; font-family:'IBM Plex Sans', Arial, sans-serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:32px">
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#2D6F78">Responsive design</p>
+    <h2 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:64px; font-weight:700; line-height:1.1; color:#16223A">Responsive design, mobile first</h2>
+  </div>
+  <div style="display:flex; flex-direction:row; gap:32px">
+    <div style="flex:1; display:flex; flex-direction:column; gap:14px">
+      <div style="display:flex; flex-direction:column; gap:6px; background:#FFFDF8; border-left:6px solid #2D6F78; border-radius:0px 12px 12px 0px; padding:18px 24px"><h3 style="font-size:27px; font-weight:600; color:#2D6F78">1 · Viewport meta tag</h3><p style="font-size:24px; line-height:1.4">Without it, phones show a shrunken desktop page</p></div>
+      <div style="display:flex; flex-direction:column; gap:6px; background:#FFFDF8; border-left:6px solid #2D6F78; border-radius:0px 12px 12px 0px; padding:18px 24px"><h3 style="font-size:27px; font-weight:600; color:#2D6F78">2 · Fluid layouts</h3><p style="font-size:24px; line-height:1.4">Flexbox, Grid, percentages instead of fixed pixel widths</p></div>
+      <div style="display:flex; flex-direction:column; gap:6px; background:#FFFDF8; border-left:6px solid #2D6F78; border-radius:0px 12px 12px 0px; padding:18px 24px"><h3 style="font-size:27px; font-weight:600; color:#2D6F78">3 · Flexible media</h3><p style="font-size:24px; line-height:1.4">img { max-width: 100%; height: auto; } (Bootstrap: .img-fluid)</p></div>
+      <div style="display:flex; flex-direction:column; gap:6px; background:#FFFDF8; border-left:6px solid #2D6F78; border-radius:0px 12px 12px 0px; padding:18px 24px"><h3 style="font-size:27px; font-weight:600; color:#2D6F78">4 · Media queries</h3><p style="font-size:24px; line-height:1.4">Adjust layout where the content starts to look wrong</p></div>
+    </div>
+    <div style="flex:1; display:flex; flex-direction:column; gap:14px">
+      <p style="font-size:26px; font-weight:600; color:#16223A">Mobile-first CSS</p>
+      <div style="background:#16223A; border-radius:16px; padding:24px 28px">
+        <p style="font-family:'JetBrains Mono', 'Courier New', monospace; font-size:24px; line-height:1.5; color:#E6EAF2"><span style="color:#9AA7BD">/* phone: the default */</span><br>.position { font-size: 4rem; }<br><br><span style="color:#9AA7BD">/* wider screens add changes */</span><br><span style="color:#F2A46E">@media (min-width: 768px)</span> {<br>&#160;&#160;.position { font-size: 6rem; }<br>}</p>
+      </div>
+      <p style="font-size:24px; line-height:1.4; background:#E3EFF0; padding:16px 22px; border-radius:10px">Start with the smallest screen: it forces you to decide what matters most.</p>
+      <p style="font-size:24px; line-height:1.4; color:#4A5366">Touch targets: make buttons at least 44×44 CSS px for thumbs.</p>
+    </div>
+  </div>
+  <p style="position:absolute; left:128px; bottom:64px; width:1300px; font-size:24px; color:#5A6272">CCC181 · Week 3 · User-centered interface development</p>
+  <p style="position:absolute; right:128px; bottom:64px; width:120px; font-size:24px; color:#5A6272; text-align:right">19</p>
+</section>
+</div>
+<div class="frame" data-notes="This is the grid code from slide 17 rendered at two widths. Nothing in the HTML changes; the classes decide the layout at each breakpoint. On the phone, the navigation collapses into the toggler (☰) and content stacks with the most important item first, so source order matters: put main before aside in the HTML. Demonstrate live with DevTools&#x27; device toolbar, then open the app on a phone over the same network using the computer&#x27;s IP address (flask run --host=0.0.0.0) to see real touch and real network behavior." aria-label="Slide 20">
+<section id="responsive-demo" data-transition="fade" style="background:#F6F4EE; color:#1B2438; font-family:'IBM Plex Sans', Arial, sans-serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:28px">
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#2D6F78">Responsive design</p>
+    <h2 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:64px; font-weight:700; line-height:1.1; color:#16223A">Same HTML, two layouts</h2>
+  </div>
+  <div style="display:flex; flex-direction:row; gap:48px; align-items:start">
+    <div style="display:flex; flex-direction:column; gap:12px; align-items:center">
+      <div style="width:320px; display:flex; flex-direction:column; gap:10px; background:#FFFDF8; border:6px solid #1B2438; border-radius:30px; padding:18px 16px">
+        <p style="font-size:24px; font-weight:700; background:#16223A; color:#F6F4EE; padding:10px 14px; border-radius:8px">ClinicQ ☰</p>
+        <div style="display:flex; flex-direction:column; align-items:center; gap:2px; background:#FBE9DC; padding:14px; border-radius:8px"><p style="font-size:24px">main · col-12</p><p style="font-family:'Space Grotesk', Arial, sans-serif; font-size:72px; font-weight:700; line-height:1">4</p></div>
+        <p style="font-size:24px; background:#E3EFF0; padding:12px 14px; border-radius:8px">aside · col-12</p>
+      </div>
+      <p style="font-size:24px; font-weight:600; color:#5A6272">Phone · under 768px</p>
+    </div>
+    <div style="flex:1; display:flex; flex-direction:column; gap:12px; align-items:center">
+      <div style="width:100%; display:flex; flex-direction:column; gap:12px; background:#FFFDF8; border:6px solid #1B2438; border-radius:16px; padding:18px">
+        <div style="display:flex; flex-direction:row; justify-content:space-between; background:#16223A; padding:10px 18px; border-radius:8px"><p style="font-size:24px; font-weight:700; color:#F6F4EE">ClinicQ</p><p style="font-size:24px; color:#C5CEDD">Queue · About · Staff</p></div>
+        <div style="display:flex; flex-direction:row; gap:12px">
+          <div style="flex:2; display:flex; flex-direction:column; align-items:center; gap:2px; background:#FBE9DC; padding:18px; border-radius:8px"><p style="font-size:24px">main · col-md-8</p><p style="font-family:'Space Grotesk', Arial, sans-serif; font-size:96px; font-weight:700; line-height:1">4</p></div>
+          <div style="flex:1; background:#E3EFF0; padding:18px; border-radius:8px"><p style="font-size:24px">aside · col-md-4</p></div>
+        </div>
+      </div>
+      <p style="font-size:24px; font-weight:600; color:#5A6272">Laptop · 768px and up</p>
+    </div>
+  </div>
+  <p style="font-size:25px; line-height:1.4; background:#16223A; color:#F6F4EE; padding:18px 26px; border-radius:12px">Test in the browser's device toolbar (<b>Ctrl+Shift+M</b> in Chrome DevTools), and on a real phone.</p>
+  <p style="position:absolute; left:128px; bottom:64px; width:1300px; font-size:24px; color:#5A6272">CCC181 · Week 3 · User-centered interface development</p>
+  <p style="position:absolute; right:128px; bottom:64px; width:120px; font-size:24px; color:#5A6272; text-align:right">20</p>
+</section>
+</div>
+<div class="frame" data-notes="Accessibility is part of quality, not an extra. The WHO estimate makes the scale concrete, and situational limitations mean accessible design helps everyone: captions help in a noisy canteen, high contrast helps in sunlight. WCAG is organized under four principles, remembered as POUR, with success criteria at levels A, AA and AAA; AA is the common legal and industry target. WCAG 2.2 became a W3C Recommendation in October 2023 and added criteria such as focus not obscured and minimum target size. In the Philippines, accessibility is also supported by law, such as the Magna Carta for Persons with Disabilities (RA 7277)." aria-label="Slide 21">
+<section id="a11y-why" data-section="Accessibility: WCAG, ARIA and testing" data-transition="fade" style="background:#F6F4EE; color:#1B2438; font-family:'IBM Plex Sans', Arial, sans-serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:32px">
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#2D6F78">Accessibility</p>
+    <h2 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:64px; font-weight:700; line-height:1.1; color:#16223A">Accessibility: WCAG and the POUR principles</h2>
+  </div>
+  <div style="display:flex; flex-direction:row; gap:28px">
+    <div style="flex:1; display:flex; flex-direction:column; gap:12px; background:#16223A; border-radius:16px; padding:30px">
+      <p style="font-family:'Space Grotesk', Arial, sans-serif; font-size:96px; font-weight:700; line-height:1; color:#F2A46E">1.3B</p>
+      <p style="font-size:26px; line-height:1.45; color:#F6F4EE">people, about 16% of the world, live with a significant disability.</p>
+      <p style="font-size:24px; color:#C5CEDD">WHO, Disability fact sheet (2023)</p>
+      <div style="flex:1"></div>
+      <p style="font-size:24px; line-height:1.45; color:#C5CEDD">Plus situational limits: bright sunlight, one hand busy, a cracked screen, slow data.</p>
+    </div>
+    <div style="flex:1.6; display:flex; flex-direction:column; gap:14px">
+      <p style="font-size:26px; line-height:1.4">The <b>Web Content Accessibility Guidelines (WCAG) 2.2</b> are the standard. Aim for <b>level AA</b>.</p>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px">
+        <div style="display:flex; flex-direction:column; gap:6px; background:#FFFDF8; border:1px solid #E2DED3; border-radius:12px; padding:20px 22px"><h3 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:30px; font-weight:700; color:#B4501E">Perceivable</h3><p style="font-size:24px; line-height:1.4">Text alternatives, captions, enough contrast</p></div>
+        <div style="display:flex; flex-direction:column; gap:6px; background:#FFFDF8; border:1px solid #E2DED3; border-radius:12px; padding:20px 22px"><h3 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:30px; font-weight:700; color:#B4501E">Operable</h3><p style="font-size:24px; line-height:1.4">Works by keyboard; enough time; no traps</p></div>
+        <div style="display:flex; flex-direction:column; gap:6px; background:#FFFDF8; border:1px solid #E2DED3; border-radius:12px; padding:20px 22px"><h3 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:30px; font-weight:700; color:#B4501E">Understandable</h3><p style="font-size:24px; line-height:1.4">Clear language, predictable, helps fix errors</p></div>
+        <div style="display:flex; flex-direction:column; gap:6px; background:#FFFDF8; border:1px solid #E2DED3; border-radius:12px; padding:20px 22px"><h3 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:30px; font-weight:700; color:#B4501E">Robust</h3><p style="font-size:24px; line-height:1.4">Valid, semantic code assistive tech can read</p></div>
+      </div>
+    </div>
+  </div>
+  <p style="position:absolute; left:128px; bottom:64px; width:1300px; font-size:24px; color:#5A6272">W3C, WCAG 2.2 (2023) · World Health Organization (2023)</p>
+  <p style="position:absolute; right:128px; bottom:64px; width:120px; font-size:24px; color:#5A6272; text-align:right">21</p>
+</section>
+</div>
+<div class="frame" data-notes="These eight checks catch most problems in student projects. Contrast figures come from WCAG success criterion 1.4.3 (Contrast, Minimum); large text means about 24px regular or 18.7px bold. Alt text describes the purpose of an image, not its appearance: for a logo link, &quot;ClinicQ home&quot;, not &quot;blue logo&quot;. &quot;Not color alone&quot; matters for the queue: a red badge meaning &quot;your turn is next&quot; also needs the words. Removing focus outlines (outline: none) is a very common mistake that makes keyboard use impossible." aria-label="Slide 22">
+<section id="a11y-checklist" data-transition="fade" style="background:#F6F4EE; color:#1B2438; font-family:'IBM Plex Sans', Arial, sans-serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:32px">
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#2D6F78">Accessibility</p>
+    <h2 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:64px; font-weight:700; line-height:1.1; color:#16223A">An everyday accessibility checklist</h2>
+  </div>
+  <table style="font-size:25px; color:#1B2438; font-family:'IBM Plex Sans', Arial, sans-serif; background:#FFFDF8; border:1px solid #E2DED3">
+    <tr style="background:#16223A"><th style="width:26%; color:#F6F4EE">Check</th><th style="width:48%; color:#F6F4EE">How to meet it</th><th style="width:26%; color:#F6F4EE">Principle</th></tr>
+    <tr><td><b>Text contrast</b></td><td>4.5:1 for body text; 3:1 for large text</td><td>Perceivable</td></tr>
+    <tr style="background:#F1EEE6"><td><b>Images</b></td><td>Meaningful alt text; alt="" for decoration</td><td>Perceivable</td></tr>
+    <tr><td><b>Not color alone</b></td><td>Pair color with text or an icon: “Error: …”</td><td>Perceivable</td></tr>
+    <tr style="background:#F1EEE6"><td><b>Keyboard</b></td><td>Every action reachable with Tab, Enter, Space, Esc</td><td>Operable</td></tr>
+    <tr><td><b>Visible focus</b></td><td>Never remove outlines without a replacement</td><td>Operable</td></tr>
+    <tr style="background:#F1EEE6"><td><b>Labels &amp; errors</b></td><td>Every field labeled; errors say how to fix</td><td>Understandable</td></tr>
+    <tr><td><b>Page language</b></td><td>&lt;html lang="en"&gt; (or "fil")</td><td>Understandable</td></tr>
+    <tr style="background:#F1EEE6"><td><b>Valid structure</b></td><td>Semantic elements, one h1, headings in order</td><td>Robust</td></tr>
+  </table>
+  <p style="position:absolute; left:128px; bottom:64px; width:1300px; font-size:24px; color:#5A6272">Based on WCAG 2.2 level AA success criteria</p>
+  <p style="position:absolute; right:128px; bottom:64px; width:120px; font-size:24px; color:#5A6272; text-align:right">22</p>
+</section>
+</div>
+<div class="frame" data-notes="ARIA is for the cases HTML cannot express: an icon-only button with no visible text, content that updates without a page reload, a custom widget&#x27;s open or closed state. aria-live=&quot;polite&quot; is especially relevant for ClinicQ: when JavaScript updates the queue position, a screen reader announces the change without the user having to hunt for it. Remind students that role=&quot;button&quot; on a div does not make it keyboard-operable; that is why the native button is the better answer. Bootstrap components already set most of these attributes." aria-label="Slide 23">
+<section id="aria" data-transition="fade" style="background:#F6F4EE; color:#1B2438; font-family:'IBM Plex Sans', Arial, sans-serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:32px">
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#2D6F78">Accessibility</p>
+    <h2 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:64px; font-weight:700; line-height:1.1; color:#16223A">ARIA: filling the gaps HTML leaves</h2>
+  </div>
+  <div style="display:flex; flex-direction:row; gap:32px">
+    <div style="flex:1; display:flex; flex-direction:column; gap:16px">
+      <div style="display:flex; flex-direction:column; gap:10px; background:#16223A; border-radius:16px; padding:28px 32px">
+        <p style="font-size:24px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:#F2A46E">The first rule of ARIA</p>
+        <p style="font-family:'Space Grotesk', Arial, sans-serif; font-size:32px; font-weight:500; line-height:1.35; color:#F6F4EE">If a native HTML element already does the job, use it instead of adding ARIA.</p>
+      </div>
+      <p style="font-size:25px; line-height:1.45"><b>ARIA</b> (Accessible Rich Internet Applications) adds roles, names and states that assistive technology reads. It changes what is <i>announced</i>, never how things <i>behave</i>.</p>
+      <p style="font-size:24px; line-height:1.4; background:#FBE9DC; padding:14px 20px; border-radius:10px">Wrong ARIA is worse than none: it announces things that are not true.</p>
+    </div>
+    <div style="flex:1.1; display:flex; flex-direction:column; gap:12px">
+      <p style="font-size:26px; font-weight:600; color:#16223A">Three attributes you will use</p>
+      <div style="background:#16223A; border-radius:16px; padding:24px 28px">
+        <p style="font-family:'JetBrains Mono', 'Courier New', monospace; font-size:24px; line-height:1.5; color:#E6EAF2"><span style="color:#9AA7BD">&lt;!-- icon-only button needs a name --&gt;</span><br>&lt;button <span style="color:#F2A46E">aria-label="Open menu"</span>&gt;☰&lt;/button&gt;<br><br><span style="color:#9AA7BD">&lt;!-- announce updates politely --&gt;</span><br>&lt;p id="position" <span style="color:#F2A46E">aria-live="polite"</span>&gt;<br>&#160;&#160;Position: 4&lt;/p&gt;<br><br><span style="color:#9AA7BD">&lt;!-- state of a toggle --&gt;</span><br>&lt;button <span style="color:#F2A46E">aria-expanded="false"</span>&gt;<br>&#160;&#160;Clinic hours&lt;/button&gt;</p>
+      </div>
+    </div>
+  </div>
+  <p style="position:absolute; left:128px; bottom:64px; width:1300px; font-size:24px; color:#5A6272">W3C, <i>Using ARIA</i> · WAI-ARIA Authoring Practices Guide</p>
+  <p style="position:absolute; right:128px; bottom:64px; width:120px; font-size:24px; color:#5A6272; text-align:right">23</p>
+</section>
+</div>
+<div class="frame" data-notes="Use all three layers. Automated tools are fast and catch mechanical errors, but they cannot judge whether alt text is meaningful or whether a flow makes sense; commonly cited industry estimates put automated coverage at well under half of WCAG issues. The keyboard test takes two minutes and finds many real problems. A short screen-reader session is eye-opening for students: try TalkBack on an Android phone, since that is the persona&#x27;s device. Demo live: run Lighthouse&#x27;s Accessibility category on a student page and fix one issue together." aria-label="Slide 24">
+<section id="a11y-testing" data-transition="fade" style="background:#F6F4EE; color:#1B2438; font-family:'IBM Plex Sans', Arial, sans-serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:32px">
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#2D6F78">Accessibility</p>
+    <h2 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:64px; font-weight:700; line-height:1.1; color:#16223A">Testing for accessibility</h2>
+  </div>
+  <div style="display:flex; flex-direction:row; gap:24px">
+    <div style="flex:1; display:flex; flex-direction:column; gap:12px; background:#FFFDF8; border:1px solid #E2DED3; border-top:6px solid #2D6F78; border-radius:14px; padding:26px">
+      <p style="font-size:24px; font-weight:700; color:#2D6F78">1 · Automated</p>
+      <h3 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:30px; font-weight:700">Scan the page</h3>
+      <p style="font-size:24px; line-height:1.4"><b>Lighthouse</b> (built into Chrome DevTools), <b>WAVE</b>, <b>axe DevTools</b></p>
+      <p style="font-size:24px; line-height:1.4; color:#4A5366">Catches contrast, missing alt and labels, bad structure</p>
+    </div>
+    <div style="flex:1; display:flex; flex-direction:column; gap:12px; background:#FFFDF8; border:1px solid #E2DED3; border-top:6px solid #B4501E; border-radius:14px; padding:26px">
+      <p style="font-size:24px; font-weight:700; color:#B4501E">2 · Keyboard only</p>
+      <h3 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:30px; font-weight:700">Put the mouse away</h3>
+      <p style="font-size:24px; line-height:1.4">Tab through the page. Can you see focus? Reach and use everything? Escape a modal?</p>
+    </div>
+    <div style="flex:1; display:flex; flex-direction:column; gap:12px; background:#FFFDF8; border:1px solid #E2DED3; border-top:6px solid #16223A; border-radius:14px; padding:26px">
+      <p style="font-size:24px; font-weight:700; color:#16223A">3 · Screen reader</p>
+      <h3 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:30px; font-weight:700">Listen to it</h3>
+      <p style="font-size:24px; line-height:1.4"><b>NVDA</b> (free, Windows), <b>VoiceOver</b> (Mac, iPhone), <b>TalkBack</b> (Android)</p>
+    </div>
+  </div>
+  <div style="display:flex; flex-direction:row; gap:20px; align-items:center; background:#16223A; border-radius:14px; padding:24px 32px">
+    <svg class="xi" style="width:40px; height:40px; color:#F2A46E" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+    <p style="font-size:27px; line-height:1.4; color:#F6F4EE">Automated tools find only part of the problems. A perfect Lighthouse score does not mean the page is accessible.</p>
+  </div>
+  <p style="position:absolute; left:128px; bottom:64px; width:1300px; font-size:24px; color:#5A6272">CCC181 · Week 3 · User-centered interface development</p>
+  <p style="position:absolute; right:128px; bottom:64px; width:120px; font-size:24px; color:#5A6272; text-align:right">24</p>
+</section>
+</div>
+<div class="frame" data-notes="Almost all interface JavaScript follows this three-step pattern. The example solves a real problem: on a slow connection Ana might tap &quot;Join&quot; twice and create two tickets; disabling the button and changing its label prevents that and gives immediate feedback. The form still submits normally to Flask, so the page works even if JavaScript fails to load. querySelector uses the same selectors as CSS. The defer attribute lets the script live in the head or at the end of body and still find the elements." aria-label="Slide 25">
+<section id="js-dom" data-section="JavaScript and interface interactivity" data-transition="fade" style="background:#F6F4EE; color:#1B2438; font-family:'IBM Plex Sans', Arial, sans-serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:32px">
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#B4501E">JavaScript</p>
+    <h2 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:64px; font-weight:700; line-height:1.1; color:#16223A">JavaScript and the DOM: select, listen, update</h2>
+  </div>
+  <div style="display:flex; flex-direction:row; gap:32px">
+    <div style="flex:1.3; display:flex; flex-direction:column; gap:12px">
+      <p style="font-family:'JetBrains Mono', 'Courier New', monospace; font-size:24px; font-weight:700; color:#5A6272">static/js/main.js</p>
+      <div style="background:#16223A; border-radius:16px; padding:24px 28px">
+        <p style="font-family:'JetBrains Mono', 'Courier New', monospace; font-size:24px; line-height:1.5; color:#E6EAF2"><span style="color:#9AA7BD">// 1. select elements</span><br><span style="color:#F2A46E">const</span> form = document.querySelector("#join-form");<br><span style="color:#F2A46E">const</span> btn = form.querySelector("button");<br><br><span style="color:#9AA7BD">// 2. listen for an event</span><br>form.<span style="color:#9FD3D9">addEventListener</span>("submit", () =&gt; {<br>&#160;&#160;<span style="color:#9AA7BD">// 3. update the page</span><br>&#160;&#160;btn.disabled = <span style="color:#F2A46E">true</span>;<br>&#160;&#160;btn.textContent = "Joining…";<br>});</p>
+      </div>
+      <div style="background:#1F2B45; border-radius:12px; padding:16px 24px">
+        <p style="font-family:'JetBrains Mono', 'Courier New', monospace; font-size:24px; line-height:1.5; color:#E6EAF2">&lt;script src="{{ url_for('static',<br>&#160;&#160;filename='js/main.js') }}" <span style="color:#F2A46E">defer</span>&gt;&lt;/script&gt;</p>
+      </div>
+    </div>
+    <div style="flex:1; display:flex; flex-direction:column; gap:14px">
+      <p style="font-size:25px; line-height:1.45">The <b>DOM</b> (Document Object Model) is the page as objects JavaScript can read and change.</p>
+      <div style="display:flex; flex-direction:column; gap:6px; background:#FFFDF8; border:1px solid #E2DED3; border-radius:12px; padding:18px 22px"><h3 style="font-size:26px; font-weight:600; color:#2D6F78">Common events</h3><p style="font-size:24px; line-height:1.4">click, submit, input, change, keydown</p></div>
+      <div style="display:flex; flex-direction:column; gap:6px; background:#FFFDF8; border:1px solid #E2DED3; border-radius:12px; padding:18px 22px"><h3 style="font-size:26px; font-weight:600; color:#2D6F78">Keep JS in files</h3><p style="font-size:24px; line-height:1.4">addEventListener, not onclick="…" in HTML</p></div>
+      <div style="display:flex; flex-direction:column; gap:6px; background:#FFFDF8; border:1px solid #E2DED3; border-radius:12px; padding:18px 22px"><h3 style="font-size:26px; font-weight:600; color:#2D6F78">defer</h3><p style="font-size:24px; line-height:1.4">Runs the script after the HTML is parsed</p></div>
+    </div>
+  </div>
+  <p style="position:absolute; left:128px; bottom:64px; width:1300px; font-size:24px; color:#5A6272">CCC181 · Week 3 · User-centered interface development</p>
+  <p style="position:absolute; right:128px; bottom:64px; width:120px; font-size:24px; color:#5A6272; text-align:right">25</p>
+</section>
+</div>
+<div class="frame" data-notes="This is the core of ClinicQ&#x27;s &quot;live&quot; position: a small JSON route in Flask and a fetch call that updates two elements. get_position is a placeholder for whatever data logic comes later. Point out the user-centered details: the try/catch shows an honest message when the network drops instead of silently showing a stale number, which ties back to the &quot;freshness cue&quot; in the wireframe; and 15 seconds is a deliberate trade-off between freshness and Ana&#x27;s limited mobile data. If pos has aria-live=&quot;polite&quot;, screen-reader users hear the new position automatically. Polling is the simplest approach; WebSockets or server-sent events are alternatives for later." aria-label="Slide 26">
+<section id="fetch" data-transition="fade" style="background:#F6F4EE; color:#1B2438; font-family:'IBM Plex Sans', Arial, sans-serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:32px">
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#B4501E">JavaScript</p>
+    <h2 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:64px; font-weight:700; line-height:1.1; color:#16223A">Updating without a page reload: fetch + Flask</h2>
+  </div>
+  <div style="display:flex; flex-direction:row; gap:28px">
+    <div style="flex:1; display:flex; flex-direction:column; gap:12px">
+      <p style="font-family:'JetBrains Mono', 'Courier New', monospace; font-size:24px; font-weight:700; color:#5A6272">app.py · returns JSON</p>
+      <div style="background:#16223A; border-radius:16px; padding:24px 28px">
+        <p style="font-family:'JetBrains Mono', 'Courier New', monospace; font-size:24px; line-height:1.5; color:#E6EAF2"><span style="color:#9FD3D9">@app.route("/api/queue/&lt;int:tid&gt;")</span><br><span style="color:#F2A46E">def</span> queue_status(tid):<br>&#160;&#160;&#160;&#160;pos = get_position(tid)<br>&#160;&#160;&#160;&#160;<span style="color:#F2A46E">return</span> {"ticket": tid,<br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;"position": pos}</p>
+      </div>
+      <p style="font-size:24px; line-height:1.4; color:#4A5366">Flask turns a returned dict into a JSON response.</p>
+    </div>
+    <div style="flex:1.25; display:flex; flex-direction:column; gap:12px">
+      <p style="font-family:'JetBrains Mono', 'Courier New', monospace; font-size:24px; font-weight:700; color:#5A6272">main.js · asks every 15 s</p>
+      <div style="background:#16223A; border-radius:16px; padding:24px 28px">
+        <p style="font-family:'JetBrains Mono', 'Courier New', monospace; font-size:24px; line-height:1.5; color:#E6EAF2"><span style="color:#F2A46E">async function</span> refresh() {<br>&#160;&#160;<span style="color:#F2A46E">try</span> {<br>&#160;&#160;&#160;&#160;<span style="color:#F2A46E">const</span> res = <span style="color:#F2A46E">await</span> fetch("/api/queue/12");<br>&#160;&#160;&#160;&#160;<span style="color:#F2A46E">const</span> data = <span style="color:#F2A46E">await</span> res.json();<br>&#160;&#160;&#160;&#160;pos.textContent = data.position;<br>&#160;&#160;&#160;&#160;stamp.textContent = "Updated just now";<br>&#160;&#160;} <span style="color:#F2A46E">catch</span> {<br>&#160;&#160;&#160;&#160;stamp.textContent = "Offline, retrying…";<br>&#160;&#160;}<br>}<br>setInterval(refresh, 15000);</p>
+      </div>
+    </div>
+  </div>
+  <p style="position:absolute; left:128px; bottom:64px; width:1300px; font-size:24px; color:#5A6272">CCC181 · Week 3 · User-centered interface development</p>
+  <p style="position:absolute; right:128px; bottom:64px; width:120px; font-size:24px; color:#5A6272; text-align:right">26</p>
+</section>
+</div>
+<div class="frame" data-notes="Most student projects design only the success screen. Real users spend a lot of time in the other states, especially on slow networks. Ask students to add these five states to their wireframes. Error messages follow a pattern: what happened, in plain words, and what the user can do next. Bootstrap helps: spinner-border for loading, alert-success and alert-danger for results, the disabled attribute on buttons. Nielsen&#x27;s first heuristic, visibility of system status, is the principle behind all of them." aria-label="Slide 27">
+<section id="feedback" data-transition="fade" style="background:#F6F4EE; color:#1B2438; font-family:'IBM Plex Sans', Arial, sans-serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:32px">
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#B4501E">Interactivity</p>
+    <h2 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:64px; font-weight:700; line-height:1.1; color:#16223A">Design every state, not just the happy path</h2>
+  </div>
+  <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:18px">
+    <div style="display:flex; flex-direction:column; gap:10px; background:#FFFDF8; border:1px solid #E2DED3; border-radius:14px; padding:24px"><h3 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:30px; font-weight:700; color:#2D6F78">Loading</h3><p style="font-size:24px; line-height:1.4; background:#ECE8DE; padding:10px 14px; border-radius:8px">“Checking your place…”</p><p style="font-size:24px; line-height:1.4; color:#4A5366">Spinner or skeleton; never a frozen screen</p></div>
+    <div style="display:flex; flex-direction:column; gap:10px; background:#FFFDF8; border:1px solid #E2DED3; border-radius:14px; padding:24px"><h3 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:30px; font-weight:700; color:#2D6F78">Empty</h3><p style="font-size:24px; line-height:1.4; background:#ECE8DE; padding:10px 14px; border-radius:8px">“No one is waiting. Walk right in.”</p><p style="font-size:24px; line-height:1.4; color:#4A5366">Explain and suggest the next step</p></div>
+    <div style="display:flex; flex-direction:column; gap:10px; background:#FFFDF8; border:1px solid #E2DED3; border-radius:14px; padding:24px"><h3 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:30px; font-weight:700; color:#8A3A14">Error</h3><p style="font-size:24px; line-height:1.4; background:#FBE9DC; padding:10px 14px; border-radius:8px">“Couldn't connect. Retrying in 15 s.”</p><p style="font-size:24px; line-height:1.4; color:#4A5366">Say what happened and what to do</p></div>
+    <div style="display:flex; flex-direction:column; gap:10px; background:#FFFDF8; border:1px solid #E2DED3; border-radius:14px; padding:24px"><h3 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:30px; font-weight:700; color:#1F5058">Success</h3><p style="font-size:24px; line-height:1.4; background:#E3EFF0; padding:10px 14px; border-radius:8px">“You're in! You are number 4.”</p><p style="font-size:24px; line-height:1.4; color:#4A5366">Confirm the result of the action</p></div>
+    <div style="display:flex; flex-direction:column; gap:10px; background:#FFFDF8; border:1px solid #E2DED3; border-radius:14px; padding:24px"><h3 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:30px; font-weight:700; color:#5A6272">Disabled</h3><p style="font-size:24px; line-height:1.4; background:#ECE8DE; padding:10px 14px; border-radius:8px">“Joining…” (button disabled)</p><p style="font-size:24px; line-height:1.4; color:#4A5366">Prevents double submits</p></div>
+    <div style="display:flex; flex-direction:column; gap:10px; background:#16223A; border-radius:14px; padding:24px"><h3 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:30px; font-weight:700; color:#F2A46E">Principle</h3><p style="font-size:25px; line-height:1.4; color:#F6F4EE"><b>Visibility of system status:</b> always tell users what is going on, promptly.</p></div>
+  </div>
+  <p style="position:absolute; left:128px; bottom:64px; width:1300px; font-size:24px; color:#5A6272">Jakob Nielsen, 10 Usability Heuristics for User Interface Design (heuristic #1)</p>
+  <p style="position:absolute; right:128px; bottom:64px; width:120px; font-size:24px; color:#5A6272; text-align:right">27</p>
+</section>
+</div>
+<div class="frame" data-notes="Progressive enhancement means the core task works with HTML and the server alone, and CSS and JavaScript make it better. It protects users on slow or unreliable connections, where scripts may not finish loading, and it is naturally more accessible. Validation: browser checks give instant feedback but anyone can bypass them, for example with DevTools or a direct request, so Flask must re-check every input. Re-render the form with a clear error message and keep what the user already typed. The school-email check is an example; adapt it to your own rules." aria-label="Slide 28">
+<section id="enhancement" data-transition="fade" style="background:#F6F4EE; color:#1B2438; font-family:'IBM Plex Sans', Arial, sans-serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:32px">
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#B4501E">Interactivity</p>
+    <h2 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:64px; font-weight:700; line-height:1.1; color:#16223A">Progressive enhancement and validation</h2>
+  </div>
+  <div style="display:flex; flex-direction:row; gap:32px">
+    <div style="flex:1; display:flex; flex-direction:column; gap:10px">
+      <p style="font-size:26px; font-weight:600; color:#16223A">Build in layers</p>
+      <div style="display:flex; flex-direction:column; gap:4px; background:#F2A46E; border-radius:12px; padding:18px 24px"><p style="font-size:26px; font-weight:700; color:#16223A">JavaScript</p><p style="font-size:24px; color:#16223A">enhances: live updates, no double submit</p></div>
+      <div style="display:flex; flex-direction:column; gap:4px; background:#2D6F78; border-radius:12px; padding:18px 24px"><p style="font-size:26px; font-weight:700; color:#FBF3EA">CSS &amp; Bootstrap</p><p style="font-size:24px; color:#FBF3EA">presents: layout, color, responsive</p></div>
+      <div style="display:flex; flex-direction:column; gap:4px; background:#16223A; border-radius:12px; padding:18px 24px"><p style="font-size:26px; font-weight:700; color:#F6F4EE">Semantic HTML + Flask</p><p style="font-size:24px; color:#C5CEDD">works on its own: forms submit, links navigate</p></div>
+      <p style="font-size:24px; line-height:1.4; color:#4A5366">If a layer fails to load, the ones below still work.</p>
+    </div>
+    <div style="flex:1.15; display:flex; flex-direction:column; gap:12px">
+      <p style="font-size:26px; font-weight:600; color:#16223A">Validate twice</p>
+      <div style="display:flex; flex-direction:row; gap:14px">
+        <div style="flex:1; display:flex; flex-direction:column; gap:6px; background:#FFFDF8; border:1px solid #E2DED3; border-radius:12px; padding:18px 20px"><h3 style="font-size:26px; font-weight:600; color:#2D6F78">In the browser</h3><p style="font-size:24px; line-height:1.4">required, type="email": fast feedback</p></div>
+        <div style="flex:1; display:flex; flex-direction:column; gap:6px; background:#FFFDF8; border:2px solid #B4501E; border-radius:12px; padding:18px 20px"><h3 style="font-size:26px; font-weight:600; color:#B4501E">In Flask</h3><p style="font-size:24px; line-height:1.4">always: the real protection</p></div>
+      </div>
+      <div style="background:#16223A; border-radius:14px; padding:22px 26px">
+        <p style="font-family:'JetBrains Mono', 'Courier New', monospace; font-size:24px; line-height:1.5; color:#E6EAF2">email = request.form.get("email", "")<br><span style="color:#F2A46E">if not</span> email.endswith("@g.msuiit.edu.ph"):<br>&#160;&#160;&#160;&#160;error = "Use your school email."<br>&#160;&#160;&#160;&#160;<span style="color:#F2A46E">return</span> render_template(<br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;"join.html", error=error), 400</p>
+      </div>
+    </div>
+  </div>
+  <p style="position:absolute; left:128px; bottom:64px; width:1300px; font-size:24px; color:#5A6272">CCC181 · Week 3 · User-centered interface development</p>
+  <p style="position:absolute; right:128px; bottom:64px; width:120px; font-size:24px; color:#5A6272; text-align:right">28</p>
+</section>
+</div>
+<div class="frame" data-notes="Each student applies the week to their own proposed application, continuing from last week&#x27;s Flask starter app and using the issue, branch and pull request workflow. Suggested evidence in the pull request: photos or exports of the wireframes, screenshots at phone and laptop widths, and a screenshot of the Lighthouse accessibility result with a note on what was fixed. Set the folder name, deadline and any score expectations before class. Walk-around checks: does the page have exactly one h1? Do form fields have labels? Can you complete the main task with only the keyboard?" aria-label="Slide 29">
+<section id="lab" data-section="Lab, discussion and recap" data-transition="fade" style="background:#16223A; color:#F6F4EE; font-family:'IBM Plex Sans', Arial, sans-serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:32px">
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#F2A46E">Hands-on lab · your own MVP</p>
+    <h2 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:64px; font-weight:700; line-height:1.1; color:#F6F4EE">Design and build two MVP screens</h2>
+  </div>
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <div style="display:flex; flex-direction:row; gap:24px; align-items:center; background:#22304C; border-radius:12px; padding:18px 28px"><p style="font-family:'Space Grotesk', Arial, sans-serif; font-size:34px; font-weight:700; color:#F2A46E; width:48px">1</p><p style="flex:1; font-size:27px; line-height:1.35"><b>Plan:</b> sitemap, one user flow, low-fi wireframes of two Must screens (phone first)</p></div>
+    <div style="display:flex; flex-direction:row; gap:24px; align-items:center; background:#22304C; border-radius:12px; padding:18px 28px"><p style="font-family:'Space Grotesk', Arial, sans-serif; font-size:34px; font-weight:700; color:#F2A46E; width:48px">2</p><p style="flex:1; font-size:27px; line-height:1.35"><b>Base:</b> base.html with Bootstrap, landmarks, a navbar, lang and viewport</p></div>
+    <div style="display:flex; flex-direction:row; gap:24px; align-items:center; background:#22304C; border-radius:12px; padding:18px 28px"><p style="font-family:'Space Grotesk', Arial, sans-serif; font-size:34px; font-weight:700; color:#F2A46E; width:48px">3</p><p style="flex:1; font-size:27px; line-height:1.35"><b>Build:</b> both screens as templates, responsive at phone and laptop widths</p></div>
+    <div style="display:flex; flex-direction:row; gap:24px; align-items:center; background:#22304C; border-radius:12px; padding:18px 28px"><p style="font-family:'Space Grotesk', Arial, sans-serif; font-size:34px; font-weight:700; color:#F2A46E; width:48px">4</p><p style="flex:1; font-size:27px; line-height:1.35"><b>Interact:</b> one JavaScript interaction with loading, error and success states</p></div>
+    <div style="display:flex; flex-direction:row; gap:24px; align-items:center; background:#22304C; border-radius:12px; padding:18px 28px"><p style="font-family:'Space Grotesk', Arial, sans-serif; font-size:34px; font-weight:700; color:#F2A46E; width:48px">5</p><p style="flex:1; font-size:27px; line-height:1.35"><b>Check:</b> Lighthouse accessibility scan and a keyboard-only test; fix, then open a PR</p></div>
+  </div>
+  <p style="position:absolute; left:128px; bottom:64px; width:1300px; font-size:24px; color:#C5CEDD">Folder: activities/[folder-name]/ · Include wireframe images · Due: [date]</p>
+  <p style="position:absolute; right:128px; bottom:64px; width:120px; font-size:24px; color:#C5CEDD; text-align:right">29</p>
+</section>
+</div>
+<div class="frame" data-notes="Expected answers. Q1: the button is focusable, works with Enter and Space, is announced as a button, and submits forms, all for free; the div needs tabindex, a role and key handlers to approach the same behavior. Q2: small screens force prioritization of the Must content; min-width queries then add enhancements, and pages stay lighter for phones. Q3: Perceivable, since color alone carries the meaning; add a text message (&quot;Error: enter your school email&quot;), an icon, and link the message to the field (for example with aria-describedby). Q4: client-side checks can be bypassed or disabled; only the server can be trusted, for data integrity and security." aria-label="Slide 30">
+<section id="check" data-transition="fade" style="background:#F6F4EE; color:#1B2438; font-family:'IBM Plex Sans', Arial, sans-serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:40px">
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#B4501E">Class discussion</p>
+    <h2 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:64px; font-weight:700; line-height:1.1; color:#16223A">Questions to discuss</h2>
+  </div>
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:24px">
+    <div style="display:flex; flex-direction:column; gap:14px; background:#FFFDF8; border:1px solid #E2DED3; border-radius:16px; padding:30px 34px">
+      <p style="font-family:'Space Grotesk', Arial, sans-serif; font-size:40px; font-weight:700; color:#B4501E">Q1</p>
+      <p style="font-size:30px; line-height:1.35">Why is a <b>&lt;button&gt;</b> better than a <b>&lt;div&gt;</b> with a click handler?</p>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:14px; background:#FFFDF8; border:1px solid #E2DED3; border-radius:16px; padding:30px 34px">
+      <p style="font-family:'Space Grotesk', Arial, sans-serif; font-size:40px; font-weight:700; color:#B4501E">Q2</p>
+      <p style="font-size:30px; line-height:1.35">Why design mobile-first? What does it force you to decide?</p>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:14px; background:#FFFDF8; border:1px solid #E2DED3; border-radius:16px; padding:30px 34px">
+      <p style="font-family:'Space Grotesk', Arial, sans-serif; font-size:40px; font-weight:700; color:#B4501E">Q3</p>
+      <p style="font-size:30px; line-height:1.35">An error is shown only by turning a field red. Which principle fails, and how do you fix it?</p>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:14px; background:#FFFDF8; border:1px solid #E2DED3; border-radius:16px; padding:30px 34px">
+      <p style="font-family:'Space Grotesk', Arial, sans-serif; font-size:40px; font-weight:700; color:#B4501E">Q4</p>
+      <p style="font-size:30px; line-height:1.35">If the browser already validates the form, why must Flask validate it again?</p>
+    </div>
+  </div>
+  <p style="position:absolute; left:128px; bottom:64px; width:1300px; font-size:24px; color:#5A6272">CCC181 · Week 3 · User-centered interface development</p>
+  <p style="position:absolute; right:128px; bottom:64px; width:120px; font-size:24px; color:#5A6272; text-align:right">30</p>
+</section>
+</div>
+<div class="frame" data-notes="Each step builds on the one before: structure before sketches, sketches before code, meaning before styling, and behavior last. Testing with real users closes the loop back to Week 1&#x27;s design thinking. Next week: [next topic]." aria-label="Slide 31">
+<section id="recap" data-transition="fade" style="background:#16223A; color:#F6F4EE; font-family:'IBM Plex Sans', Arial, sans-serif; padding:128px; display:flex; flex-direction:column; justify-content:space-between; gap:40px">
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#F2A46E">Recap</p>
+    <h2 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:64px; font-weight:700; line-height:1.1; color:#F6F4EE">From user to interface</h2>
+  </div>
+  <div style="display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:16px">
+    <div style="display:flex; flex-direction:column; gap:8px; background:#22304C; border-radius:12px; padding:22px 26px"><p style="font-size:24px; font-weight:600; color:#F2A46E">1</p><p style="font-family:'Space Grotesk', Arial, sans-serif; font-size:30px; font-weight:600">Organize content</p></div>
+    <div style="display:flex; flex-direction:column; gap:8px; background:#22304C; border-radius:12px; padding:22px 26px"><p style="font-size:24px; font-weight:600; color:#F2A46E">2</p><p style="font-family:'Space Grotesk', Arial, sans-serif; font-size:30px; font-weight:600">Wireframe it</p></div>
+    <div style="display:flex; flex-direction:column; gap:8px; background:#22304C; border-radius:12px; padding:22px 26px"><p style="font-size:24px; font-weight:600; color:#F2A46E">3</p><p style="font-family:'Space Grotesk', Arial, sans-serif; font-size:30px; font-weight:600">Semantic HTML</p></div>
+    <div style="display:flex; flex-direction:column; gap:8px; background:#22304C; border-radius:12px; padding:22px 26px"><p style="font-size:24px; font-weight:600; color:#F2A46E">4</p><p style="font-family:'Space Grotesk', Arial, sans-serif; font-size:30px; font-weight:600">CSS &amp; Bootstrap</p></div>
+    <div style="display:flex; flex-direction:column; gap:8px; background:#22304C; border-radius:12px; padding:22px 26px"><p style="font-size:24px; font-weight:600; color:#F2A46E">5</p><p style="font-family:'Space Grotesk', Arial, sans-serif; font-size:30px; font-weight:600">Responsive</p></div>
+    <div style="display:flex; flex-direction:column; gap:8px; background:#22304C; border-radius:12px; padding:22px 26px"><p style="font-size:24px; font-weight:600; color:#F2A46E">6</p><p style="font-family:'Space Grotesk', Arial, sans-serif; font-size:30px; font-weight:600">Accessible</p></div>
+    <div style="display:flex; flex-direction:column; gap:8px; background:#22304C; border-radius:12px; padding:22px 26px"><p style="font-size:24px; font-weight:600; color:#F2A46E">7</p><p style="font-family:'Space Grotesk', Arial, sans-serif; font-size:30px; font-weight:600">Interactive</p></div>
+    <div style="display:flex; flex-direction:column; gap:8px; background:#B4501E; border-radius:12px; padding:22px 26px"><p style="font-size:24px; font-weight:600; color:#FBF3EA">8</p><p style="font-family:'Space Grotesk', Arial, sans-serif; font-size:30px; font-weight:600; color:#FBF3EA">Test with users</p></div>
+  </div>
+  <div style="display:flex; flex-direction:row; justify-content:space-between; align-items:end">
+    <p style="font-family:'Space Grotesk', Arial, sans-serif; font-size:44px; font-weight:600; line-height:1.25; color:#F6F4EE; width:1200px">Build for the persona's phone, network and abilities, not your own.</p>
+    <p style="font-family:'Space Grotesk', Arial, sans-serif; font-size:44px; font-weight:700; color:#F2A46E">Questions?</p>
+  </div>
+</section>
+</div>
+</div></div>
+<div id="bar"><i></i></div>
+<div id="notes" aria-live="polite"></div>
+<div id="help">← → to navigate · N notes · F full screen · Ctrl+P to save as PDF</div>
+<div id="hud">
+<button id="prev" aria-label="Previous slide">←</button>
+<span id="count"></span>
+<button id="next" aria-label="Next slide">→</button>
+<button id="nbtn" aria-label="Toggle speaker notes">Notes</button>
+<button id="fbtn" aria-label="Toggle full screen">Full screen</button>
+</div>
+<script>
+(function(){
+  var frames=[].slice.call(document.querySelectorAll('.frame'));
+  var notes=document.getElementById('notes'), cnt=document.getElementById('count'), bar=document.querySelector('#bar i');
+  var stage=document.getElementById('stage'), cur=0;
+  function fit(){var s=Math.min(window.innerWidth/1920,window.innerHeight/1080);stage.style.transform='scale('+s+')';}
+  function show(i){
+    i=Math.max(0,Math.min(frames.length-1,i));
+    frames[cur].classList.remove('active');frames[i].classList.add('active');cur=i;
+    cnt.textContent=(i+1)+' / '+frames.length;
+    bar.style.width=((i+1)/frames.length*100)+'%';
+    var n=frames[i].getAttribute('data-notes')||'';
+    notes.innerHTML='<b>Speaker notes · slide '+(i+1)+'</b><br>'+(n?n.replace(/[&<>]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;'}[c]}):'(none)');
+    if(history.replaceState)history.replaceState(null,'','#'+(i+1));
+  }
+  function toggleNotes(){notes.classList.toggle('show');}
+  function full(){if(!document.fullscreenElement){document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen();}else{document.exitFullscreen&&document.exitFullscreen();}}
+  document.addEventListener('keydown',function(e){
+    if(e.target.closest&&e.target.closest('button')&&(e.key===' '||e.key==='Enter'))return;
+    var k=e.key;
+    if(k==='ArrowRight'||k==='PageDown'||k===' '||k==='ArrowDown'){show(cur+1);e.preventDefault();}
+    else if(k==='ArrowLeft'||k==='PageUp'||k==='ArrowUp'){show(cur-1);e.preventDefault();}
+    else if(k==='Home'){show(0);}else if(k==='End'){show(frames.length-1);}
+    else if(k==='n'||k==='N'){toggleNotes();}else if(k==='f'||k==='F'){full();}
+  });
+  document.getElementById('prev').onclick=function(){show(cur-1)};
+  document.getElementById('next').onclick=function(){show(cur+1)};
+  document.getElementById('nbtn').onclick=toggleNotes;
+  document.getElementById('fbtn').onclick=full;
+  var sx=null;
+  document.addEventListener('touchstart',function(e){sx=e.touches[0].clientX},{passive:true});
+  document.addEventListener('touchend',function(e){if(sx===null)return;var dx=e.changedTouches[0].clientX-sx;if(Math.abs(dx)>50)show(cur+(dx<0?1:-1));sx=null;});
+  window.addEventListener('hashchange',function(){var h=parseInt((location.hash||'').slice(1),10);if(!isNaN(h)&&h-1!==cur)show(h-1);});
+  window.addEventListener('resize',fit);
+  window.addEventListener('beforeprint',function(){stage.style.transform='none'});
+  window.addEventListener('afterprint',fit);
+  fit();
+  var h=parseInt((location.hash||'').slice(1),10);frames[0].classList.add('active');show(isNaN(h)?0:h-1);
+  setTimeout(function(){document.body.classList.remove('fresh')},4000);
+})();
+</script>
+</body>
+</html>

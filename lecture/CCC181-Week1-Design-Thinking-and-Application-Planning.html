@@ -1,0 +1,766 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Design Thinking &amp; App Planning</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400..700&amp;display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&amp;display=swap">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:#0d1424;overflow:hidden;font-family:'IBM Plex Sans',Arial,sans-serif}
+#viewport{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
+#stage{position:relative;width:1920px;height:1080px;transform-origin:center center;flex:none}
+.frame{position:absolute;inset:0;display:none}
+.frame.active{display:block}
+.frame>section{position:relative;width:1920px;height:1080px;overflow:hidden;display:flex;flex-direction:column;
+  font-size:32px;line-height:1.4;color:#1B2438;font-family:'IBM Plex Sans',Arial,sans-serif}
+section div{display:flex;flex-direction:column;min-width:0}
+section h1{font-size:96px;font-weight:600;line-height:1.1}
+section h2{font-size:64px;font-weight:600;line-height:1.15}
+section h3{font-size:44px;font-weight:600;line-height:1.2}
+section ul,section ol{padding-left:1.2em}
+section table{width:100%;border-collapse:collapse;table-layout:fixed}
+section th,section td{padding:.35em .6em;text-align:left;vertical-align:top;border-bottom:1px solid rgba(27,36,56,.14)}
+section th{font-weight:600}
+section svg{display:block;flex:none}
+x-shape{display:block;flex:none}
+x-shape[kind="arrow-right"]{clip-path:polygon(0 30%,60% 30%,60% 0,100% 50%,60% 100%,60% 70%,0 70%)}
+x-shape[kind="arrow-left"]{clip-path:polygon(100% 30%,40% 30%,40% 0,0 50%,40% 100%,40% 70%,100% 70%)}
+x-shape[kind="arrow-down"]{clip-path:polygon(30% 0,70% 0,70% 60%,100% 60%,50% 100%,0 60%,30% 60%)}
+x-shape[kind="arrow-up"]{clip-path:polygon(30% 100%,70% 100%,70% 40%,100% 40%,50% 0,0 40%,30% 40%)}
+x-shape[kind="ellipse"]{border-radius:50%}
+x-shape[kind="diamond"]{clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%)}
+.xi{flex:none}
+#bar{position:fixed;left:0;right:0;bottom:0;height:4px;background:rgba(255,255,255,.08);z-index:5}
+#bar i{display:block;height:100%;width:0;background:#F2A46E;transition:width .2s}
+#hud{position:fixed;right:16px;bottom:14px;display:flex;gap:8px;align-items:center;z-index:6;
+  font:500 14px 'IBM Plex Sans',Arial,sans-serif;color:#C5CEDD;opacity:.25;transition:opacity .2s}
+#hud:hover,#hud:focus-within{opacity:1}
+#hud button{background:#22304C;color:#F6F4EE;border:1px solid #3A4A6A;border-radius:8px;padding:6px 12px;font:inherit;cursor:pointer}
+#hud button:focus-visible{outline:2px solid #F2A46E;outline-offset:2px}
+#notes{position:fixed;left:16px;right:16px;bottom:56px;max-height:34vh;overflow:auto;display:none;z-index:6;
+  background:rgba(22,34,58,.96);color:#F6F4EE;border:1px solid #3A4A6A;border-radius:12px;padding:16px 20px;
+  font:400 17px/1.55 'IBM Plex Sans',Arial,sans-serif}
+#notes.show{display:block}
+#notes b{color:#F2A46E;font-weight:600}
+#help{position:fixed;top:14px;right:16px;z-index:6;font:400 13px 'IBM Plex Sans',Arial,sans-serif;color:#8A97AD;opacity:0;transition:opacity .4s}
+body.fresh #help{opacity:1}
+@media print{
+  @page{size:1920px 1080px;margin:0}
+  html,body{overflow:visible;background:none;height:auto}
+  #viewport{position:static;display:block}
+  #stage{transform:none!important;width:auto;height:auto}
+  .frame{position:relative;display:block;page-break-after:always;break-after:page;width:1920px;height:1080px}
+  #bar,#hud,#notes,#help{display:none!important}
+}
+</style>
+</head>
+<body class="fresh">
+<div id="viewport"><div id="stage">
+<div class="frame" data-notes="Welcome. Today is about the work that happens before anyone writes code: understanding people and the organization, defining the problem, deciding who we build for and why, and checking whether the plan is realistic, including which emerging technologies actually fit. We will follow one running case, a campus clinic queue app, through every step, and end with a group activity where you plan your own." aria-label="Slide 1">
+<section id="cover" data-transition="fade" style="display:flex; flex-direction:column; justify-content:space-between; padding:128px; background:#16223a">
+  <div style="position:absolute; top:0; left:0; width:24px; height:1080px; display:flex; flex-direction:column; background:#f2a46e">
+  </div>
+  <p style="font-family:'IBM Plex Sans', Arial, sans-serif; font-size:26px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#f2a46e">CCC181 · Application Development and Emerging Technologies</p>
+  <div style="display:flex; flex-direction:column; gap:40px">
+    <h1 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:120px; font-weight:700; line-height:1.02; letter-spacing:-2px; color:#f6f4ee">Design thinking &amp;<br>application planning</h1>
+    <p style="width:1300px; font-family:'IBM Plex Sans', Arial, sans-serif; font-size:36px; line-height:1.4; color:#c5cedd">From user and organizational needs to a well-scoped, feasible build, and the right technology to deliver it</p>
+  </div>
+  <div style="display:flex; flex-direction:row; align-items:end; justify-content:space-between">
+    <p style="font-family:'IBM Plex Sans', Arial, sans-serif; font-size:28px; color:#c5cedd">Week 0</p>
+    <p style="font-family:'IBM Plex Sans', Arial, sans-serif; font-size:28px; color:#c5cedd"></p>
+  </div>
+</section>
+</div>
+<div class="frame" data-notes="Six outcomes, and they follow the order of the session. The first two are about understanding; three and four are about defining; five and six are about deciding. Each outcome maps to one section of the planning brief you will submit at the end." aria-label="Slide 2">
+<section id="objectives" data-transition="fade" style="background:#F6F4EE; color:#1B2438; font-family:'IBM Plex Sans', Arial, sans-serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:48px">
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#B4501E">Learning outcomes</p>
+    <h2 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:64px; font-weight:700; line-height:1.1; color:#16223A">By the end of this session, you can…</h2>
+  </div>
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:24px">
+    <div style="display:flex; flex-direction:row; gap:24px; align-items:start; background:#FFFDF8; border:1px solid #E2DED3; border-radius:16px; padding:32px">
+      <p style="font-family:'Space Grotesk', Arial, sans-serif; font-size:44px; font-weight:700; line-height:1; color:#B4501E">01</p>
+      <p style="font-size:30px; line-height:1.35; color:#1B2438">Explain the five stages of design thinking and where planning fits</p>
+    </div>
+    <div style="display:flex; flex-direction:row; gap:24px; align-items:start; background:#FFFDF8; border:1px solid #E2DED3; border-radius:16px; padding:32px">
+      <p style="font-family:'Space Grotesk', Arial, sans-serif; font-size:44px; font-weight:700; line-height:1; color:#B4501E">02</p>
+      <p style="font-size:30px; line-height:1.35; color:#1B2438">Distinguish user needs from organizational needs, and gather both</p>
+    </div>
+    <div style="display:flex; flex-direction:row; gap:24px; align-items:start; background:#FFFDF8; border:1px solid #E2DED3; border-radius:16px; padding:32px">
+      <p style="font-family:'Space Grotesk', Arial, sans-serif; font-size:44px; font-weight:700; line-height:1; color:#B4501E">03</p>
+      <p style="font-size:30px; line-height:1.35; color:#1B2438">Write a clear problem statement and identify the target users</p>
+    </div>
+    <div style="display:flex; flex-direction:row; gap:24px; align-items:start; background:#FFFDF8; border:1px solid #E2DED3; border-radius:16px; padding:32px">
+      <p style="font-family:'Space Grotesk', Arial, sans-serif; font-size:44px; font-weight:700; line-height:1; color:#B4501E">04</p>
+      <p style="font-size:30px; line-height:1.35; color:#1B2438">Craft a value proposition and translate it into requirements</p>
+    </div>
+    <div style="display:flex; flex-direction:row; gap:24px; align-items:start; background:#FFFDF8; border:1px solid #E2DED3; border-radius:16px; padding:32px">
+      <p style="font-family:'Space Grotesk', Arial, sans-serif; font-size:44px; font-weight:700; line-height:1; color:#B4501E">05</p>
+      <p style="font-size:30px; line-height:1.35; color:#1B2438">Set the scope and assess feasibility before building</p>
+    </div>
+    <div style="display:flex; flex-direction:row; gap:24px; align-items:start; background:#FFFDF8; border:1px solid #E2DED3; border-radius:16px; padding:32px">
+      <p style="font-family:'Space Grotesk', Arial, sans-serif; font-size:44px; font-weight:700; line-height:1; color:#B4501E">06</p>
+      <p style="font-size:30px; line-height:1.35; color:#1B2438">Evaluate emerging technologies against the problem, not the hype</p>
+    </div>
+  </div>
+  <p style="position:absolute; left:128px; bottom:64px; width:1300px; font-size:24px; color:#5A6272">CCC181 · Design thinking &amp; application planning</p>
+  <p style="position:absolute; right:128px; bottom:64px; width:120px; font-size:24px; color:#5A6272; text-align:right">02</p>
+</section>
+</div>
+<div class="frame" data-notes="Collect three or four answers on the board. Typical ones: it asked for too much, it didn&#x27;t solve my actual problem, it was too slow on my phone, I already had a better way, I didn&#x27;t trust it with my data. Point out that almost none of these are coding bugs. They are planning failures: wrong problem, wrong user, weak value, wrong scope, or a technology that didn&#x27;t fit. That is today&#x27;s agenda." aria-label="Slide 3">
+<section id="warmup" data-transition="fade" style="display:flex; flex-direction:column; gap:48px; justify-content:center; padding:128px; background:#b4501e">
+  <p style="font-family:'IBM Plex Sans', Arial, sans-serif; font-size:26px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#fbf3ea">Warm-up discussion</p>
+  <h2 style="width:1500px; font-family:'Space Grotesk', Arial, sans-serif; font-size:88px; font-weight:700; line-height:1.08; color:#fbf3ea">Think of an app you installed, tried once, and abandoned.</h2>
+  <p style="width:1400px; font-family:'IBM Plex Sans', Arial, sans-serif; font-size:40px; line-height:1.35; color:#fbf3ea">Why did you stop using it? Was the problem in the code, or in what the app was built to do?</p>
+</section>
+</div>
+<div class="frame" data-notes="Design thinking is a human-centered problem-solving approach. The five-stage version popularized by the Stanford d.school is the most common. Emphasize two points. First, it starts with people, not technology. Second, it loops: testing produces learning that changes the problem definition. Today we stay in the first three stages, which is where application planning happens. Prototyping and testing come in later weeks." aria-label="Slide 4">
+<section id="process" data-transition="fade" style="background:#F6F4EE; color:#1B2438; font-family:'IBM Plex Sans', Arial, sans-serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:48px">
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#B4501E">Design thinking</p>
+    <h2 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:64px; font-weight:700; line-height:1.1; color:#16223A">Five stages, one loop</h2>
+  </div>
+  <div style="display:flex; flex-direction:row; align-items:center; gap:16px">
+    <div style="flex:1; display:flex; flex-direction:column; gap:12px; background:#FFFDF8; border:2px solid #B4501E; border-radius:16px; padding:24px; align-self:stretch">
+      <p style="font-size:24px; font-weight:600; color:#B4501E">1 · Today</p>
+      <h3 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:36px; font-weight:700; color:#16223A">Empathize</h3>
+      <p style="font-size:26px; line-height:1.35; color:#4A5366">Observe, interview and listen to real users in context</p>
+    </div>
+    <x-shape kind="arrow-right" style="width:40px; height:20px; background:#B4501E"></x-shape>
+    <div style="flex:1; display:flex; flex-direction:column; gap:12px; background:#FFFDF8; border:2px solid #B4501E; border-radius:16px; padding:24px; align-self:stretch">
+      <p style="font-size:24px; font-weight:600; color:#B4501E">2 · Today</p>
+      <h3 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:36px; font-weight:700; color:#16223A">Define</h3>
+      <p style="font-size:26px; line-height:1.35; color:#4A5366">Turn what you learned into one clear problem statement</p>
+    </div>
+    <x-shape kind="arrow-right" style="width:40px; height:20px; background:#B4501E"></x-shape>
+    <div style="flex:1; display:flex; flex-direction:column; gap:12px; background:#FFFDF8; border:2px solid #B4501E; border-radius:16px; padding:24px; align-self:stretch">
+      <p style="font-size:24px; font-weight:600; color:#B4501E">3 · Today</p>
+      <h3 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:36px; font-weight:700; color:#16223A">Ideate</h3>
+      <p style="font-size:26px; line-height:1.35; color:#4A5366">Generate many possible solutions before choosing one</p>
+    </div>
+    <x-shape kind="arrow-right" style="width:40px; height:20px; background:#8A8F99"></x-shape>
+    <div style="flex:1; display:flex; flex-direction:column; gap:12px; background:#ECE8DE; border:2px solid #D6D1C4; border-radius:16px; padding:24px; align-self:stretch">
+      <p style="font-size:24px; font-weight:600; color:#5A6272">4 · Later</p>
+      <h3 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:36px; font-weight:700; color:#16223A">Prototype</h3>
+      <p style="font-size:26px; line-height:1.35; color:#4A5366">Build cheap, quick versions to make ideas tangible</p>
+    </div>
+    <x-shape kind="arrow-right" style="width:40px; height:20px; background:#8A8F99"></x-shape>
+    <div style="flex:1; display:flex; flex-direction:column; gap:12px; background:#ECE8DE; border:2px solid #D6D1C4; border-radius:16px; padding:24px; align-self:stretch">
+      <p style="font-size:24px; font-weight:600; color:#5A6272">5 · Later</p>
+      <h3 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:36px; font-weight:700; color:#16223A">Test</h3>
+      <p style="font-size:26px; line-height:1.35; color:#4A5366">Put prototypes before users, learn, and loop back</p>
+    </div>
+  </div>
+  <div style="display:flex; flex-direction:column; gap:12px; background:#FFFDF8; border-left:6px solid #2D6F78; padding:28px 36px; border-radius:0px 12px 12px 0px">
+    <p style="font-size:30px; line-height:1.4; color:#1B2438"><b>Application planning lives in stages 1–3.</b> It is not linear: a failed test often sends you back to Define, or even to Empathize.</p>
+  </div>
+  <p style="position:absolute; left:128px; bottom:64px; width:1300px; font-size:24px; color:#5A6272">Model: Hasso Plattner Institute of Design at Stanford (d.school)</p>
+  <p style="position:absolute; right:128px; bottom:64px; width:120px; font-size:24px; color:#5A6272; text-align:right">04</p>
+</section>
+</div>
+<div class="frame" data-notes="Introduce the running case: a university clinic where students queue for walk-in consultations. User needs belong to the people who touch the app, here students and nurses. Organizational needs belong to whoever owns, pays for and is accountable for it, here the clinic and the university. Mention RA 10173, the Data Privacy Act of 2012, since health information is sensitive personal information under that law. Quick question: which side usually gets heard first in student projects? Usually neither; teams jump straight to features." aria-label="Slide 5">
+<section id="needs" data-section="Design thinking and discovering user and organizational needs" data-transition="fade" style="background:#F6F4EE; color:#1B2438; font-family:'IBM Plex Sans', Arial, sans-serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:40px">
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#B4501E">Empathize</p>
+    <h2 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:64px; font-weight:700; line-height:1.1; color:#16223A">Two sets of needs to satisfy</h2>
+  </div>
+  <div style="display:flex; flex-direction:row; gap:32px">
+    <div style="flex:1; display:flex; flex-direction:column; gap:16px; background:#FFFDF8; border:1px solid #E2DED3; border-radius:16px; padding:36px">
+      <h3 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:38px; font-weight:700; color:#B4501E">User needs</h3>
+      <p style="font-size:26px; color:#5A6272">The people who use the app</p>
+      <ul style="font-size:28px; line-height:1.4; color:#1B2438">
+        <li><b>Goals</b>: what they are trying to get done</li>
+        <li><b>Pain points</b>: what slows or frustrates them now</li>
+        <li><b>Context</b>: device, connectivity, time, place</li>
+        <li><b>Accessibility</b>: vision, language, motor, literacy</li>
+        <li><b>Trust</b>: privacy, reliability, sense of control</li>
+      </ul>
+    </div>
+    <div style="flex:1; display:flex; flex-direction:column; gap:16px; background:#FFFDF8; border:1px solid #E2DED3; border-radius:16px; padding:36px">
+      <h3 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:38px; font-weight:700; color:#2D6F78">Organizational needs</h3>
+      <p style="font-size:26px; color:#5A6272">The institution that owns and runs it</p>
+      <ul style="font-size:28px; line-height:1.4; color:#1B2438">
+        <li><b>Mission</b>: goals the app must advance</li>
+        <li><b>Compliance</b>: policy and law, e.g. the Data Privacy Act of 2012</li>
+        <li><b>Resources</b>: budget, staff, support capacity</li>
+        <li><b>Systems</b>: existing data and tools to integrate</li>
+        <li><b>Reporting</b>: what leaders need to decide</li>
+      </ul>
+    </div>
+  </div>
+  <p style="font-size:28px; line-height:1.4; color:#1B2438; background:#FBE9DC; padding:24px 32px; border-radius:12px"><b>Where they collide:</b> students want the fewest steps; the clinic wants complete records. Good planning finds a version that serves both.</p>
+  <p style="position:absolute; left:128px; bottom:64px; width:1300px; font-size:24px; color:#5A6272">CCC181 · Design thinking &amp; application planning</p>
+  <p style="position:absolute; right:128px; bottom:64px; width:120px; font-size:24px; color:#5A6272; text-align:right">05</p>
+</section>
+</div>
+<div class="frame" data-notes="No single method is enough. Interviews tell you what people say, observation tells you what they do, and the gap between the two is often where the real problem sits. For the clinic case: interview five students, spend a morning observing the waiting area, review the clinic logbook and forms, and map who approves changes. Tip on interviews: ask about the last time something happened (&quot;Tell me about the last time you went to the clinic&quot;) instead of hypotheticals (&quot;Would you use an app?&quot;)." aria-label="Slide 6">
+<section id="methods" data-transition="fade" style="background:#F6F4EE; color:#1B2438; font-family:'IBM Plex Sans', Arial, sans-serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:40px">
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#B4501E">Empathize</p>
+    <h2 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:64px; font-weight:700; line-height:1.1; color:#16223A">Methods for discovering needs</h2>
+  </div>
+  <table style="font-size:28px; color:#1B2438; font-family:'IBM Plex Sans', Arial, sans-serif; background:#FFFDF8; border:1px solid #E2DED3">
+    <tr style="background:#16223A"><th style="width:28%; color:#F6F4EE">Method</th><th style="width:38%; color:#F6F4EE">Best for</th><th style="width:34%; color:#F6F4EE">Watch out for</th></tr>
+    <tr><td><b>Interviews</b></td><td>Motivations, pain points, stories</td><td>Leading questions</td></tr>
+    <tr style="background:#F1EEE6"><td><b>Observation</b></td><td>What people actually do</td><td>Takes time; people act differently when watched</td></tr>
+    <tr><td><b>Surveys</b></td><td>Breadth; ranking needs across many users</td><td>Shallow answers</td></tr>
+    <tr style="background:#F1EEE6"><td><b>Document &amp; system review</b></td><td>Rules, forms, current data and workflows</td><td>Outdated or unofficial practices</td></tr>
+    <tr><td><b>Stakeholder mapping</b></td><td>Who decides, pays, and is affected</td><td>Missing quiet stakeholders</td></tr>
+  </table>
+  <div style="display:flex; flex-direction:row; gap:16px; align-items:center">
+    <p style="font-size:26px; font-weight:600; color:#FBF3EA; background:#2D6F78; padding:10px 24px; border-radius:999px">Synthesize</p>
+    <p style="font-size:28px; color:#1B2438">Sort findings into an empathy map: <b>Says · Thinks · Does · Feels</b></p>
+  </div>
+  <p style="position:absolute; left:128px; bottom:64px; width:1300px; font-size:24px; color:#5A6272">CCC181 · Design thinking &amp; application planning</p>
+  <p style="position:absolute; right:128px; bottom:64px; width:120px; font-size:24px; color:#5A6272; text-align:right">06</p>
+</section>
+</div>
+<div class="frame" data-notes="The point-of-view statement compresses your research into one sentence. The insight is the part most teams skip; without it you only have a wish. Then reframe the POV as a &quot;How might we…?&quot; question, which opens the door to ideation without committing to a solution. Quick exercise: ask the class to rewrite &quot;We need a mobile app for the library&quot; as a proper POV statement." aria-label="Slide 7">
+<section id="problem" data-section="Defining the problem, the target users and the value proposition" data-transition="fade" style="background:#F6F4EE; color:#1B2438; font-family:'IBM Plex Sans', Arial, sans-serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:40px">
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#B4501E">Define</p>
+    <h2 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:64px; font-weight:700; line-height:1.1; color:#16223A">Problem definition</h2>
+  </div>
+  <div style="display:flex; flex-direction:row; gap:32px">
+    <div style="flex:1.3; display:flex; flex-direction:column; gap:24px">
+      <div style="display:flex; flex-direction:column; gap:12px; background:#16223A; border-radius:16px; padding:32px 36px">
+        <p style="font-size:24px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:#F2A46E">Point-of-view statement</p>
+        <p style="font-family:'Space Grotesk', Arial, sans-serif; font-size:40px; font-weight:600; line-height:1.25; color:#F6F4EE">[User] needs [need] because [insight].</p>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:12px; background:#FFFDF8; border:1px solid #E2DED3; border-radius:16px; padding:28px 36px">
+        <p style="font-size:24px; font-weight:600; color:#B4501E">Case example</p>
+        <p style="font-size:28px; line-height:1.4; color:#1B2438">A working student with back-to-back classes needs to see a nurse without losing a whole morning, because the clinic takes walk-ins only and the queue is unpredictable.</p>
+        <p style="font-size:28px; line-height:1.4; color:#2D6F78"><b>How might we</b> make clinic wait times predictable for students with tight schedules?</p>
+      </div>
+    </div>
+    <div style="flex:1; display:flex; flex-direction:column; gap:20px; background:#FFFDF8; border:1px solid #E2DED3; border-radius:16px; padding:32px">
+      <h3 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:34px; font-weight:700; color:#16223A">A good statement…</h3>
+      <div style="display:flex; flex-direction:row; gap:16px; align-items:start"><svg class="xi" style="width:32px; height:32px; color:#2D6F78" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><p style="font-size:27px; line-height:1.35">names a real user group</p></div>
+      <div style="display:flex; flex-direction:row; gap:16px; align-items:start"><svg class="xi" style="width:32px; height:32px; color:#2D6F78" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><p style="font-size:27px; line-height:1.35">states a need, not a feature</p></div>
+      <div style="display:flex; flex-direction:row; gap:16px; align-items:start"><svg class="xi" style="width:32px; height:32px; color:#2D6F78" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><p style="font-size:27px; line-height:1.35">rests on an insight from research</p></div>
+      <div style="display:flex; flex-direction:row; gap:16px; align-items:start"><svg class="xi" style="width:32px; height:32px; color:#2D6F78" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><p style="font-size:27px; line-height:1.35">is narrow enough to act on, open enough for ideas</p></div>
+      <p style="font-size:26px; line-height:1.35; color:#8A3A14; background:#FBE9DC; padding:16px 20px; border-radius:10px">Not a problem: “We need a mobile app.” That is a solution.</p>
+    </div>
+  </div>
+  <p style="position:absolute; left:128px; bottom:64px; width:1300px; font-size:24px; color:#5A6272">CCC181 · Design thinking &amp; application planning</p>
+  <p style="position:absolute; right:128px; bottom:64px; width:120px; font-size:24px; color:#5A6272; text-align:right">07</p>
+</section>
+</div>
+<div class="frame" data-notes="&quot;Everyone&quot; is not a target user. Name the primary user the design is optimized for, the secondary users who also touch the system, and the stakeholders who never open it but can approve or kill it. Ana is a fictional persona built for this example; in your projects, each persona detail should trace back to something you heard or observed. Note how her context (budget phone, limited data) will later drive non-functional requirements and technology choice." aria-label="Slide 8">
+<section id="users" data-transition="fade" style="background:#F6F4EE; color:#1B2438; font-family:'IBM Plex Sans', Arial, sans-serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:40px">
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#B4501E">Define</p>
+    <h2 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:64px; font-weight:700; line-height:1.1; color:#16223A">Target users</h2>
+  </div>
+  <div style="display:flex; flex-direction:row; gap:32px">
+    <div style="flex:1; display:flex; flex-direction:column; gap:20px; background:#FFFDF8; border:1px solid #E2DED3; border-radius:16px; padding:36px">
+      <div style="display:flex; flex-direction:row; gap:24px; align-items:center">
+        <div style="width:96px; height:96px; border-radius:50%; background:#F2A46E; display:flex; align-items:center; justify-content:center"><p style="font-family:'Space Grotesk', Arial, sans-serif; font-size:40px; font-weight:700; color:#16223A">A</p></div>
+        <div style="display:flex; flex-direction:column; gap:4px">
+          <h3 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:38px; font-weight:700; color:#16223A">Ana, 20</h3>
+          <p style="font-size:26px; color:#5A6272">Primary persona · working student (fictional)</p>
+        </div>
+      </div>
+      <p style="font-size:27px; line-height:1.4"><b>Goal:</b> see a nurse between classes without missing a quiz</p>
+      <p style="font-size:27px; line-height:1.4"><b>Frustration:</b> can't tell how long the queue is, so she leaves before being called</p>
+      <p style="font-size:27px; line-height:1.4"><b>Context:</b> budget Android phone, limited mobile data, patchy campus Wi-Fi</p>
+    </div>
+    <div style="flex:1; display:flex; flex-direction:column; gap:16px">
+      <div style="display:flex; flex-direction:column; gap:6px; background:#FFFDF8; border-left:6px solid #B4501E; padding:22px 28px; border-radius:0px 12px 12px 0px">
+        <h3 style="font-size:30px; font-weight:600; color:#B4501E">Primary users</h3>
+        <p style="font-size:27px; line-height:1.35">Students who join the queue and wait</p>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:6px; background:#FFFDF8; border-left:6px solid #2D6F78; padding:22px 28px; border-radius:0px 12px 12px 0px">
+        <h3 style="font-size:30px; font-weight:600; color:#2D6F78">Secondary users</h3>
+        <p style="font-size:27px; line-height:1.35">Nurses and clinic staff who run the queue</p>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:6px; background:#FFFDF8; border-left:6px solid #5A6272; padding:22px 28px; border-radius:0px 12px 12px 0px">
+        <h3 style="font-size:30px; font-weight:600; color:#5A6272">Stakeholders</h3>
+        <p style="font-size:27px; line-height:1.35">Clinic head, administration, IT office: approve, fund, maintain</p>
+      </div>
+      <p style="font-size:26px; line-height:1.4; color:#4A5366">Build personas from research data, not imagination. Start with one primary persona.</p>
+    </div>
+  </div>
+  <p style="position:absolute; left:128px; bottom:64px; width:1300px; font-size:24px; color:#5A6272">CCC181 · Design thinking &amp; application planning</p>
+  <p style="position:absolute; right:128px; bottom:64px; width:120px; font-size:24px; color:#5A6272; text-align:right">08</p>
+</section>
+</div>
+<div class="frame" data-notes="The value proposition answers: why would the target user choose this over what they do today? Always name the current alternative. Here it is simply standing in line, which is free and familiar, so the app has to be clearly better. The canvas is a way to check fit: list the user&#x27;s jobs, pains and gains from your research, then show which feature relieves which pain. Features that relieve no listed pain are candidates for cutting. ClinicQ is a made-up product name for the case." aria-label="Slide 9">
+<section id="value" data-transition="fade" style="background:#F6F4EE; color:#1B2438; font-family:'IBM Plex Sans', Arial, sans-serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:40px">
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#B4501E">Define</p>
+    <h2 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:64px; font-weight:700; line-height:1.1; color:#16223A">Value proposition</h2>
+  </div>
+  <div style="display:flex; flex-direction:row; gap:32px">
+    <div style="flex:1.25; display:flex; flex-direction:column; gap:24px">
+      <div style="display:flex; flex-direction:column; gap:12px; background:#16223A; border-radius:16px; padding:32px 36px">
+        <p style="font-size:24px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:#F2A46E">Template</p>
+        <p style="font-size:30px; line-height:1.45; color:#F6F4EE">For <span style="color:#F2A46E">[target users]</span> who <span style="color:#F2A46E">[need]</span>, <span style="color:#F2A46E">[product]</span> is a <span style="color:#F2A46E">[category]</span> that <span style="color:#F2A46E">[key benefit]</span>. Unlike <span style="color:#F2A46E">[current alternative]</span>, it <span style="color:#F2A46E">[differentiator]</span>.</p>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:12px; background:#FFFDF8; border:1px solid #E2DED3; border-radius:16px; padding:28px 36px">
+        <p style="font-size:24px; font-weight:600; color:#B4501E">Case example</p>
+        <p style="font-size:28px; line-height:1.45">For students with tight schedules who need clinic care, <b>ClinicQ</b> is a web app that shows their live place in the queue and alerts them when their turn is near. Unlike the walk-in line, it lets them wait anywhere.</p>
+      </div>
+    </div>
+    <div style="flex:1; display:flex; flex-direction:column; gap:16px; background:#FFFDF8; border:1px solid #E2DED3; border-radius:16px; padding:32px">
+      <h3 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:32px; font-weight:700; color:#16223A">Value Proposition Canvas</h3>
+      <div style="display:flex; flex-direction:row; gap:16px">
+        <div style="flex:1; display:flex; flex-direction:column; gap:10px; background:#E3EFF0; border-radius:12px; padding:20px">
+          <p style="font-size:24px; font-weight:600; color:#2D6F78">User side</p>
+          <p style="font-size:26px; line-height:1.35">Jobs<br>Pains<br>Gains</p>
+        </div>
+        <div style="flex:1; display:flex; flex-direction:column; gap:10px; background:#FBE9DC; border-radius:12px; padding:20px">
+          <p style="font-size:24px; font-weight:600; color:#8A3A14">Product side</p>
+          <p style="font-size:26px; line-height:1.35">Features<br>Pain relievers<br>Gain creators</p>
+        </div>
+      </div>
+      <p style="font-size:26px; line-height:1.4; color:#4A5366"><b>Fit</b> = your pain relievers address the pains users rank highest.</p>
+      <p style="font-size:24px; color:#5A6272">Osterwalder et al., <i>Value Proposition Design</i> (2014)</p>
+    </div>
+  </div>
+  <p style="position:absolute; left:128px; bottom:64px; width:1300px; font-size:24px; color:#5A6272">CCC181 · Design thinking &amp; application planning</p>
+  <p style="position:absolute; right:128px; bottom:64px; width:120px; font-size:24px; color:#5A6272; text-align:right">09</p>
+</section>
+</div>
+<div class="frame" data-notes="Requirements turn the value proposition into things we can build and test. Functional requirements describe behavior; user stories keep them tied to a user and a benefit. Non-functional requirements describe quality, and they should be measurable: &quot;fast&quot; is not a requirement, &quot;updates within 5 seconds&quot; is. Notice how Ana&#x27;s budget phone becomes a compatibility requirement. MoSCoW (Must, Should, Could, Won&#x27;t this time) forces the team to decide what the first release truly needs." aria-label="Slide 10">
+<section id="requirements" data-section="Turning value into requirements, scope and a feasibility check" data-transition="fade" style="background:#F6F4EE; color:#1B2438; font-family:'IBM Plex Sans', Arial, sans-serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:32px">
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#B4501E">Plan</p>
+    <h2 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:64px; font-weight:700; line-height:1.1; color:#16223A">Requirements</h2>
+  </div>
+  <div style="display:flex; flex-direction:row; gap:32px">
+    <div style="flex:1; display:flex; flex-direction:column; gap:12px; background:#FFFDF8; border:1px solid #E2DED3; border-radius:16px; padding:28px 32px">
+      <h3 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:32px; font-weight:700; color:#B4501E">Functional: what it does</h3>
+      <p style="font-size:26px; line-height:1.35; color:#4A5366"><i>As a [user], I want [action] so that [benefit].</i></p>
+      <ul style="font-size:26px; line-height:1.4">
+        <li>As a student, I want to join the queue remotely so that I can wait in class</li>
+        <li>As a nurse, I want to call the next student in one tap</li>
+      </ul>
+    </div>
+    <div style="flex:1; display:flex; flex-direction:column; gap:12px; background:#FFFDF8; border:1px solid #E2DED3; border-radius:16px; padding:28px 32px">
+      <h3 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:32px; font-weight:700; color:#2D6F78">Non-functional: how well</h3>
+      <ul style="font-size:26px; line-height:1.4">
+        <li><b>Performance</b>: queue position updates within 5 s</li>
+        <li><b>Usability</b>: join the queue in 3 taps or fewer</li>
+        <li><b>Privacy</b>: only clinic staff see the reason for visit</li>
+        <li><b>Compatibility</b>: works on low-end Android and slow data</li>
+      </ul>
+    </div>
+  </div>
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <p style="font-size:26px; font-weight:600; color:#16223A">Prioritize with MoSCoW</p>
+    <div style="display:flex; flex-direction:row; gap:16px">
+      <div style="flex:1; display:flex; flex-direction:column; gap:6px; background:#16223A; border-radius:12px; padding:20px 24px"><p style="font-size:26px; font-weight:600; color:#F2A46E">Must</p><p style="font-size:24px; line-height:1.35; color:#F6F4EE">Join queue, see position, get alert</p></div>
+      <div style="flex:1; display:flex; flex-direction:column; gap:6px; background:#2D6F78; border-radius:12px; padding:20px 24px"><p style="font-size:26px; font-weight:600; color:#FBF3EA">Should</p><p style="font-size:24px; line-height:1.35; color:#FBF3EA">Staff queue dashboard</p></div>
+      <div style="flex:1; display:flex; flex-direction:column; gap:6px; background:#E3EFF0; border-radius:12px; padding:20px 24px"><p style="font-size:26px; font-weight:600; color:#1F5058">Could</p><p style="font-size:24px; line-height:1.35; color:#1B2438">Visit history for students</p></div>
+      <div style="flex:1; display:flex; flex-direction:column; gap:6px; background:#ECE8DE; border-radius:12px; padding:20px 24px"><p style="font-size:26px; font-weight:600; color:#5A6272">Won't (this time)</p><p style="font-size:24px; line-height:1.35; color:#1B2438">Online consultations</p></div>
+    </div>
+  </div>
+  <p style="position:absolute; left:128px; bottom:64px; width:1300px; font-size:24px; color:#5A6272">CCC181 · Design thinking &amp; application planning</p>
+  <p style="position:absolute; right:128px; bottom:64px; width:120px; font-size:24px; color:#5A6272; text-align:right">10</p>
+</section>
+</div>
+<div class="frame" data-notes="MoSCoW is a prioritization technique: every requirement goes into exactly one of four groups. The name comes from the first letters; the lowercase o&#x27;s are only there to make it pronounceable. Must haves define the release: if one is missing, the release fails, so together they usually form the MVP. Should haves are important but the app still works without them. Could haves are the first cut when time runs out. Won&#x27;t haves (this time) are explicitly agreed as out of scope, which protects the schedule. Students tend to label almost everything a Must; push them with the test: &quot;Does the app still solve your POV statement without this?&quot;" aria-label="Slide 11">
+<section id="moscow" data-transition="fade" style="background:#F6F4EE; color:#1B2438; font-family:'IBM Plex Sans', Arial, sans-serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:32px">
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#B4501E">Plan</p>
+    <h2 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:64px; font-weight:700; line-height:1.1; color:#16223A">MoSCoW: prioritizing requirements</h2>
+  </div>
+  <div style="display:flex; flex-direction:row; gap:24px">
+    <div style="flex:1; display:flex; flex-direction:column; gap:12px; background:#16223A; border-radius:16px; padding:28px">
+      <p style="font-family:'Space Grotesk', Arial, sans-serif; font-size:72px; font-weight:700; line-height:1; color:#F2A46E">M</p>
+      <h3 style="font-size:30px; font-weight:600; color:#F6F4EE">Must have</h3>
+      <p style="font-size:24px; line-height:1.4; color:#C5CEDD">Without it, the app fails or doesn't solve the problem. One missing Must means the release fails.</p>
+      <div style="flex:1"></div>
+      <p style="font-size:24px; line-height:1.35; color:#F6F4EE; border-top:1px solid #3A4A6A; padding:14px 0px 0px 0px"><b style="color:#F2A46E">ClinicQ:</b> join queue, see position, get alert</p>
+    </div>
+    <div style="flex:1; display:flex; flex-direction:column; gap:12px; background:#2D6F78; border-radius:16px; padding:28px">
+      <p style="font-family:'Space Grotesk', Arial, sans-serif; font-size:72px; font-weight:700; line-height:1; color:#FBF3EA">S</p>
+      <h3 style="font-size:30px; font-weight:600; color:#FBF3EA">Should have</h3>
+      <p style="font-size:24px; line-height:1.4; color:#FBF3EA">Important and valuable, but the app still works without it. Can wait for the next release.</p>
+      <div style="flex:1"></div>
+      <p style="font-size:24px; line-height:1.35; color:#FBF3EA; border-top:1px solid #5E949B; padding:14px 0px 0px 0px"><b>ClinicQ:</b> staff queue dashboard</p>
+    </div>
+    <div style="flex:1; display:flex; flex-direction:column; gap:12px; background:#E3EFF0; border-radius:16px; padding:28px">
+      <p style="font-family:'Space Grotesk', Arial, sans-serif; font-size:72px; font-weight:700; line-height:1; color:#1F5058">C</p>
+      <h3 style="font-size:30px; font-weight:600; color:#1F5058">Could have</h3>
+      <p style="font-size:24px; line-height:1.4; color:#1B2438">Nice extras, added only if time allows. The first to be cut when the schedule slips.</p>
+      <div style="flex:1"></div>
+      <p style="font-size:24px; line-height:1.35; color:#1B2438; border-top:1px solid #B9D3D6; padding:14px 0px 0px 0px"><b>ClinicQ:</b> visit history for students</p>
+    </div>
+    <div style="flex:1; display:flex; flex-direction:column; gap:12px; background:#ECE8DE; border-radius:16px; padding:28px">
+      <p style="font-family:'Space Grotesk', Arial, sans-serif; font-size:72px; font-weight:700; line-height:1; color:#5A6272">W</p>
+      <h3 style="font-size:30px; font-weight:600; color:#5A6272">Won't have (this time)</h3>
+      <p style="font-size:24px; line-height:1.4; color:#1B2438">Agreed out of scope for now. Writing it down is what stops scope creep.</p>
+      <div style="flex:1"></div>
+      <p style="font-size:24px; line-height:1.35; color:#1B2438; border-top:1px solid #D6D1C4; padding:14px 0px 0px 0px"><b>ClinicQ:</b> online consultations</p>
+    </div>
+  </div>
+  <div style="display:flex; flex-direction:row; gap:20px; align-items:center; background:#FBE9DC; border-radius:12px; padding:22px 32px">
+    <svg class="xi" style="width:40px; height:40px; color:#8A3A14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg>
+    <p style="font-size:28px; line-height:1.4; color:#1B2438"><b>Rule of thumb:</b> if the app still solves your problem statement without a feature, it is not a Must. Keep the Must list short.</p>
+  </div>
+  <p style="position:absolute; left:128px; bottom:64px; width:1300px; font-size:24px; color:#5A6272">Created by Dai Clegg at Oracle (1994); later adopted by the DSDM agile method</p>
+  <p style="position:absolute; right:128px; bottom:64px; width:120px; font-size:24px; color:#5A6272; text-align:right">11</p>
+</section>
+</div>
+<div class="frame" data-notes="Scope is the agreed boundary of the project. The MVP, minimum viable product, is the smallest version that still delivers the value proposition. The out-of-scope list is just as important as the in-scope list: it is what you point to when someone asks &quot;can we also add…?&quot; in week 10. List constraints and assumptions explicitly, because assumptions that turn out false are a major source of project failure." aria-label="Slide 12">
+<section id="scope" data-transition="fade" style="background:#F6F4EE; color:#1B2438; font-family:'IBM Plex Sans', Arial, sans-serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:40px">
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#B4501E">Plan</p>
+    <h2 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:64px; font-weight:700; line-height:1.1; color:#16223A">Scope: drawing the boundary</h2>
+  </div>
+  <div style="display:flex; flex-direction:row; gap:24px">
+    <div style="flex:1; display:flex; flex-direction:column; gap:14px; background:#FFFDF8; border-top:6px solid #B4501E; border-radius:12px; padding:28px 32px">
+      <h3 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:32px; font-weight:700; color:#B4501E">In scope (MVP)</h3>
+      <ul style="font-size:26px; line-height:1.4">
+        <li>Sign in with school email</li>
+        <li>Join queue, see position</li>
+        <li>Alert when 3 people ahead</li>
+        <li>Staff queue screen</li>
+      </ul>
+    </div>
+    <div style="flex:1; display:flex; flex-direction:column; gap:14px; background:#FFFDF8; border-top:6px solid #5A6272; border-radius:12px; padding:28px 32px">
+      <h3 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:32px; font-weight:700; color:#5A6272">Out of scope</h3>
+      <ul style="font-size:26px; line-height:1.4">
+        <li>Online consultations</li>
+        <li>Full medical records</li>
+        <li>Payments</li>
+        <li>Native iOS and Android apps</li>
+      </ul>
+    </div>
+    <div style="flex:1; display:flex; flex-direction:column; gap:14px; background:#FFFDF8; border-top:6px solid #2D6F78; border-radius:12px; padding:28px 32px">
+      <h3 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:32px; font-weight:700; color:#2D6F78">Constraints</h3>
+      <ul style="font-size:26px; line-height:1.4">
+        <li>3-person team, one semester</li>
+        <li>Free or low-cost hosting</li>
+        <li>Assumes a staff laptop at the front desk</li>
+        <li>Health data under RA 10173</li>
+      </ul>
+    </div>
+  </div>
+  <div style="display:flex; flex-direction:row; gap:20px; align-items:center; background:#FBE9DC; border-radius:12px; padding:24px 32px">
+    <svg class="xi" style="width:44px; height:44px; color:#8A3A14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+    <p style="font-size:28px; line-height:1.4; color:#1B2438"><b>Scope creep:</b> every “small” extra borrows time from the Must list. Write the out-of-scope list down and get stakeholders to agree to it.</p>
+  </div>
+  <p style="position:absolute; left:128px; bottom:64px; width:1300px; font-size:24px; color:#5A6272">CCC181 · Design thinking &amp; application planning</p>
+  <p style="position:absolute; right:128px; bottom:64px; width:120px; font-size:24px; color:#5A6272; text-align:right">12</p>
+</section>
+</div>
+<div class="frame" data-notes="An MVP, minimum viable product, is the smallest version of an app that still solves the core problem for the target user, so you can put it in front of real people and learn from how they respond. Both words matter. Minimum: only the features the value proposition depends on, usually the Must list from MoSCoW. Viable: it has to actually work and deliver the value; a half-built screen or a pile of disconnected features is not an MVP. The bicycle analogy: one wheel of a car is part of the final product but useless on its own; a bicycle is simple but already solves &quot;get across town&quot;. For ClinicQ, a student can skip the physical line with just the MVP features, so the core problem is solved; everything else can wait until the MVP proves people will use it. For students, the MVP is also the realistic scope they commit to finishing." aria-label="Slide 13">
+<section id="mvp" data-transition="fade" style="display:flex; flex-direction:column; gap:32px; padding:128px 128px 160px; background:#f6f4ee">
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <p style="font-family:'IBM Plex Sans', Arial, sans-serif; font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#b4501e">Plan</p>
+    <h2 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:64px; font-weight:700; line-height:1.1; color:#16223a">MVP: minimum viable product</h2>
+  </div>
+  <div style="display:flex; flex-direction:row; gap:32px">
+    <div style="display:flex; flex-direction:column; gap:20px; flex:1">
+      <div style="display:flex; flex-direction:column; gap:12px; padding:30px 36px; background:#16223a; border-radius:16px">
+        <p style="font-family:'IBM Plex Sans', Arial, sans-serif; font-size:24px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:#f2a46e">Definition</p>
+        <p style="font-family:'Space Grotesk', Arial, sans-serif; font-size:32px; font-weight:500; line-height:1.35; color:#f6f4ee">The smallest version of the app that still solves the core problem for the target user, so real people can use it and you can learn from them.</p>
+      </div>
+      <div style="display:flex; flex-direction:row; gap:20px">
+        <div style="display:flex; flex-direction:column; gap:8px; flex:1; padding:22px 26px; background:#fffdf8; border-top:6px solid #b4501e; border-radius:12px">
+          <h3 style="font-family:'IBM Plex Sans', Arial, sans-serif; font-size:30px; font-weight:600; color:#b4501e">Minimum</h3>
+          <p style="font-family:'IBM Plex Sans', Arial, sans-serif; font-size:24px; line-height:1.4; color:#1b2438">Only what the value proposition depends on: usually the Must list</p>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:8px; flex:1; padding:22px 26px; background:#fffdf8; border-top:6px solid #2d6f78; border-radius:12px">
+          <h3 style="font-family:'IBM Plex Sans', Arial, sans-serif; font-size:30px; font-weight:600; color:#2d6f78">Viable</h3>
+          <p style="font-family:'IBM Plex Sans', Arial, sans-serif; font-size:24px; line-height:1.4; color:#1b2438">It must work and deliver value; half-built features don't count</p>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:16px; flex:1">
+      <div style="display:flex; flex-direction:row; gap:20px; align-items:center; padding:22px 28px; background:#ece8de; border-radius:12px">
+        <svg class="xi" style="width:40px; height:40px; color:#5a6272" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+        <p style="font-family:'IBM Plex Sans', Arial, sans-serif; font-size:26px; line-height:1.4; color:#1b2438"><b>Not an MVP:</b> one wheel of a car. It gets no one anywhere.</p>
+      </div>
+      <div style="display:flex; flex-direction:row; gap:20px; align-items:center; padding:22px 28px; background:#e3eff0; border-radius:12px">
+        <svg class="xi" style="width:40px; height:40px; color:#2d6f78" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+        <p style="font-family:'IBM Plex Sans', Arial, sans-serif; font-size:26px; line-height:1.4; color:#1b2438"><b>An MVP:</b> a bicycle. It gets you across town today.</p>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:8px; padding:22px 28px; background:#fffdf8; border:1px solid #e2ded3; border-radius:12px">
+        <p style="font-family:'IBM Plex Sans', Arial, sans-serif; font-size:24px; font-weight:600; color:#b4501e">ClinicQ MVP</p>
+        <p style="font-family:'IBM Plex Sans', Arial, sans-serif; font-size:26px; line-height:1.4; color:#1b2438">Sign in, join the queue, see your position, get an alert; plus a staff queue screen. Consultations, records and payments wait.</p>
+      </div>
+    </div>
+  </div>
+  <p style="padding:20px 32px; font-family:'IBM Plex Sans', Arial, sans-serif; font-size:28px; line-height:1.4; color:#fbf3ea; background:#2d6f78; border-radius:12px"><b>For your project:</b> the MVP is the scope you commit to finishing this semester.&nbsp;</p>
+  <p style="position:absolute; bottom:64px; left:128px; width:1300px; font-family:'IBM Plex Sans', Arial, sans-serif; font-size:24px; color:#5a6272">Term coined by Frank Robinson (2001); popularized by Eric Ries, <i>The Lean Startup</i> (2011)</p>
+  <p style="position:absolute; right:128px; bottom:64px; width:120px; font-family:'IBM Plex Sans', Arial, sans-serif; font-size:24px; text-align:right; color:#5a6272">13</p>
+</section>
+</div>
+<div class="frame" data-notes="TELOS is a common checklist from systems analysis: Technical, Economic, Legal, Operational, Schedule. A project can be technically easy and still fail operationally, for example if nurses find it slower than calling names out loud. Feasibility is not pass/fail; the usual outcome is &quot;feasible if we change X&quot;, which feeds back into scope. Ask: which of the five do student projects most often skip? Usually Legal and Operational." aria-label="Slide 14">
+<section id="feasibility" data-transition="fade" style="background:#F6F4EE; color:#1B2438; font-family:'IBM Plex Sans', Arial, sans-serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:36px">
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#B4501E">Plan</p>
+    <h2 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:64px; font-weight:700; line-height:1.1; color:#16223A">Feasibility: the TELOS check</h2>
+  </div>
+  <table style="font-size:26px; color:#1B2438; font-family:'IBM Plex Sans', Arial, sans-serif; background:#FFFDF8; border:1px solid #E2DED3">
+    <tr style="background:#16223A"><th style="width:18%; color:#F6F4EE">Dimension</th><th style="width:37%; color:#F6F4EE">Key question</th><th style="width:45%; color:#F6F4EE">ClinicQ check</th></tr>
+    <tr><td><b>Technical</b></td><td>Can we build it with our skills and tools?</td><td>Team knows web dev; no SMS gateway experience</td></tr>
+    <tr style="background:#F1EEE6"><td><b>Economic</b></td><td>Do the benefits justify the costs?</td><td>Free hosting tiers cover a pilot; SMS costs per message</td></tr>
+    <tr><td><b>Legal</b></td><td>Does it comply with law and policy?</td><td>Health data: consent and safeguards under RA 10173</td></tr>
+    <tr style="background:#F1EEE6"><td><b>Operational</b></td><td>Will people use it and can staff run it?</td><td>Nurses need a one-tap “call next” screen</td></tr>
+    <tr><td><b>Schedule</b></td><td>Can we deliver in the time we have?</td><td>One semester: MVP only</td></tr>
+  </table>
+  <p style="font-size:28px; line-height:1.4; color:#FBF3EA; background:#2D6F78; padding:22px 32px; border-radius:12px"><b>Verdict:</b> feasible as a web-app MVP; SMS alerts deferred until the clinic approves the cost.</p>
+  <p style="position:absolute; left:128px; bottom:64px; width:1300px; font-size:24px; color:#5A6272">CCC181 · Design thinking &amp; application planning</p>
+  <p style="position:absolute; right:128px; bottom:64px; width:120px; font-size:24px; color:#5A6272; text-align:right">14</p>
+</section>
+</div>
+<div class="frame" data-notes="This is a survey, not a shopping list. For each technology, ask what kind of problem it is actually good at, and what it costs you in risk, money and skills. Discussion prompt: for the clinic case, which of these could plausibly help? IoT could count people in the waiting room; an LLM could draft visit summaries for nurses. Then ask whether either is needed for the MVP. Usually the answer is not yet." aria-label="Slide 15">
+<section id="emerging" data-section="Evaluating emerging-technology options against the problem" data-transition="fade" style="background:#F6F4EE; color:#1B2438; font-family:'IBM Plex Sans', Arial, sans-serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:36px">
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#B4501E">Emerging technology</p>
+    <h2 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:64px; font-weight:700; line-height:1.1; color:#16223A">Options, and when each fits</h2>
+  </div>
+  <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:20px">
+    <div style="display:flex; flex-direction:column; gap:10px; background:#FFFDF8; border:1px solid #E2DED3; border-radius:14px; padding:24px 28px">
+      <div style="display:flex; flex-direction:row; gap:14px; align-items:center"><svg class="xi" style="width:36px; height:36px; color:#B4501E" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg><h3 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:32px; font-weight:700; color:#16223A">AI &amp; LLMs</h3></div>
+      <p style="font-size:24px; line-height:1.35"><b style="color:#2D6F78">Fit:</b> summarizing, triage, plain-language search</p>
+      <p style="font-size:24px; line-height:1.35"><b style="color:#8A3A14">Risk:</b> confident wrong answers; private data in prompts</p>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:10px; background:#FFFDF8; border:1px solid #E2DED3; border-radius:14px; padding:24px 28px">
+      <div style="display:flex; flex-direction:row; gap:14px; align-items:center"><svg class="xi" style="width:36px; height:36px; color:#B4501E" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg><h3 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:32px; font-weight:700; color:#16223A">Mobile &amp; PWA</h3></div>
+      <p style="font-size:24px; line-height:1.35"><b style="color:#2D6F78">Fit:</b> phone-first users; offline use; push alerts</p>
+      <p style="font-size:24px; line-height:1.35"><b style="color:#8A3A14">Risk:</b> native apps add store review and two codebases</p>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:10px; background:#FFFDF8; border:1px solid #E2DED3; border-radius:14px; padding:24px 28px">
+      <div style="display:flex; flex-direction:row; gap:14px; align-items:center"><svg class="xi" style="width:36px; height:36px; color:#B4501E" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg><h3 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:32px; font-weight:700; color:#16223A">Cloud &amp; serverless</h3></div>
+      <p style="font-size:24px; line-height:1.35"><b style="color:#2D6F78">Fit:</b> small teams, spiky traffic, fast launch</p>
+      <p style="font-size:24px; line-height:1.35"><b style="color:#8A3A14">Risk:</b> vendor lock-in; costs that grow unnoticed</p>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:10px; background:#FFFDF8; border:1px solid #E2DED3; border-radius:14px; padding:24px 28px">
+      <div style="display:flex; flex-direction:row; gap:14px; align-items:center"><svg class="xi" style="width:36px; height:36px; color:#B4501E" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg><h3 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:32px; font-weight:700; color:#16223A">IoT &amp; sensors</h3></div>
+      <p style="font-size:24px; line-height:1.35"><b style="color:#2D6F78">Fit:</b> physical-world data: rooms, queues, energy</p>
+      <p style="font-size:24px; line-height:1.35"><b style="color:#8A3A14">Risk:</b> hardware cost, installation, upkeep</p>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:10px; background:#FFFDF8; border:1px solid #E2DED3; border-radius:14px; padding:24px 28px">
+      <div style="display:flex; flex-direction:row; gap:14px; align-items:center"><svg class="xi" style="width:36px; height:36px; color:#B4501E" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="6 3 20 12 6 21 6 3"/></svg><h3 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:32px; font-weight:700; color:#16223A">AR / VR</h3></div>
+      <p style="font-size:24px; line-height:1.35"><b style="color:#2D6F78">Fit:</b> spatial training, 3D visualization</p>
+      <p style="font-size:24px; line-height:1.35"><b style="color:#8A3A14">Risk:</b> few users own headsets; motion discomfort</p>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:10px; background:#FFFDF8; border:1px solid #E2DED3; border-radius:14px; padding:24px 28px">
+      <div style="display:flex; flex-direction:row; gap:14px; align-items:center"><svg class="xi" style="width:36px; height:36px; color:#B4501E" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg><h3 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:32px; font-weight:700; color:#16223A">Blockchain</h3></div>
+      <p style="font-size:24px; line-height:1.35"><b style="color:#2D6F78">Fit:</b> shared records among parties who don't trust each other</p>
+      <p style="font-size:24px; line-height:1.35"><b style="color:#8A3A14">Risk:</b> rarely needed; a database usually suffices</p>
+    </div>
+  </div>
+  <p style="position:absolute; left:128px; bottom:64px; width:1300px; font-size:24px; color:#5A6272">CCC181 · Design thinking &amp; application planning</p>
+  <p style="position:absolute; right:128px; bottom:64px; width:120px; font-size:24px; color:#5A6272; text-align:right">15</p>
+</section>
+</div>
+<div class="frame" data-notes="A weighted matrix makes the reasoning visible and arguable. Weights come from the earlier steps: &quot;solves the problem&quot; gets the heaviest weight because that is the value proposition; privacy is weighted because of the Legal row in TELOS. Walk through one total: PWA is 5×3 + 4×2 + 5×2 + 4×2 + 4×1 = 45. The AI chatbot scores lowest because students do not need triage; they need to know when to show up. Stress that the numbers are illustrative. The value is in the discussion that produces them." aria-label="Slide 16">
+<section id="choosing" data-transition="fade" style="background:#F6F4EE; color:#1B2438; font-family:'IBM Plex Sans', Arial, sans-serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:36px">
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#B4501E">Emerging technology</p>
+    <h2 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:64px; font-weight:700; line-height:1.1; color:#16223A">Choosing with a weighted decision matrix</h2>
+  </div>
+  <table style="font-size:26px; color:#1B2438; font-family:'IBM Plex Sans', Arial, sans-serif; background:#FFFDF8; border:1px solid #E2DED3">
+    <tr style="background:#16223A"><th style="width:25%; color:#F6F4EE">Option</th><th style="width:15%; color:#F6F4EE; text-align:center">Solves the problem ×3</th><th style="width:12%; color:#F6F4EE; text-align:center">Team skills ×2</th><th style="width:12%; color:#F6F4EE; text-align:center">Cost ×2</th><th style="width:12%; color:#F6F4EE; text-align:center">Privacy ×2</th><th style="width:12%; color:#F6F4EE; text-align:center">Time to MVP ×1</th><th style="width:12%; color:#F6F4EE; text-align:center">Total /50</th></tr>
+    <tr style="background:#FBE9DC"><td><b>PWA + push alerts</b></td><td style="text-align:center">5</td><td style="text-align:center">4</td><td style="text-align:center">5</td><td style="text-align:center">4</td><td style="text-align:center">4</td><td style="text-align:center"><b>45 · chosen</b></td></tr>
+    <tr><td>SMS queue alerts</td><td style="text-align:center">4</td><td style="text-align:center">3</td><td style="text-align:center">2</td><td style="text-align:center">4</td><td style="text-align:center">4</td><td style="text-align:center">34</td></tr>
+    <tr style="background:#F1EEE6"><td>AI chatbot triage</td><td style="text-align:center">2</td><td style="text-align:center">2</td><td style="text-align:center">3</td><td style="text-align:center">2</td><td style="text-align:center">2</td><td style="text-align:center">22</td></tr>
+  </table>
+  <p style="font-size:24px; color:#5A6272">Scores 1–5, higher is better (for Privacy, higher means lower risk). Illustrative scores for the ClinicQ case.</p>
+  <div style="display:flex; flex-direction:column; gap:10px; background:#16223A; border-radius:14px; padding:28px 36px">
+    <p style="font-family:'Space Grotesk', Arial, sans-serif; font-size:36px; font-weight:600; line-height:1.3; color:#F6F4EE">Choose the simplest technology that delivers the value proposition.</p>
+    <p style="font-size:26px; line-height:1.4; color:#C5CEDD">Emerging tech earns its place by relieving a pain on your persona's list, not by appearing on a trend report.</p>
+  </div>
+  <p style="position:absolute; left:128px; bottom:64px; width:1300px; font-size:24px; color:#5A6272">CCC181 · Design thinking &amp; application planning</p>
+  <p style="position:absolute; right:128px; bottom:64px; width:120px; font-size:24px; color:#5A6272; text-align:right">16</p>
+</section>
+</div>
+<div class="frame" data-notes="Each student works individually. Part 1 applies Empathize and Define to a problem the student has actually observed; insist on at least two short interviews so the POV rests on evidence, not assumption. Part 2 builds critical analysis: students take an existing app, much like the one from the warm-up, and dissect it using today&#x27;s vocabulary (target users, problem, value proposition, technology), ending with the gaps their own idea could fill. Part 3 is a short one-on-one consultation, about [5–10] minutes, where students pitch problem, user and proposed app; the goal is to catch solution-first ideas and over-large scopes early. Set the consultation schedule here: [dates / sign-up]." aria-label="Slide 17">
+<section id="activity" data-transition="fade" style="display:flex; flex-direction:column; gap:40px; padding:128px 128px 160px; background:#16223a">
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <p style="font-family:'IBM Plex Sans', Arial, sans-serif; font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#f2a46e">Individual learning activity</p>
+    <h2 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:64px; font-weight:700; line-height:1.1; color:#f6f4ee">Three parts, done on your own</h2>
+  </div>
+  <div style="display:flex; flex-direction:row; gap:24px">
+    <div style="display:flex; flex-direction:column; gap:16px; flex:1; padding:32px; background:#22304c; border-radius:16px">
+      <p style="font-family:'Space Grotesk', Arial, sans-serif; font-size:44px; font-weight:700; line-height:1; color:#f2a46e">01</p>
+      <h3 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:34px; font-weight:700; line-height:1.2; color:#f6f4ee">Design-thinking activity</h3>
+      <p style="font-family:'IBM Plex Sans', Arial, sans-serif; font-size:26px; line-height:1.4; color:#c5cedd">Observe a real problem on campus or in your community. Interview at least two people affected, build an empathy map, then write a POV statement and a “How might we…?” question.</p>
+      <div style="flex:1"></div>
+      <p style="padding:16px 0 0; font-family:'IBM Plex Sans', Arial, sans-serif; font-size:24px; line-height:1.35; color:#f6f4ee; border-top:1px solid #3a4a6a"><b>Output:</b> empathy map, POV, HMW</p>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:16px; flex:1; padding:32px; background:#22304c; border-radius:16px">
+      <p style="font-family:'Space Grotesk', Arial, sans-serif; font-size:44px; font-weight:700; line-height:1; color:#f2a46e">02</p>
+      <h3 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:34px; font-weight:700; line-height:1.2; color:#f6f4ee">Application analysis</h3>
+      <p style="font-family:'IBM Plex Sans', Arial, sans-serif; font-size:26px; line-height:1.4; color:#c5cedd">Pick an existing app that addresses a similar problem. Identify its target users, problem, value proposition and technology, then note where it falls short.</p>
+      <div style="flex:1"></div>
+      <p style="padding:16px 0 0; font-family:'IBM Plex Sans', Arial, sans-serif; font-size:24px; line-height:1.35; color:#f6f4ee; border-top:1px solid #3a4a6a"><b>Output:</b> one-page analysis with gaps</p>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:16px; flex:1; padding:32px; background:#22304c; border-radius:16px">
+      <p style="font-family:'Space Grotesk', Arial, sans-serif; font-size:44px; font-weight:700; line-height:1; color:#f2a46e">03</p>
+      <h3 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:34px; font-weight:700; line-height:1.2; color:#f6f4ee">Project idea consultation</h3>
+      <p style="font-family:'IBM Plex Sans', Arial, sans-serif; font-size:26px; line-height:1.4; color:#c5cedd">Bring your problem, target user and proposed app to your instructor.&nbsp;</p>
+      <div style="flex:1"></div>
+      <p style="padding:16px 0 0; font-family:'IBM Plex Sans', Arial, sans-serif; font-size:24px; line-height:1.35; color:#f6f4ee; border-top:1px solid #3a4a6a"><b>Output:</b> approved or revised idea</p>
+    </div>
+  </div>
+  <p style="position:absolute; bottom:64px; left:128px; width:1300px; font-family:'IBM Plex Sans', Arial, sans-serif; font-size:24px; color:#c5cedd">Parts 1 and 2 feed your consultation; the consultation feeds your project milestone.</p>
+  <p style="position:absolute; right:128px; bottom:64px; width:120px; font-family:'IBM Plex Sans', Arial, sans-serif; font-size:24px; text-align:right; color:#c5cedd">17</p>
+</section>
+</div>
+<div class="frame" data-notes="Possible directions. Q1: neither automatically; look for a design that serves both, and escalate real trade-offs to the stakeholder who owns the decision, with evidence from research. Q2: sometimes, when an organization mandates it, but the team still has to find the underlying need or the app will go unused. Q3: usually Legal (privacy, consent) and Operational (will staff actually use it). Q4: when errors are costly (health, grades, money), when it needs sensitive data, when users can&#x27;t tell it&#x27;s wrong, or when a simple rule would do the same job." aria-label="Slide 18">
+<section id="questions" data-transition="fade" style="background:#F6F4EE; color:#1B2438; font-family:'IBM Plex Sans', Arial, sans-serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:40px">
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#B4501E">Class discussion</p>
+    <h2 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:64px; font-weight:700; line-height:1.1; color:#16223A">Questions to argue about</h2>
+  </div>
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:24px">
+    <div style="display:flex; flex-direction:column; gap:14px; background:#FFFDF8; border:1px solid #E2DED3; border-radius:16px; padding:32px 36px">
+      <p style="font-family:'Space Grotesk', Arial, sans-serif; font-size:40px; font-weight:700; color:#B4501E">Q1</p>
+      <p style="font-size:32px; line-height:1.35">When user needs and organizational needs conflict, whose should win, and how would you decide?</p>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:14px; background:#FFFDF8; border:1px solid #E2DED3; border-radius:16px; padding:32px 36px">
+      <p style="font-family:'Space Grotesk', Arial, sans-serif; font-size:40px; font-weight:700; color:#B4501E">Q2</p>
+      <p style="font-size:32px; line-height:1.35">Is “we need an app” ever a valid starting point for a project?</p>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:14px; background:#FFFDF8; border:1px solid #E2DED3; border-radius:16px; padding:32px 36px">
+      <p style="font-family:'Space Grotesk', Arial, sans-serif; font-size:40px; font-weight:700; color:#B4501E">Q3</p>
+      <p style="font-size:32px; line-height:1.35">Which TELOS dimension do student projects most often ignore, and what happens when they do?</p>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:14px; background:#FFFDF8; border:1px solid #E2DED3; border-radius:16px; padding:32px 36px">
+      <p style="font-family:'Space Grotesk', Arial, sans-serif; font-size:40px; font-weight:700; color:#B4501E">Q4</p>
+      <p style="font-size:32px; line-height:1.35">When does adding AI to an app become a liability instead of a feature?</p>
+    </div>
+  </div>
+  <p style="position:absolute; left:128px; bottom:64px; width:1300px; font-size:24px; color:#5A6272">CCC181 · Design thinking &amp; application planning</p>
+  <p style="position:absolute; right:128px; bottom:64px; width:120px; font-size:24px; color:#5A6272; text-align:right">18</p>
+</section>
+</div>
+<div class="frame" data-notes="This is an individual milestone and it mirrors the lecture. Item 1 comes from the design-thinking activity; item 2 from the persona work; item 3 combines the value proposition with the technology decision (a simplified decision matrix is welcome); item 4 uses user stories, measurable non-functional requirements and MoSCoW; item 5 draws the MVP boundary and records feasibility concerns. Students should incorporate the feedback from their consultation before submitting. Submission: each student commits the milestone to the activities/proposed-application/ folder of their own CCC181 GitHub repository. Remind students to commit and push before the deadline; the commit history also shows how the work developed. Fill in the due date before presenting." aria-label="Slide 19">
+<section id="deliverable" data-transition="fade" style="display:flex; flex-direction:column; gap:40px; padding:128px 128px 160px; background:#f6f4ee">
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <p style="font-family:'IBM Plex Sans', Arial, sans-serif; font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#b4501e">Individual project milestone</p>
+    <h2 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:64px; font-weight:700; line-height:1.1; color:#16223a">What to submit</h2>
+  </div>
+  <div style="display:grid; gap:20px; grid-template-columns:1fr 1fr">
+    <div style="display:flex; flex-direction:row; gap:24px; align-items:start; padding:26px 30px; background:#fffdf8; border:1px solid #e2ded3; border-radius:14px">
+      <p style="width:48px; font-family:'Space Grotesk', Arial, sans-serif; font-size:36px; font-weight:700; line-height:1.1; color:#b4501e">1</p>
+      <div style="display:flex; flex-direction:column; gap:6px; flex:1">
+        <h3 style="font-family:'IBM Plex Sans', Arial, sans-serif; font-size:30px; font-weight:600; color:#16223a">Problem statement</h3>
+        <p style="font-family:'IBM Plex Sans', Arial, sans-serif; font-size:25px; line-height:1.4; color:#4a5366">POV and “How might we…?”, backed by what you observed</p>
+      </div>
+    </div>
+    <div style="display:flex; flex-direction:row; gap:24px; align-items:start; padding:26px 30px; background:#fffdf8; border:1px solid #e2ded3; border-radius:14px">
+      <p style="width:48px; font-family:'Space Grotesk', Arial, sans-serif; font-size:36px; font-weight:700; line-height:1.1; color:#b4501e">2</p>
+      <div style="display:flex; flex-direction:column; gap:6px; flex:1">
+        <h3 style="font-family:'IBM Plex Sans', Arial, sans-serif; font-size:30px; font-weight:600; color:#16223a">Target-user profile</h3>
+        <p style="font-family:'IBM Plex Sans', Arial, sans-serif; font-size:25px; line-height:1.4; color:#4a5366">Primary persona: goals, frustrations, context; plus secondary users</p>
+      </div>
+    </div>
+    <div style="display:flex; flex-direction:row; gap:24px; align-items:start; padding:26px 30px; background:#fffdf8; border:1px solid #e2ded3; border-radius:14px">
+      <p style="width:48px; font-family:'Space Grotesk', Arial, sans-serif; font-size:36px; font-weight:700; line-height:1.1; color:#b4501e">3</p>
+      <div style="display:flex; flex-direction:column; gap:6px; flex:1">
+        <h3 style="font-family:'IBM Plex Sans', Arial, sans-serif; font-size:30px; font-weight:600; color:#16223a">Proposed application</h3>
+        <p style="font-family:'IBM Plex Sans', Arial, sans-serif; font-size:25px; line-height:1.4; color:#4a5366">Concept, value proposition and technology choice with rationale</p>
+      </div>
+    </div>
+    <div style="display:flex; flex-direction:row; gap:24px; align-items:start; padding:26px 30px; background:#fffdf8; border:1px solid #e2ded3; border-radius:14px">
+      <p style="width:48px; font-family:'Space Grotesk', Arial, sans-serif; font-size:36px; font-weight:700; line-height:1.1; color:#b4501e">4</p>
+      <div style="display:flex; flex-direction:column; gap:6px; flex:1">
+        <h3 style="font-family:'IBM Plex Sans', Arial, sans-serif; font-size:30px; font-weight:600; color:#16223a">Preliminary requirements</h3>
+        <p style="font-family:'IBM Plex Sans', Arial, sans-serif; font-size:25px; line-height:1.4; color:#4a5366">User stories, key non-functional requirements, MoSCoW priorities</p>
+      </div>
+    </div>
+    <div style="display:flex; flex-direction:row; gap:24px; align-items:start; padding:26px 30px; background:#fffdf8; border:1px solid #e2ded3; border-radius:14px">
+      <p style="width:48px; font-family:'Space Grotesk', Arial, sans-serif; font-size:36px; font-weight:700; line-height:1.1; color:#b4501e">5</p>
+      <div style="display:flex; flex-direction:column; gap:6px; flex:1">
+        <h3 style="font-family:'IBM Plex Sans', Arial, sans-serif; font-size:30px; font-weight:600; color:#16223a">Minimum viable product</h3>
+        <p style="font-family:'IBM Plex Sans', Arial, sans-serif; font-size:25px; line-height:1.4; color:#4a5366">MVP features, out-of-scope list, quick TELOS feasibility notes</p>
+      </div>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:10px; justify-content:center; padding:24px 30px; background:#16223a; border-radius:14px">
+      <p style="font-family:'IBM Plex Sans', Arial, sans-serif; font-size:26px; line-height:1.35; color:#f6f4ee"><b>Submit to</b> your individual CCC181 GitHub repository:</p>
+      <p style="padding:8px 16px; font-family:'Courier New', monospace; font-size:26px; font-weight:700; color:#f2a46e; background:#22304c; border-radius:8px">activities/proposed-application/</p>
+    </div>
+  </div>
+  <p style="position:absolute; bottom:64px; left:128px; width:1300px; font-family:'IBM Plex Sans', Arial, sans-serif; font-size:24px; color:#5a6272">CCC181 · Design thinking &amp; application planning</p>
+  <p style="position:absolute; right:128px; bottom:64px; width:120px; font-family:'IBM Plex Sans', Arial, sans-serif; font-size:24px; text-align:right; color:#5a6272">19</p>
+</section>
+</div>
+<div class="frame" data-notes="Each link in the chain depends on the one before it. If a team can&#x27;t explain its technology choice by pointing back to a requirement, a pain on the persona, and a need from research, the chain is broken somewhere. Next session: from plan to prototype, with low-fidelity wireframes and early user testing." aria-label="Slide 20">
+<section id="summary" data-transition="fade" style="background:#16223A; color:#F6F4EE; font-family:'IBM Plex Sans', Arial, sans-serif; padding:128px; display:flex; flex-direction:column; justify-content:space-between; gap:40px">
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#F2A46E">Recap</p>
+    <h2 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:64px; font-weight:700; line-height:1.1; color:#F6F4EE">The planning chain</h2>
+  </div>
+  <div style="display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:16px">
+    <div style="display:flex; flex-direction:column; gap:8px; background:#22304C; border-radius:12px; padding:24px 28px"><p style="font-size:24px; font-weight:600; color:#F2A46E">1</p><p style="font-family:'Space Grotesk', Arial, sans-serif; font-size:34px; font-weight:600">Needs</p></div>
+    <div style="display:flex; flex-direction:column; gap:8px; background:#22304C; border-radius:12px; padding:24px 28px"><p style="font-size:24px; font-weight:600; color:#F2A46E">2</p><p style="font-family:'Space Grotesk', Arial, sans-serif; font-size:34px; font-weight:600">Problem</p></div>
+    <div style="display:flex; flex-direction:column; gap:8px; background:#22304C; border-radius:12px; padding:24px 28px"><p style="font-size:24px; font-weight:600; color:#F2A46E">3</p><p style="font-family:'Space Grotesk', Arial, sans-serif; font-size:34px; font-weight:600">Target users</p></div>
+    <div style="display:flex; flex-direction:column; gap:8px; background:#22304C; border-radius:12px; padding:24px 28px"><p style="font-size:24px; font-weight:600; color:#F2A46E">4</p><p style="font-family:'Space Grotesk', Arial, sans-serif; font-size:34px; font-weight:600">Value</p></div>
+    <div style="display:flex; flex-direction:column; gap:8px; background:#22304C; border-radius:12px; padding:24px 28px"><p style="font-size:24px; font-weight:600; color:#F2A46E">5</p><p style="font-family:'Space Grotesk', Arial, sans-serif; font-size:34px; font-weight:600">Requirements</p></div>
+    <div style="display:flex; flex-direction:column; gap:8px; background:#22304C; border-radius:12px; padding:24px 28px"><p style="font-size:24px; font-weight:600; color:#F2A46E">6</p><p style="font-family:'Space Grotesk', Arial, sans-serif; font-size:34px; font-weight:600">Scope</p></div>
+    <div style="display:flex; flex-direction:column; gap:8px; background:#22304C; border-radius:12px; padding:24px 28px"><p style="font-size:24px; font-weight:600; color:#F2A46E">7</p><p style="font-family:'Space Grotesk', Arial, sans-serif; font-size:34px; font-weight:600">Feasibility</p></div>
+    <div style="display:flex; flex-direction:column; gap:8px; background:#B4501E; border-radius:12px; padding:24px 28px"><p style="font-size:24px; font-weight:600; color:#FBF3EA">8</p><p style="font-family:'Space Grotesk', Arial, sans-serif; font-size:34px; font-weight:600; color:#FBF3EA">Technology</p></div>
+  </div>
+  <div style="display:flex; flex-direction:row; justify-content:space-between; align-items:end">
+    <p style="font-family:'Space Grotesk', Arial, sans-serif; font-size:44px; font-weight:600; line-height:1.25; color:#F6F4EE; width:1200px">Technology comes last: it is chosen to serve the problem.</p>
+    <p style="font-family:'Space Grotesk', Arial, sans-serif; font-size:44px; font-weight:700; color:#F2A46E">Questions?</p>
+  </div>
+</section>
+</div>
+</div></div>
+<div id="bar"><i></i></div>
+<div id="notes" aria-live="polite"></div>
+<div id="help">← → to navigate · N notes · F full screen · Ctrl+P to save as PDF</div>
+<div id="hud">
+<button id="prev" aria-label="Previous slide">←</button>
+<span id="count"></span>
+<button id="next" aria-label="Next slide">→</button>
+<button id="nbtn" aria-label="Toggle speaker notes">Notes</button>
+<button id="fbtn" aria-label="Toggle full screen">Full screen</button>
+</div>
+<script>
+(function(){
+  var frames=[].slice.call(document.querySelectorAll('.frame'));
+  var notes=document.getElementById('notes'), cnt=document.getElementById('count'), bar=document.querySelector('#bar i');
+  var stage=document.getElementById('stage'), cur=0;
+  function fit(){var s=Math.min(window.innerWidth/1920,window.innerHeight/1080);stage.style.transform='scale('+s+')';}
+  function show(i){
+    i=Math.max(0,Math.min(frames.length-1,i));
+    frames[cur].classList.remove('active');frames[i].classList.add('active');cur=i;
+    cnt.textContent=(i+1)+' / '+frames.length;
+    bar.style.width=((i+1)/frames.length*100)+'%';
+    var n=frames[i].getAttribute('data-notes')||'';
+    notes.innerHTML='<b>Speaker notes · slide '+(i+1)+'</b><br>'+(n?n.replace(/[&<>]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;'}[c]}):'(none)');
+    if(history.replaceState)history.replaceState(null,'','#'+(i+1));
+  }
+  function toggleNotes(){notes.classList.toggle('show');}
+  function full(){if(!document.fullscreenElement){document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen();}else{document.exitFullscreen&&document.exitFullscreen();}}
+  document.addEventListener('keydown',function(e){
+    if(e.target.closest&&e.target.closest('button')&&(e.key===' '||e.key==='Enter'))return;
+    var k=e.key;
+    if(k==='ArrowRight'||k==='PageDown'||k===' '||k==='ArrowDown'){show(cur+1);e.preventDefault();}
+    else if(k==='ArrowLeft'||k==='PageUp'||k==='ArrowUp'){show(cur-1);e.preventDefault();}
+    else if(k==='Home'){show(0);}else if(k==='End'){show(frames.length-1);}
+    else if(k==='n'||k==='N'){toggleNotes();}else if(k==='f'||k==='F'){full();}
+  });
+  document.getElementById('prev').onclick=function(){show(cur-1)};
+  document.getElementById('next').onclick=function(){show(cur+1)};
+  document.getElementById('nbtn').onclick=toggleNotes;
+  document.getElementById('fbtn').onclick=full;
+  var sx=null;
+  document.addEventListener('touchstart',function(e){sx=e.touches[0].clientX},{passive:true});
+  document.addEventListener('touchend',function(e){if(sx===null)return;var dx=e.changedTouches[0].clientX-sx;if(Math.abs(dx)>50)show(cur+(dx<0?1:-1));sx=null;});
+  window.addEventListener('hashchange',function(){var h=parseInt((location.hash||'').slice(1),10);if(!isNaN(h)&&h-1!==cur)show(h-1);});
+  window.addEventListener('resize',fit);
+  window.addEventListener('beforeprint',function(){stage.style.transform='none'});
+  window.addEventListener('afterprint',fit);
+  fit();
+  var h=parseInt((location.hash||'').slice(1),10);frames[0].classList.add('active');show(isNaN(h)?0:h-1);
+  setTimeout(function(){document.body.classList.remove('fresh')},4000);
+})();
+</script>
+</body>
+</html>

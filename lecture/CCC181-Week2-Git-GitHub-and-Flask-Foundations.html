@@ -1,0 +1,800 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Git, GitHub &amp; Flask Foundations</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400..700&amp;display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&amp;display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&amp;display=swap">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:#0d1424;overflow:hidden;font-family:'IBM Plex Sans',Arial,sans-serif}
+#viewport{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
+#stage{position:relative;width:1920px;height:1080px;transform-origin:center center;flex:none}
+.frame{position:absolute;inset:0;display:none}
+.frame.active{display:block}
+.frame>section{position:relative;width:1920px;height:1080px;overflow:hidden;display:flex;flex-direction:column;
+  font-size:32px;line-height:1.4;color:#1B2438;font-family:'IBM Plex Sans',Arial,sans-serif}
+section div{display:flex;flex-direction:column;min-width:0}
+section h1{font-size:96px;font-weight:600;line-height:1.1}
+section h2{font-size:64px;font-weight:600;line-height:1.15}
+section h3{font-size:44px;font-weight:600;line-height:1.2}
+section ul,section ol{padding-left:1.2em}
+section table{width:100%;border-collapse:collapse;table-layout:fixed}
+section th,section td{padding:.35em .6em;text-align:left;vertical-align:top;border-bottom:1px solid rgba(27,36,56,.14)}
+section th{font-weight:600}
+section svg{display:block;flex:none}
+x-shape{display:block;flex:none}
+x-shape[kind="arrow-right"]{clip-path:polygon(0 30%,60% 30%,60% 0,100% 50%,60% 100%,60% 70%,0 70%)}
+x-shape[kind="arrow-left"]{clip-path:polygon(100% 30%,40% 30%,40% 0,0 50%,40% 100%,40% 70%,100% 70%)}
+x-shape[kind="arrow-down"]{clip-path:polygon(30% 0,70% 0,70% 60%,100% 60%,50% 100%,0 60%,30% 60%)}
+x-shape[kind="arrow-up"]{clip-path:polygon(30% 100%,70% 100%,70% 40%,100% 40%,50% 0,0 40%,30% 40%)}
+x-shape[kind="ellipse"]{border-radius:50%}
+x-shape[kind="diamond"]{clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%)}
+.xi{flex:none}
+#bar{position:fixed;left:0;right:0;bottom:0;height:4px;background:rgba(255,255,255,.08);z-index:5}
+#bar i{display:block;height:100%;width:0;background:#F2A46E;transition:width .2s}
+#hud{position:fixed;right:16px;bottom:14px;display:flex;gap:8px;align-items:center;z-index:6;
+  font:500 14px 'IBM Plex Sans',Arial,sans-serif;color:#C5CEDD;opacity:.25;transition:opacity .2s}
+#hud:hover,#hud:focus-within{opacity:1}
+#hud button{background:#22304C;color:#F6F4EE;border:1px solid #3A4A6A;border-radius:8px;padding:6px 12px;font:inherit;cursor:pointer}
+#hud button:focus-visible{outline:2px solid #F2A46E;outline-offset:2px}
+#notes{position:fixed;left:16px;right:16px;bottom:56px;max-height:34vh;overflow:auto;display:none;z-index:6;
+  background:rgba(22,34,58,.96);color:#F6F4EE;border:1px solid #3A4A6A;border-radius:12px;padding:16px 20px;
+  font:400 17px/1.55 'IBM Plex Sans',Arial,sans-serif}
+#notes.show{display:block}
+#notes b{color:#F2A46E;font-weight:600}
+#help{position:fixed;top:14px;right:16px;z-index:6;font:400 13px 'IBM Plex Sans',Arial,sans-serif;color:#8A97AD;opacity:0;transition:opacity .4s}
+body.fresh #help{opacity:1}
+@media print{
+  @page{size:1920px 1080px;margin:0}
+  html,body{overflow:visible;background:none;height:auto}
+  #viewport{position:static;display:block}
+  #stage{transform:none!important;width:auto;height:auto}
+  .frame{position:relative;display:block;page-break-after:always;break-after:page;width:1920px;height:1080px}
+  #bar,#hud,#notes,#help{display:none!important}
+}
+</style>
+</head>
+<body class="fresh">
+<div id="viewport"><div id="stage">
+<div class="frame" data-notes="Last meeting students planned their application: problem, target user, requirements and MVP. Today we set up the tools to build it. Git and GitHub to track and share every change; virtual environments to keep each project&#x27;s Python packages separate; and Flask, the web framework we will use to build the MVP, starting with its structure, routes and templates. The session ends with a hands-on lab in each student&#x27;s CCC181 repository." aria-label="Slide 1">
+<section id="cover" data-transition="fade" style="background:#16223a">
+  <div style="position:absolute; top:0; left:0; width:24px; height:1080px; display:flex; flex-direction:column; background:#f2a46e">
+  </div>
+  <p id="dc1d64fb" style="position:absolute; top:128px; left:128px; width:1664px; font-family:'IBM Plex Sans', Arial, sans-serif; font-size:26px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#f2a46e">CCC181 · Application Development and Emerging Technologies</p>
+  <div id="8042b8ac" style="position:absolute; top:346px; left:128px; width:1664px; height:386px; display:flex; flex-direction:column; gap:40px">
+    <h1 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:120px; font-weight:700; line-height:1.02; letter-spacing:-2px; color:#f6f4ee">Git, GitHub &amp;<br>Flask foundations</h1>
+    <p style="width:1300px; font-family:'IBM Plex Sans', Arial, sans-serif; font-size:36px; line-height:1.4; color:#c5cedd">Version control, collaboration, Python environments, and the first routes and templates of your application</p>
+  </div>
+  <div id="e70001b1" style="position:absolute; top:913px; left:128px; width:1664px; height:39px; display:flex; flex-direction:row; align-items:end; justify-content:space-between">
+    <p style="font-family:'IBM Plex Sans', Arial, sans-serif; font-size:28px; color:#c5cedd">Week 1</p>
+  </div>
+</section>
+</div>
+<div class="frame" data-notes="Four blocks. The Git part builds on the instructor&#x27;s &quot;Git for Version Control&quot; slides, with a few modern commands added. GitHub adds the collaboration layer: issues and pull requests, which connect directly to the requirements and MVP students wrote in their project milestone. Then virtual environments, because every Flask project needs one. Finally Flask itself. By the end, students will have a small Flask app committed and pushed through a pull request." aria-label="Slide 2">
+<section id="agenda" data-transition="fade" style="background:#F6F4EE; color:#1B2438; font-family:'IBM Plex Sans', Arial, sans-serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:40px">
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#B4501E">Today</p>
+    <h2 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:64px; font-weight:700; line-height:1.1; color:#16223A">From plan to first code</h2>
+  </div>
+  <div style="display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:20px">
+    <div style="display:flex; flex-direction:column; gap:12px; background:#FFFDF8; border:1px solid #E2DED3; border-top:6px solid #B4501E; border-radius:14px; padding:28px">
+      <p style="font-family:'Space Grotesk', Arial, sans-serif; font-size:40px; font-weight:700; line-height:1; color:#B4501E">01</p>
+      <h3 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:34px; font-weight:700; color:#16223A">Git</h3>
+      <p style="font-size:25px; line-height:1.4; color:#4A5366">Repositories, commits, branches, merging</p>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:12px; background:#FFFDF8; border:1px solid #E2DED3; border-top:6px solid #B4501E; border-radius:14px; padding:28px">
+      <p style="font-family:'Space Grotesk', Arial, sans-serif; font-size:40px; font-weight:700; line-height:1; color:#B4501E">02</p>
+      <h3 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:34px; font-weight:700; color:#16223A">GitHub</h3>
+      <p style="font-size:25px; line-height:1.4; color:#4A5366">Remotes, issues, pull requests</p>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:12px; background:#FFFDF8; border:1px solid #E2DED3; border-top:6px solid #2D6F78; border-radius:14px; padding:28px">
+      <p style="font-family:'Space Grotesk', Arial, sans-serif; font-size:40px; font-weight:700; line-height:1; color:#2D6F78">03</p>
+      <h3 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:34px; font-weight:700; color:#16223A">Python environments</h3>
+      <p style="font-size:25px; line-height:1.4; color:#4A5366">venv, pip, requirements.txt</p>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:12px; background:#FFFDF8; border:1px solid #E2DED3; border-top:6px solid #2D6F78; border-radius:14px; padding:28px">
+      <p style="font-family:'Space Grotesk', Arial, sans-serif; font-size:40px; font-weight:700; line-height:1; color:#2D6F78">04</p>
+      <h3 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:34px; font-weight:700; color:#16223A">Flask</h3>
+      <p style="font-size:25px; line-height:1.4; color:#4A5366">Project structure, routes, templates</p>
+    </div>
+  </div>
+  <div style="display:flex; flex-direction:row; gap:20px; align-items:center; background:#16223A; border-radius:14px; padding:28px 36px">
+    <svg class="xi" style="width:44px; height:44px; color:#F2A46E" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg>
+    <p style="font-size:30px; line-height:1.4; color:#F6F4EE">Last meeting you planned your application and its MVP. Today you set up the tools to build it, and write its first route.</p>
+  </div>
+  <p style="position:absolute; left:128px; bottom:64px; width:1300px; font-size:24px; color:#5A6272">CCC181 · Git, GitHub &amp; Flask foundations</p>
+  <p style="position:absolute; right:128px; bottom:64px; width:120px; font-size:24px; color:#5A6272; text-align:right">02</p>
+</section>
+</div>
+<div class="frame" data-notes="From the instructor&#x27;s slides. Git came out of the Linux development community in 2005 and was designed for a huge, fast-moving, distributed project, which is why speed, branching and full distribution are its core goals. Resources: git-scm.com has downloads and the free Pro Git book; &quot;git help verb&quot;, for example &quot;git help commit&quot;, opens the manual for any command. Make sure everyone has Git installed before the lab: &quot;git --version&quot; should print a version number." aria-label="Slide 3">
+<section id="about-git" data-section="Git fundamentals: history, snapshots, the three areas, repositories and commits" data-transition="fade" style="background:#F6F4EE; color:#1B2438; font-family:'IBM Plex Sans', Arial, sans-serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:36px">
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#B4501E">Git</p>
+    <h2 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:64px; font-weight:700; line-height:1.1; color:#16223A">About Git</h2>
+  </div>
+  <div style="display:flex; flex-direction:row; gap:32px">
+    <div style="flex:1; display:flex; flex-direction:column; gap:20px; background:#16223A; border-radius:16px; padding:36px">
+      <p style="font-family:'Space Grotesk', Arial, sans-serif; font-size:96px; font-weight:700; line-height:1; color:#F2A46E">2005</p>
+      <p style="font-size:30px; line-height:1.4; color:#F6F4EE">Created by <b>Linus Torvalds</b>, creator of Linux, to manage version control of the Linux kernel.</p>
+      <div style="flex:1"></div>
+      <p style="font-size:26px; line-height:1.4; color:#C5CEDD"><i>A “git” is British slang for a cranky old man. Linus meant himself.</i></p>
+    </div>
+    <div style="flex:1.3; display:flex; flex-direction:column; gap:16px">
+      <p style="font-size:26px; font-weight:600; color:#16223A">Goals of Git</p>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px">
+        <div style="display:flex; flex-direction:column; gap:8px; background:#FFFDF8; border:1px solid #E2DED3; border-radius:12px; padding:24px"><svg class="xi" style="width:36px; height:36px; color:#B4501E" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg><p style="font-size:28px; font-weight:600">Speed</p></div>
+        <div style="display:flex; flex-direction:column; gap:8px; background:#FFFDF8; border:1px solid #E2DED3; border-radius:12px; padding:24px"><svg class="xi" style="width:36px; height:36px; color:#B4501E" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg><p style="font-size:28px; font-weight:600">Non-linear development</p><p style="font-size:24px; color:#4A5366">Thousands of parallel branches</p></div>
+        <div style="display:flex; flex-direction:column; gap:8px; background:#FFFDF8; border:1px solid #E2DED3; border-radius:12px; padding:24px"><svg class="xi" style="width:36px; height:36px; color:#B4501E" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg><p style="font-size:28px; font-weight:600">Fully distributed</p></div>
+        <div style="display:flex; flex-direction:column; gap:8px; background:#FFFDF8; border:1px solid #E2DED3; border-radius:12px; padding:24px"><svg class="xi" style="width:36px; height:36px; color:#B4501E" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/><path d="M3 12c0 1.66 4 3 9 3s9-1.34 9-3"/></svg><p style="font-size:28px; font-weight:600">Handles large projects efficiently</p></div>
+      </div>
+      <p style="font-size:24px; line-height:1.4; color:#4A5366">Learn more: <b>git-scm.com</b> (free <i>Pro Git</i> book) · at the command line: <span style="color:#B4501E"><b>git help &lt;verb&gt;</b></span></p>
+    </div>
+  </div>
+  <p style="position:absolute; left:128px; bottom:64px; width:1300px; font-size:24px; color:#5A6272">CCC181 · Git, GitHub &amp; Flask foundations</p>
+  <p style="position:absolute; right:128px; bottom:64px; width:120px; font-size:24px; color:#5A6272; text-align:right">03</p>
+</section>
+</div>
+<div class="frame" data-notes="From the instructor&#x27;s slides. In a centralized system the server holds the official copy and the only version history; your checkout is just files. In Git, every clone contains the full history, so most operations (commit, log, diff, branch) are local and fast, and you can work offline. You push to share changes when you are ready. Ask: what happens to a centralized team if the server goes down? What about a Git team?" aria-label="Slide 4">
+<section id="vcs" data-transition="fade" style="background:#F6F4EE; color:#1B2438; font-family:'IBM Plex Sans', Arial, sans-serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:36px">
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#B4501E">Git</p>
+    <h2 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:64px; font-weight:700; line-height:1.1; color:#16223A">Centralized vs distributed version control</h2>
+  </div>
+  <div style="display:flex; flex-direction:row; gap:32px">
+    <div style="flex:1; display:flex; flex-direction:column; gap:16px; background:#FFFDF8; border:1px solid #E2DED3; border-radius:16px; padding:32px">
+      <h3 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:34px; font-weight:700; color:#5A6272">Centralized</h3>
+      <div style="display:flex; flex-direction:column; gap:10px; background:#ECE8DE; border-radius:10px; padding:16px 20px">
+        <p style="font-size:24px; font-weight:600">Central server</p>
+        <div style="display:flex; flex-direction:row; gap:10px"><p style="font-size:24px; background:#CFE6D6; padding:4px 16px; border-radius:999px">v1</p><p style="font-size:24px; background:#CFE6D6; padding:4px 16px; border-radius:999px">v2</p><p style="font-size:24px; background:#CFE6D6; padding:4px 16px; border-radius:999px">v3</p></div>
+      </div>
+      <div style="display:flex; flex-direction:row; gap:12px">
+        <div style="flex:1; display:flex; flex-direction:column; gap:8px; border:2px dashed #C9C3B5; border-radius:10px; padding:14px 18px"><p style="font-size:24px; font-weight:600">Computer A</p><p style="font-size:24px; background:#D9E4F5; padding:4px 16px; border-radius:999px">file only</p></div>
+        <div style="flex:1; display:flex; flex-direction:column; gap:8px; border:2px dashed #C9C3B5; border-radius:10px; padding:14px 18px"><p style="font-size:24px; font-weight:600">Computer B</p><p style="font-size:24px; background:#D9E4F5; padding:4px 16px; border-radius:999px">file only</p></div>
+      </div>
+      <p style="font-size:25px; line-height:1.4; color:#4A5366">One server holds the only history. You <b>check out</b>, edit, then <b>check in</b>. Your local changes are not versioned. <i>Subversion, CVS, Perforce.</i></p>
+    </div>
+    <div style="flex:1; display:flex; flex-direction:column; gap:16px; background:#FFFDF8; border:2px solid #B4501E; border-radius:16px; padding:32px">
+      <h3 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:34px; font-weight:700; color:#B4501E">Distributed (Git)</h3>
+      <div style="display:flex; flex-direction:column; gap:10px; background:#ECE8DE; border-radius:10px; padding:16px 20px">
+        <p style="font-size:24px; font-weight:600">Server (e.g. GitHub)</p>
+        <div style="display:flex; flex-direction:row; gap:10px"><p style="font-size:24px; background:#CFE6D6; padding:4px 16px; border-radius:999px">v1</p><p style="font-size:24px; background:#CFE6D6; padding:4px 16px; border-radius:999px">v2</p><p style="font-size:24px; background:#CFE6D6; padding:4px 16px; border-radius:999px">v3</p></div>
+      </div>
+      <div style="display:flex; flex-direction:row; gap:12px">
+        <div style="flex:1; display:flex; flex-direction:column; gap:8px; border:2px solid #B4501E; border-radius:10px; padding:14px 18px"><p style="font-size:24px; font-weight:600">Computer A</p><p style="font-size:24px; background:#CFE6D6; padding:4px 16px; border-radius:999px">v1 · v2 · v3</p></div>
+        <div style="flex:1; display:flex; flex-direction:column; gap:8px; border:2px solid #B4501E; border-radius:10px; padding:14px 18px"><p style="font-size:24px; font-weight:600">Computer B</p><p style="font-size:24px; background:#CFE6D6; padding:4px 16px; border-radius:999px">v1 · v2 · v3</p></div>
+      </div>
+      <p style="font-size:25px; line-height:1.4; color:#4A5366">You <b>clone</b> the whole repo; your copy is as complete as the server's. Commit locally, then <b>push</b> and <b>pull</b>. <i>Git, Mercurial.</i></p>
+    </div>
+  </div>
+  <p style="position:absolute; left:128px; bottom:64px; width:1300px; font-size:24px; color:#5A6272">CCC181 · Git, GitHub &amp; Flask foundations</p>
+  <p style="position:absolute; right:128px; bottom:64px; width:120px; font-size:24px; color:#5A6272; text-align:right">04</p>
+</section>
+</div>
+<div class="frame" data-notes="From the instructor&#x27;s slides. Because every developer commits to their own copy, there cannot be a single &quot;version 42&quot;. The hash is computed from the commit&#x27;s content, so it identifies that exact snapshot anywhere. In everyday use the short 7-character form is enough, for example &quot;git show 258efa7&quot;." aria-label="Slide 5">
+<section id="snapshots" data-transition="fade" style="background:#F6F4EE; color:#1B2438; font-family:'IBM Plex Sans', Arial, sans-serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:36px">
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#B4501E">Git</p>
+    <h2 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:64px; font-weight:700; line-height:1.1; color:#16223A">Snapshots and commit IDs</h2>
+  </div>
+  <div style="display:flex; flex-direction:row; gap:32px">
+    <div style="flex:1; display:flex; flex-direction:column; gap:18px; background:#FFFDF8; border:1px solid #E2DED3; border-radius:16px; padding:36px">
+      <h3 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:34px; font-weight:700; color:#B4501E">Snapshots, not differences</h3>
+      <p style="font-size:27px; line-height:1.45">Subversion tracks changes to each individual file.</p>
+      <p style="font-size:27px; line-height:1.45">Git saves a <b>snapshot of the whole project</b> at every commit. Unchanged files simply point to their previous version.</p>
+      <p style="font-size:27px; line-height:1.45; color:#2D6F78"><b>Result:</b> more redundancy, but faster.</p>
+    </div>
+    <div style="flex:1; display:flex; flex-direction:column; gap:18px; background:#FFFDF8; border:1px solid #E2DED3; border-radius:16px; padding:36px">
+      <h3 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:34px; font-weight:700; color:#B4501E">Every commit gets an ID</h3>
+      <p style="font-size:27px; line-height:1.45">No global version number, since everyone commits locally. Instead each commit gets a unique <b>SHA-1 hash</b>: 40 hexadecimal characters, usually shown as the first 7.</p>
+      <div style="background:#16223A; border-radius:12px; padding:22px 26px">
+        <p style="font-family:'JetBrains Mono', 'Courier New', monospace; font-size:24px; line-height:1.6; color:#E6EAF2"><span style="color:#F2A46E">1677b2d</span> Edited first line of readme<br><span style="color:#F2A46E">258efa7</span> Added line to readme<br><span style="color:#F2A46E">0e52da7</span> Initial commit</p>
+      </div>
+    </div>
+  </div>
+  <p style="position:absolute; left:128px; bottom:64px; width:1300px; font-size:24px; color:#5A6272">CCC181 · Git, GitHub &amp; Flask foundations</p>
+  <p style="position:absolute; right:128px; bottom:64px; width:120px; font-size:24px; color:#5A6272; text-align:right">05</p>
+</section>
+</div>
+<div class="frame" data-notes="From the instructor&#x27;s &quot;Local git areas&quot; and &quot;Basic Git workflow&quot; slides. The staging area is what surprises most beginners: it lets you choose exactly which changes go into the next commit, so one commit can hold one logical change even if you edited several things. File status lifecycle from the instructor&#x27;s slides: untracked files become tracked when you add them; editing makes them modified; staging makes them staged; committing makes them unmodified again." aria-label="Slide 6">
+<section id="areas" data-transition="fade" style="background:#F6F4EE; color:#1B2438; font-family:'IBM Plex Sans', Arial, sans-serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:36px">
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#B4501E">Git</p>
+    <h2 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:64px; font-weight:700; line-height:1.1; color:#16223A">The three local areas</h2>
+  </div>
+  <div style="display:flex; flex-direction:row; align-items:center; gap:16px">
+    <div style="flex:1; display:flex; flex-direction:column; gap:8px; background:#E6F0E4; border:2px solid #7FA877; border-radius:16px; padding:28px">
+      <h3 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:32px; font-weight:700; color:#2F5A2A">Working directory</h3>
+      <p style="font-size:25px; line-height:1.4">Files you edit: unmodified or modified</p>
+    </div>
+    <div style="display:flex; flex-direction:column; align-items:center; gap:6px; width:190px">
+      <p style="font-family:'JetBrains Mono', 'Courier New', monospace; font-size:24px; font-weight:700; color:#B4501E">git add</p>
+      <x-shape kind="arrow-right" style="width:120px; height:48px; background:#B4501E"></x-shape>
+    </div>
+    <div style="flex:1; display:flex; flex-direction:column; gap:8px; background:#FBF1D6; border:2px solid #C9A646; border-radius:16px; padding:28px">
+      <h3 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:32px; font-weight:700; color:#6B5410">Staging area</h3>
+      <p style="font-size:25px; line-height:1.4">Changes chosen for the next commit</p>
+    </div>
+    <div style="display:flex; flex-direction:column; align-items:center; gap:6px; width:190px">
+      <p style="font-family:'JetBrains Mono', 'Courier New', monospace; font-size:24px; font-weight:700; color:#B4501E">git commit</p>
+      <x-shape kind="arrow-right" style="width:120px; height:48px; background:#B4501E"></x-shape>
+    </div>
+    <div style="flex:1; display:flex; flex-direction:column; gap:8px; background:#DDE6F4; border:2px solid #6C8CC0; border-radius:16px; padding:28px">
+      <h3 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:32px; font-weight:700; color:#27406B">Repository (.git)</h3>
+      <p style="font-size:25px; line-height:1.4">Committed snapshots, stored permanently</p>
+    </div>
+  </div>
+  <div style="display:flex; flex-direction:row; align-items:center; gap:16px; background:#ECE8DE; border-radius:12px; padding:18px 28px">
+    <x-shape kind="arrow-left" style="width:96px; height:40px; background:#5A6272"></x-shape>
+    <p style="font-size:26px; line-height:1.4"><b>Checkout</b> brings a committed version back into the working directory (<span style="color:#B4501E"><b>git checkout</b></span> / <span style="color:#B4501E"><b>git switch</b></span>)</p>
+  </div>
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <p style="font-size:26px; font-weight:600; color:#16223A">The basic workflow</p>
+    <div style="display:flex; flex-direction:row; gap:16px">
+      <p style="flex:1; font-size:26px; line-height:1.4; background:#FFFDF8; border:1px solid #E2DED3; border-radius:12px; padding:18px 24px"><b>1 · Modify</b> files in the working directory</p>
+      <p style="flex:1; font-size:26px; line-height:1.4; background:#FFFDF8; border:1px solid #E2DED3; border-radius:12px; padding:18px 24px"><b>2 · Stage</b> the changes you want to keep</p>
+      <p style="flex:1; font-size:26px; line-height:1.4; background:#FFFDF8; border:1px solid #E2DED3; border-radius:12px; padding:18px 24px"><b>3 · Commit</b> the staged snapshot to the repo</p>
+    </div>
+  </div>
+  <p style="position:absolute; left:128px; bottom:64px; width:1300px; font-size:24px; color:#5A6272">CCC181 · Git, GitHub &amp; Flask foundations</p>
+  <p style="position:absolute; right:128px; bottom:64px; width:120px; font-size:24px; color:#5A6272; text-align:right">06</p>
+</section>
+</div>
+<div class="frame" data-notes="From the instructor&#x27;s &quot;Initial Git configuration&quot; and &quot;Creating a Git repo&quot; slides. Configuration is stored per computer, so students working on lab machines may need to repeat it. Two ways to get a repository: git init turns the current folder into a new repo; git clone copies an existing one, including its full history, into a new folder. Since every student already has a CCC181 repository on GitHub, they will mostly clone." aria-label="Slide 7">
+<section id="setup" data-transition="fade" style="background:#F6F4EE; color:#1B2438; font-family:'IBM Plex Sans', Arial, sans-serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:36px">
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#B4501E">Repositories</p>
+    <h2 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:64px; font-weight:700; line-height:1.1; color:#16223A">Configure Git, then create a repository</h2>
+  </div>
+  <div style="display:flex; flex-direction:row; gap:28px">
+    <div style="flex:1.15; display:flex; flex-direction:column; gap:14px">
+      <h3 style="font-size:30px; font-weight:600; color:#B4501E">1 · Once per computer</h3>
+      <div style="background:#16223A; border-radius:14px; padding:26px 30px">
+        <p style="font-family:'JetBrains Mono', 'Courier New', monospace; font-size:24px; line-height:1.6; color:#E6EAF2">git config --global user.name "Your Name"<br>git config --global user.email you@g.msuiit.edu.ph<br>git config --global core.editor nano<br><span style="color:#9AA7BD"># check your settings</span><br>git config --list</p>
+      </div>
+      <p style="font-size:25px; line-height:1.4; color:#4A5366">Use the same email as your GitHub account so commits are linked to you. The default editor is vim.</p>
+    </div>
+    <div style="flex:1; display:flex; flex-direction:column; gap:14px">
+      <h3 style="font-size:30px; font-weight:600; color:#B4501E">2 · Start or copy a repo</h3>
+      <div style="background:#16223A; border-radius:14px; padding:26px 30px">
+        <p style="font-family:'JetBrains Mono', 'Courier New', monospace; font-size:24px; line-height:1.6; color:#E6EAF2"><span style="color:#9AA7BD"># new local repository</span><br>git init<br>git add README.md<br>git commit -m "Initial commit"<br><span style="color:#9AA7BD"># or copy a remote one</span><br>git clone &lt;url&gt; [folder]</p>
+      </div>
+      <p style="font-size:25px; line-height:1.4; color:#4A5366"><b>git init</b> creates a hidden <b>.git</b> folder: that folder is the repository.</p>
+    </div>
+  </div>
+  <p style="position:absolute; left:128px; bottom:64px; width:1300px; font-size:24px; color:#5A6272">CCC181 · Git, GitHub &amp; Flask foundations</p>
+  <p style="position:absolute; right:128px; bottom:64px; width:120px; font-size:24px; color:#5A6272; text-align:right">07</p>
+</section>
+</div>
+<div class="frame" data-notes="Based on the instructor&#x27;s command table, with git log added. Students do not need to memorize everything; status, add, commit, push and pull cover most daily work. git switch and git restore are newer commands (Git 2.23, 2019) that split the many jobs of git checkout into clearer pieces; the next slides show both forms." aria-label="Slide 8">
+<section id="commands" data-transition="fade" style="background:#F6F4EE; color:#1B2438; font-family:'IBM Plex Sans', Arial, sans-serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:32px">
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#B4501E">Commits</p>
+    <h2 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:64px; font-weight:700; line-height:1.1; color:#16223A">Core Git commands</h2>
+  </div>
+  <table style="font-size:25px; color:#1B2438; font-family:'IBM Plex Sans', Arial, sans-serif; background:#FFFDF8; border:1px solid #E2DED3">
+    <tr style="background:#16223A"><th style="width:32%; color:#F6F4EE">Command</th><th style="width:68%; color:#F6F4EE">What it does</th></tr>
+    <tr><td style="font-family:'JetBrains Mono', 'Courier New', monospace; color:#B4501E">git clone url [dir]</td><td>Copy a repository so you can add to it</td></tr>
+    <tr style="background:#F1EEE6"><td style="font-family:'JetBrains Mono', 'Courier New', monospace; color:#B4501E">git add file</td><td>Add file contents to the staging area</td></tr>
+    <tr><td style="font-family:'JetBrains Mono', 'Courier New', monospace; color:#B4501E">git commit</td><td>Record a snapshot of the staging area</td></tr>
+    <tr style="background:#F1EEE6"><td style="font-family:'JetBrains Mono', 'Courier New', monospace; color:#B4501E">git status</td><td>Show the state of the working directory and staging area</td></tr>
+    <tr><td style="font-family:'JetBrains Mono', 'Courier New', monospace; color:#B4501E">git diff</td><td>Show what is modified but not yet staged</td></tr>
+    <tr style="background:#F1EEE6"><td style="font-family:'JetBrains Mono', 'Courier New', monospace; color:#B4501E">git log</td><td>List the commit history</td></tr>
+    <tr><td style="font-family:'JetBrains Mono', 'Courier New', monospace; color:#B4501E">git pull</td><td>Fetch from a remote repo and merge into the current branch</td></tr>
+    <tr style="background:#F1EEE6"><td style="font-family:'JetBrains Mono', 'Courier New', monospace; color:#B4501E">git push</td><td>Send your commits and branches to a remote repo</td></tr>
+    <tr><td style="font-family:'JetBrains Mono', 'Courier New', monospace; color:#B4501E">git help [command]</td><td>Open help for a command</td></tr>
+  </table>
+  <p style="font-size:25px; line-height:1.4; color:#4A5366"><b>Also:</b> init, reset, branch, checkout, switch, restore, merge, tag</p>
+  <p style="position:absolute; left:128px; bottom:64px; width:1300px; font-size:24px; color:#5A6272">CCC181 · Git, GitHub &amp; Flask foundations</p>
+  <p style="position:absolute; right:128px; bottom:64px; width:120px; font-size:24px; color:#5A6272; text-align:right">08</p>
+</section>
+</div>
+<div class="frame" data-notes="Adapted from the instructor&#x27;s &quot;An example workflow&quot;, using a Flask file instead of a text file. Walk through each line: ?? means untracked; after git add, A means added to staging. git diff shows unstaged changes; git diff --cached shows what is staged. The hash 3f9c2ab is illustrative; students&#x27; hashes will differ. On messages: the log is how future you, and your instructor, understand the project&#x27;s history, so &quot;update&quot; tells nobody anything." aria-label="Slide 9">
+<section id="workflow" data-transition="fade" style="background:#F6F4EE; color:#1B2438; font-family:'IBM Plex Sans', Arial, sans-serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:36px">
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#B4501E">Commits</p>
+    <h2 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:64px; font-weight:700; line-height:1.1; color:#16223A">An example workflow</h2>
+  </div>
+  <div style="display:flex; flex-direction:row; gap:32px">
+    <div style="flex:1.25; background:#16223A; border-radius:16px; padding:30px 34px">
+      <p style="font-family:'JetBrains Mono', 'Courier New', monospace; font-size:24px; line-height:1.6; color:#E6EAF2"><span style="color:#F2A46E">$</span> git status -s<br><span style="color:#9AA7BD">?? app.py</span><br><span style="color:#F2A46E">$</span> git diff<br><span style="color:#F2A46E">$</span> git add app.py<br><span style="color:#F2A46E">$</span> git status -s<br><span style="color:#9AA7BD">A&#160; app.py</span><br><span style="color:#F2A46E">$</span> git diff --cached<br><span style="color:#F2A46E">$</span> git commit -m "Add home route"<br><span style="color:#F2A46E">$</span> git log --oneline<br><span style="color:#9AA7BD">3f9c2ab Add home route</span><br><span style="color:#9AA7BD">0e52da7 Initial commit</span></p>
+    </div>
+    <div style="flex:1; display:flex; flex-direction:column; gap:16px">
+      <h3 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:32px; font-weight:700; color:#16223A">Writing good commit messages</h3>
+      <div style="display:flex; flex-direction:row; gap:14px; align-items:start"><svg class="xi" style="width:30px; height:30px; color:#2D6F78" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><p style="font-size:26px; line-height:1.4">Short summary, in the imperative: “Add…”, “Fix…”</p></div>
+      <div style="display:flex; flex-direction:row; gap:14px; align-items:start"><svg class="xi" style="width:30px; height:30px; color:#2D6F78" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><p style="font-size:26px; line-height:1.4">One logical change per commit</p></div>
+      <div style="display:flex; flex-direction:row; gap:14px; align-items:start"><svg class="xi" style="width:30px; height:30px; color:#2D6F78" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><p style="font-size:26px; line-height:1.4">Commit early and often</p></div>
+      <p style="font-size:26px; line-height:1.4; background:#E3EFF0; padding:14px 20px; border-radius:10px"><b>Good:</b> “Add join-queue form”</p>
+      <p style="font-size:26px; line-height:1.4; background:#FBE9DC; padding:14px 20px; border-radius:10px"><b>Unhelpful:</b> “update”, “asdf”, “final na talaga”</p>
+    </div>
+  </div>
+  <p style="position:absolute; left:128px; bottom:64px; width:1300px; font-size:24px; color:#5A6272">CCC181 · Git, GitHub &amp; Flask foundations</p>
+  <p style="position:absolute; right:128px; bottom:64px; width:120px; font-size:24px; color:#5A6272; text-align:right">09</p>
+</section>
+</div>
+<div class="frame" data-notes="From the instructor&#x27;s &quot;Viewing/undoing changes&quot; and &quot;Add and commit a file&quot; slides, with the newer git restore equivalents added. Both forms work; git status itself prints the recommended command for your Git version. Stress the warning: git checkout -- file or git restore file throws away uncommitted edits permanently. That is one more reason to commit often." aria-label="Slide 10">
+<section id="undo" data-transition="fade" style="background:#F6F4EE; color:#1B2438; font-family:'IBM Plex Sans', Arial, sans-serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:36px">
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#B4501E">Commits</p>
+    <h2 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:64px; font-weight:700; line-height:1.1; color:#16223A">Viewing and undoing changes</h2>
+  </div>
+  <div style="display:flex; flex-direction:row; gap:32px">
+    <div style="flex:1; display:flex; flex-direction:column; gap:14px">
+      <h3 style="font-size:30px; font-weight:600; color:#2D6F78">See what changed</h3>
+      <div style="background:#16223A; border-radius:14px; padding:26px 30px">
+        <p style="font-family:'JetBrains Mono', 'Courier New', monospace; font-size:24px; line-height:1.6; color:#E6EAF2">git status&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span style="color:#9AA7BD"># or: git status -s</span><br>git diff&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span style="color:#9AA7BD"># modified, unstaged</span><br>git diff --cached <span style="color:#9AA7BD"># staged changes</span><br>git log --oneline <span style="color:#9AA7BD"># short history</span><br>git log -5&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span style="color:#9AA7BD"># last 5 commits</span></p>
+      </div>
+    </div>
+    <div style="flex:1; display:flex; flex-direction:column; gap:14px">
+      <h3 style="font-size:30px; font-weight:600; color:#B4501E">Undo before you commit</h3>
+      <table style="font-size:24px; color:#1B2438; background:#FFFDF8; border:1px solid #E2DED3">
+        <tr style="background:#ECE8DE"><th style="width:30%">Goal</th><th style="width:70%">Command (classic · newer)</th></tr>
+        <tr><td><b>Unstage</b> a file</td><td style="font-family:'JetBrains Mono', 'Courier New', monospace">git reset HEAD -- file<br>git restore --staged file</td></tr>
+        <tr style="background:#F1EEE6"><td><b>Discard</b> your edits</td><td style="font-family:'JetBrains Mono', 'Courier New', monospace">git checkout -- file<br>git restore file</td></tr>
+      </table>
+      <div style="display:flex; flex-direction:row; gap:14px; align-items:center; background:#FBE9DC; border-radius:10px; padding:16px 22px">
+        <svg class="xi" style="width:32px; height:32px; color:#8A3A14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+        <p style="font-size:24px; line-height:1.4">Discarding edits cannot be undone. All of these act on your local repo only.</p>
+      </div>
+    </div>
+  </div>
+  <p style="position:absolute; left:128px; bottom:64px; width:1300px; font-size:24px; color:#5A6272">CCC181 · Git, GitHub &amp; Flask foundations</p>
+  <p style="position:absolute; right:128px; bottom:64px; width:120px; font-size:24px; color:#5A6272; text-align:right">10</p>
+</section>
+</div>
+<div class="frame" data-notes="From the instructor&#x27;s &quot;Branching and merging&quot; slide. The instructor&#x27;s slides use master and git checkout; both still work. Explain the diagram: main keeps working code; the feature branch holds work in progress; merging brings the finished feature back. Tie to the project: each MVP feature, for example &quot;join the queue&quot;, gets its own branch. Keep branches short-lived; the longer a branch lives, the more likely a conflict." aria-label="Slide 11">
+<section id="branching" data-section="Branching, merging and resolving conflicts" data-transition="fade" style="background:#F6F4EE; color:#1B2438; font-family:'IBM Plex Sans', Arial, sans-serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:28px">
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#B4501E">Branches</p>
+    <h2 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:64px; font-weight:700; line-height:1.1; color:#16223A">Branching and merging</h2>
+  </div>
+  <div style="position:relative; width:1664px; height:230px; background:#FFFDF8; border:1px solid #E2DED3; border-radius:16px">
+    <svg aria-label="A feature branch splits off main after the third commit, gets two commits, and merges back into main" width="1664" height="230" viewBox="0 0 1664 230" style="position:absolute; left:0; top:0; width:1664px; height:230px">
+      <line x1="200" y1="70" x2="1500" y2="70" stroke="#16223A" stroke-width="6"/>
+      <path d="M560 70 C 640 70, 640 160, 720 160 L 1000 160 C 1080 160, 1080 70, 1160 70" fill="none" stroke="#B4501E" stroke-width="6"/>
+      <circle cx="240" cy="70" r="18" fill="#16223A"/>
+      <circle cx="400" cy="70" r="18" fill="#16223A"/>
+      <circle cx="560" cy="70" r="18" fill="#16223A"/>
+      <circle cx="780" cy="160" r="18" fill="#B4501E"/>
+      <circle cx="940" cy="160" r="18" fill="#B4501E"/>
+      <circle cx="1160" cy="70" r="24" fill="#FFFDF8" stroke="#16223A" stroke-width="6"/>
+      <circle cx="1320" cy="70" r="18" fill="#16223A"/>
+    </svg>
+    <p style="position:absolute; left:40px; top:52px; width:150px; font-size:26px; font-weight:700; color:#16223A">main</p>
+    <p style="position:absolute; left:1060px; top:160px; width:420px; font-size:26px; font-weight:700; color:#B4501E">feature/join-queue</p>
+    <p style="position:absolute; left:1100px; top:14px; width:300px; font-size:24px; color:#4A5366">merge commit</p>
+  </div>
+  <div style="display:flex; flex-direction:row; gap:28px">
+    <div style="flex:1.2; background:#16223A; border-radius:14px; padding:24px 30px">
+      <p style="font-family:'JetBrains Mono', 'Courier New', monospace; font-size:24px; line-height:1.55; color:#E6EAF2">git branch&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span style="color:#9AA7BD"># list; * = current</span><br>git branch feature/join-queue<br>git switch feature/join-queue<br><span style="color:#9AA7BD"># same as: git checkout feature/join-queue</span><br>git switch main<br>git merge feature/join-queue</p>
+    </div>
+    <div style="flex:1; display:flex; flex-direction:column; gap:14px">
+      <p style="font-size:26px; line-height:1.45">Git uses branches heavily to <b>switch between tasks</b>: each feature is built on its own branch, then merged.</p>
+      <p style="font-size:24px; line-height:1.4; background:#E3EFF0; padding:14px 20px; border-radius:10px"><b>master or main?</b> Older repos use <b>master</b>. GitHub has named new default branches <b>main</b> since 2020.</p>
+      <p style="font-size:24px; line-height:1.4; color:#4A5366">Shortcut: <b>git switch -c name</b> creates and switches at once.</p>
+    </div>
+  </div>
+  <p style="position:absolute; left:128px; bottom:64px; width:1300px; font-size:24px; color:#5A6272">CCC181 · Git, GitHub &amp; Flask foundations</p>
+  <p style="position:absolute; right:128px; bottom:64px; width:120px; font-size:24px; color:#5A6272; text-align:right">11</p>
+</section>
+</div>
+<div class="frame" data-notes="From the instructor&#x27;s &quot;Merge conflicts&quot; slide. A conflict is not an error; it is Git asking a human to choose. Choose whichever version is newer, better or more correct, or combine the two. Editors such as VS Code highlight the sections and offer &quot;Accept current / incoming / both&quot; buttons. The commit completes the merge." aria-label="Slide 12">
+<section id="conflicts" data-transition="fade" style="background:#F6F4EE; color:#1B2438; font-family:'IBM Plex Sans', Arial, sans-serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:36px">
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#B4501E">Branches</p>
+    <h2 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:64px; font-weight:700; line-height:1.1; color:#16223A">Resolving merge conflicts</h2>
+  </div>
+  <div style="display:flex; flex-direction:row; gap:32px">
+    <div style="flex:1.3; display:flex; flex-direction:column; gap:14px">
+      <p style="font-size:26px; line-height:1.4">When both branches changed the same lines, Git marks the file:</p>
+      <div style="background:#16223A; border-radius:14px; padding:26px 30px">
+        <p style="font-family:'JetBrains Mono', 'Courier New', monospace; font-size:24px; line-height:1.6; color:#E6EAF2"><span style="color:#F2A46E">&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD:index.html</span><br><span style="color:#9CC3F5">&lt;div id="footer"&gt;todo: message here&lt;/div&gt;</span><br><span style="color:#F2A46E">=======</span><br><span style="color:#A8D8A0">&lt;div id="footer"&gt;</span><br><span style="color:#A8D8A0">&#160;&#160;thanks for visiting our site</span><br><span style="color:#A8D8A0">&lt;/div&gt;</span><br><span style="color:#F2A46E">&gt;&gt;&gt;&gt;&gt;&gt;&gt; SpecialBranch:index.html</span></p>
+      </div>
+      <p style="font-size:24px; line-height:1.4; color:#4A5366">Top: your current branch's version · bottom: the incoming branch's version</p>
+    </div>
+    <div style="flex:1; display:flex; flex-direction:column; gap:14px; background:#FFFDF8; border:1px solid #E2DED3; border-radius:16px; padding:30px">
+      <h3 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:30px; font-weight:700; color:#16223A">To fix it</h3>
+      <ol style="font-size:26px; line-height:1.5">
+        <li>Run <b>git status</b> to find conflicted files</li>
+        <li>Edit each section to the correct version</li>
+        <li>Delete the &lt;&lt;&lt;, === and &gt;&gt;&gt; lines</li>
+        <li><b>git add</b> the file, then <b>git commit</b></li>
+      </ol>
+      <p style="font-size:24px; line-height:1.4; color:#2D6F78"><b>Prevention:</b> pull often and keep branches small.</p>
+    </div>
+  </div>
+  <p style="position:absolute; left:128px; bottom:64px; width:1300px; font-size:24px; color:#5A6272">CCC181 · Git, GitHub &amp; Flask foundations</p>
+  <p style="position:absolute; right:128px; bottom:64px; width:120px; font-size:24px; color:#5A6272; text-align:right">12</p>
+</section>
+</div>
+<div class="frame" data-notes="From the instructor&#x27;s &quot;Interaction with remote repo&quot; and &quot;GitHub&quot; slides. Pull before you start working, to get the latest changes; push when you have commits to share. If a pull brings conflicts, fix them as on the previous slide, then add and commit. The instructor&#x27;s slides use master; replace with main for repositories created on GitHub today. Authentication: GitHub no longer accepts account passwords for Git over HTTPS; students sign in through Git Credential Manager, the GitHub CLI, or use a personal access token or SSH key." aria-label="Slide 13">
+<section id="remotes" data-section="GitHub: remotes, issues and pull requests" data-transition="fade" style="background:#F6F4EE; color:#1B2438; font-family:'IBM Plex Sans', Arial, sans-serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:36px">
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#B4501E">GitHub</p>
+    <h2 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:64px; font-weight:700; line-height:1.1; color:#16223A">Working with a remote repository</h2>
+  </div>
+  <div style="display:flex; flex-direction:row; gap:32px">
+    <div style="flex:1.2; display:flex; flex-direction:column; gap:20px">
+      <div style="display:flex; flex-direction:row; align-items:center; gap:20px">
+        <div style="flex:1; display:flex; flex-direction:column; gap:6px; background:#DDE6F4; border:2px solid #6C8CC0; border-radius:14px; padding:22px 26px"><p style="font-size:26px; font-weight:700; color:#27406B">Your computer</p><p style="font-size:24px">local repo</p></div>
+        <div style="display:flex; flex-direction:column; align-items:center; gap:6px; width:180px">
+          <p style="font-size:24px; font-weight:700; color:#B4501E">push</p>
+          <x-shape kind="arrow-right" style="width:120px; height:40px; background:#B4501E"></x-shape>
+          <x-shape kind="arrow-left" style="width:120px; height:40px; background:#2D6F78"></x-shape>
+          <p style="font-size:24px; font-weight:700; color:#2D6F78">pull</p>
+        </div>
+        <div style="flex:1; display:flex; flex-direction:column; gap:6px; background:#16223A; border-radius:14px; padding:22px 26px"><p style="font-size:26px; font-weight:700; color:#F6F4EE">GitHub</p><p style="font-size:24px; color:#C5CEDD">remote named origin</p></div>
+      </div>
+      <div style="background:#16223A; border-radius:14px; padding:24px 30px">
+        <p style="font-family:'JetBrains Mono', 'Courier New', monospace; font-size:24px; line-height:1.6; color:#E6EAF2"><span style="color:#9AA7BD"># connect an existing local repo (once)</span><br>git remote add origin &lt;repo-url&gt;<br>git push -u origin main<br><span style="color:#9AA7BD"># everyday</span><br>git pull origin main<br>git push origin main</p>
+      </div>
+    </div>
+    <div style="flex:1; display:flex; flex-direction:column; gap:16px; background:#FFFDF8; border:1px solid #E2DED3; border-radius:16px; padding:32px">
+      <h3 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:30px; font-weight:700; color:#16223A">GitHub is not Git</h3>
+      <p style="font-size:26px; line-height:1.45">GitHub.com hosts Git repositories online. Many open-source projects, including the Linux kernel, are mirrored there.</p>
+      <p style="font-size:26px; line-height:1.45"><b>Do you always need GitHub to use Git?</b> No. Git works fully on your own computer, or on any shared server.</p>
+      <p style="font-size:26px; line-height:1.45; color:#2D6F78">GitHub adds collaboration: <b>issues</b> and <b>pull requests</b>.</p>
+    </div>
+  </div>
+  <p style="position:absolute; left:128px; bottom:64px; width:1300px; font-size:24px; color:#5A6272">CCC181 · Git, GitHub &amp; Flask foundations</p>
+  <p style="position:absolute; right:128px; bottom:64px; width:120px; font-size:24px; color:#5A6272; text-align:right">13</p>
+</section>
+</div>
+<div class="frame" data-notes="Issues connect last meeting&#x27;s planning to today&#x27;s code. The example is the ClinicQ user story from the previous lecture. Anatomy: a title that states the outcome, a description with the user story and a &quot;done when&quot; condition, labels for type and priority (MoSCoW works well as labels), an assignee, and a milestone grouping the MVP issues. Keywords such as Closes, Fixes or Resolves followed by the issue number close the issue when the pull request merges into the default branch." aria-label="Slide 14">
+<section id="issues" data-transition="fade" style="background:#F6F4EE; color:#1B2438; font-family:'IBM Plex Sans', Arial, sans-serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:36px">
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#B4501E">GitHub</p>
+    <h2 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:64px; font-weight:700; line-height:1.1; color:#16223A">Issues: tracking the work</h2>
+  </div>
+  <div style="display:flex; flex-direction:row; gap:32px">
+    <div style="flex:1; display:flex; flex-direction:column; gap:16px; background:#FFFDF8; border:1px solid #D6D1C4; border-radius:16px; padding:30px; box-shadow:0 8px 24px rgba(22,34,58,0.08)">
+      <div style="display:flex; flex-direction:row; gap:14px; align-items:center">
+        <p style="font-size:24px; font-weight:600; color:#FBF3EA; background:#2D6F78; padding:6px 16px; border-radius:999px">Open</p>
+        <p style="font-size:26px; color:#5A6272">#12</p>
+      </div>
+      <h3 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:34px; font-weight:700; color:#16223A">Student can join the queue from their phone</h3>
+      <p style="font-size:24px; line-height:1.45; color:#4A5366">As a student, I want to join the queue remotely so that I can wait in class. Done when the student sees their position after joining.</p>
+      <div style="display:flex; flex-direction:row; gap:10px; flex-wrap:wrap">
+        <p style="font-size:24px; background:#FBE9DC; color:#8A3A14; padding:4px 14px; border-radius:999px">feature</p>
+        <p style="font-size:24px; background:#16223A; color:#F6F4EE; padding:4px 14px; border-radius:999px">Must</p>
+        <p style="font-size:24px; background:#ECE8DE; padding:4px 14px; border-radius:999px">Milestone: MVP</p>
+      </div>
+      <p style="font-size:24px; color:#5A6272">Assignee: [your username]</p>
+    </div>
+    <div style="flex:1; display:flex; flex-direction:column; gap:18px">
+      <p style="font-size:28px; line-height:1.45">An <b>issue</b> is one tracked unit of work: a feature, a bug, or a task, with its discussion in one place.</p>
+      <div style="display:flex; flex-direction:column; gap:10px; background:#16223A; border-radius:14px; padding:26px 30px">
+        <p style="font-size:24px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:#F2A46E">From plan to issues</p>
+        <p style="font-size:26px; line-height:1.45; color:#F6F4EE">Each <b>Must</b> user story in your milestone becomes one issue. Your MVP becomes a GitHub milestone.</p>
+      </div>
+      <p style="font-size:26px; line-height:1.45">Write <span style="font-family:'JetBrains Mono', 'Courier New', monospace; color:#B4501E"><b>Closes #12</b></span> in a pull request, and the issue closes automatically when it merges.</p>
+    </div>
+  </div>
+  <p style="position:absolute; left:128px; bottom:64px; width:1300px; font-size:24px; color:#5A6272">CCC181 · Git, GitHub &amp; Flask foundations</p>
+  <p style="position:absolute; right:128px; bottom:64px; width:120px; font-size:24px; color:#5A6272; text-align:right">14</p>
+</section>
+</div>
+<div class="frame" data-notes="This is the workflow students will use for the rest of the course. Start from an issue, create a branch named after it, commit in small steps, push the branch, and open a pull request on GitHub (GitHub shows a &quot;Compare &amp; pull request&quot; button after a push). The PR description should say what changed and include &quot;Closes #N&quot;. After review, merge the PR, delete the branch, then locally: git switch main and git pull. A PR is also where the instructor can comment on specific lines of code." aria-label="Slide 15">
+<section id="pull-requests" data-transition="fade" style="background:#F6F4EE; color:#1B2438; font-family:'IBM Plex Sans', Arial, sans-serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:36px">
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#B4501E">GitHub</p>
+    <h2 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:64px; font-weight:700; line-height:1.1; color:#16223A">Pull requests: the feature-branch workflow</h2>
+  </div>
+  <div style="display:flex; flex-direction:row; align-items:center; gap:12px">
+    <div style="flex:1; display:flex; flex-direction:column; gap:6px; background:#FFFDF8; border:1px solid #E2DED3; border-radius:12px; padding:20px"><p style="font-size:24px; font-weight:700; color:#B4501E">1</p><p style="font-size:26px; font-weight:600">Issue</p></div>
+    <x-shape kind="arrow-right" style="width:36px; height:18px; background:#B4501E"></x-shape>
+    <div style="flex:1; display:flex; flex-direction:column; gap:6px; background:#FFFDF8; border:1px solid #E2DED3; border-radius:12px; padding:20px"><p style="font-size:24px; font-weight:700; color:#B4501E">2</p><p style="font-size:26px; font-weight:600">Branch</p></div>
+    <x-shape kind="arrow-right" style="width:36px; height:18px; background:#B4501E"></x-shape>
+    <div style="flex:1; display:flex; flex-direction:column; gap:6px; background:#FFFDF8; border:1px solid #E2DED3; border-radius:12px; padding:20px"><p style="font-size:24px; font-weight:700; color:#B4501E">3</p><p style="font-size:26px; font-weight:600">Commits</p></div>
+    <x-shape kind="arrow-right" style="width:36px; height:18px; background:#B4501E"></x-shape>
+    <div style="flex:1; display:flex; flex-direction:column; gap:6px; background:#FFFDF8; border:1px solid #E2DED3; border-radius:12px; padding:20px"><p style="font-size:24px; font-weight:700; color:#B4501E">4</p><p style="font-size:26px; font-weight:600">Push</p></div>
+    <x-shape kind="arrow-right" style="width:36px; height:18px; background:#B4501E"></x-shape>
+    <div style="flex:1; display:flex; flex-direction:column; gap:6px; background:#16223A; border-radius:12px; padding:20px"><p style="font-size:24px; font-weight:700; color:#F2A46E">5</p><p style="font-size:26px; font-weight:600; color:#F6F4EE">Pull request</p></div>
+    <x-shape kind="arrow-right" style="width:36px; height:18px; background:#B4501E"></x-shape>
+    <div style="flex:1; display:flex; flex-direction:column; gap:6px; background:#FFFDF8; border:1px solid #E2DED3; border-radius:12px; padding:20px"><p style="font-size:24px; font-weight:700; color:#B4501E">6</p><p style="font-size:26px; font-weight:600">Review &amp; merge</p></div>
+  </div>
+  <div style="display:flex; flex-direction:row; gap:32px">
+    <div style="flex:1.2; background:#16223A; border-radius:14px; padding:26px 30px">
+      <p style="font-family:'JetBrains Mono', 'Courier New', monospace; font-size:24px; line-height:1.6; color:#E6EAF2">git switch -c feature/join-queue<br><span style="color:#9AA7BD"># ...edit, add, commit...</span><br>git push -u origin feature/join-queue<br><span style="color:#9AA7BD"># on GitHub: Compare &amp; pull request</span><br><span style="color:#9AA7BD"># description: Closes #12</span></p>
+    </div>
+    <div style="flex:1; display:flex; flex-direction:column; gap:14px">
+      <p style="font-size:26px; line-height:1.45">A <b>pull request (PR)</b> asks to merge your branch into <b>main</b>. It shows the diff, collects review comments, and records why the change was made.</p>
+      <p style="font-size:24px; line-height:1.4; background:#E3EFF0; padding:14px 20px; border-radius:10px"><b>Working solo?</b> Still use PRs: they keep main working and document your progress.</p>
+    </div>
+  </div>
+  <p style="position:absolute; left:128px; bottom:64px; width:1300px; font-size:24px; color:#5A6272">CCC181 · Git, GitHub &amp; Flask foundations</p>
+  <p style="position:absolute; right:128px; bottom:64px; width:120px; font-size:24px; color:#5A6272; text-align:right">15</p>
+</section>
+</div>
+<div class="frame" data-notes="venv has been part of the Python standard library since Python 3.3, so nothing extra needs installing. A virtual environment is just a folder containing its own copy of the Python interpreter link and its own site-packages. Activating it makes &quot;python&quot; and &quot;pip&quot; point inside that folder. requirements.txt is what makes the project reproducible: the instructor can clone a student&#x27;s repo and install exactly the same packages." aria-label="Slide 16">
+<section id="venv-why" data-section="Managing Python environments with venv, pip and requirements.txt" data-transition="fade" style="background:#F6F4EE; color:#1B2438; font-family:'IBM Plex Sans', Arial, sans-serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:36px">
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#2D6F78">Python environments</p>
+    <h2 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:64px; font-weight:700; line-height:1.1; color:#16223A">Why every project gets its own environment</h2>
+  </div>
+  <div style="display:flex; flex-direction:row; gap:32px">
+    <div style="flex:1; display:flex; flex-direction:column; gap:16px; background:#FBE9DC; border-radius:16px; padding:32px">
+      <h3 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:32px; font-weight:700; color:#8A3A14">Without: one global Python</h3>
+      <p style="font-size:26px; line-height:1.45">Project A needs Flask 2.x; project B needs Flask 3.x. Installing one breaks the other.</p>
+      <p style="font-size:26px; line-height:1.45">“It works on my machine” because nobody knows which packages the app really needs.</p>
+    </div>
+    <div style="flex:1; display:flex; flex-direction:column; gap:16px; background:#E3EFF0; border-radius:16px; padding:32px">
+      <h3 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:32px; font-weight:700; color:#1F5058">With: a virtual environment</h3>
+      <div style="display:flex; flex-direction:row; gap:12px">
+        <div style="flex:1; display:flex; flex-direction:column; gap:6px; background:#FFFDF8; border-radius:10px; padding:14px 18px"><p style="font-size:24px; font-weight:700">project-a/.venv</p><p style="font-size:24px">Flask 2.x</p></div>
+        <div style="flex:1; display:flex; flex-direction:column; gap:6px; background:#FFFDF8; border-radius:10px; padding:14px 18px"><p style="font-size:24px; font-weight:700">project-b/.venv</p><p style="font-size:24px">Flask 3.x</p></div>
+      </div>
+      <p style="font-size:26px; line-height:1.45">Each project has an isolated folder with its own packages. <b>requirements.txt</b> lists them so anyone can rebuild it.</p>
+    </div>
+  </div>
+  <p style="position:absolute; left:128px; bottom:64px; width:1300px; font-size:24px; color:#5A6272">CCC181 · Git, GitHub &amp; Flask foundations</p>
+  <p style="position:absolute; right:128px; bottom:64px; width:120px; font-size:24px; color:#5A6272; text-align:right">16</p>
+</section>
+</div>
+<div class="frame" data-notes="Walk through the four steps live. Common Windows issue: PowerShell may block the activate script; running &quot;Set-ExecutionPolicy -Scope CurrentUser RemoteSigned&quot; once fixes it, or use Command Prompt. The .venv folder is large and machine-specific, which is why it goes in .gitignore; requirements.txt is small and portable. .env is where secrets like API keys will live later, so it is ignored from the start. VS Code detects .venv automatically and offers to use it as the interpreter." aria-label="Slide 17">
+<section id="venv-how" data-transition="fade" style="background:#F6F4EE; color:#1B2438; font-family:'IBM Plex Sans', Arial, sans-serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:36px">
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#2D6F78">Python environments</p>
+    <h2 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:64px; font-weight:700; line-height:1.1; color:#16223A">venv, pip and requirements.txt</h2>
+  </div>
+  <div style="display:flex; flex-direction:row; gap:32px">
+    <div style="flex:1.35; background:#16223A; border-radius:16px; padding:28px 32px">
+      <p style="font-family:'JetBrains Mono', 'Courier New', monospace; font-size:24px; line-height:1.55; color:#E6EAF2"><span style="color:#9AA7BD"># 1. create (once per project)</span><br>python -m venv .venv<br><span style="color:#9AA7BD"># 2. activate (every new terminal)</span><br>.venv\Scripts\activate&#160;&#160;&#160;&#160;&#160;&#160;<span style="color:#9AA7BD"># Windows</span><br>source .venv/bin/activate <span style="color:#9AA7BD"># macOS/Linux</span><br><span style="color:#9AA7BD"># 3. install and record</span><br>pip install flask<br>pip freeze &gt; requirements.txt<br><span style="color:#9AA7BD"># 4. rebuild on another computer</span><br>pip install -r requirements.txt<br>deactivate</p>
+    </div>
+    <div style="flex:1; display:flex; flex-direction:column; gap:16px">
+      <div style="display:flex; flex-direction:column; gap:10px; background:#FFFDF8; border:1px solid #E2DED3; border-radius:14px; padding:24px 28px">
+        <h3 style="font-size:28px; font-weight:600; color:#16223A">.gitignore</h3>
+        <p style="font-family:'JetBrains Mono', 'Courier New', monospace; font-size:24px; line-height:1.55; color:#B4501E">.venv/<br>__pycache__/<br>*.pyc<br>.env</p>
+      </div>
+      <p style="font-size:26px; line-height:1.45; background:#E3EFF0; padding:18px 24px; border-radius:12px"><b>Commit</b> requirements.txt. <b>Never commit</b> the .venv folder.</p>
+      <p style="font-size:24px; line-height:1.4; color:#4A5366">Your prompt shows <b>(.venv)</b> when active. Some systems use <b>python3</b> or <b>py</b> instead of python.</p>
+    </div>
+  </div>
+  <p style="position:absolute; left:128px; bottom:64px; width:1300px; font-size:24px; color:#5A6272">CCC181 · Git, GitHub &amp; Flask foundations</p>
+  <p style="position:absolute; right:128px; bottom:64px; width:120px; font-size:24px; color:#5A6272; text-align:right">17</p>
+</section>
+</div>
+<div class="frame" data-notes="Micro does not mean small apps; it means the core stays minimal and makes few decisions for you. Compare with Django, which is &quot;batteries included&quot; with an ORM, admin and auth built in. Flask is a good fit for an MVP because students add pieces only as their requirements demand. Common extensions they may meet later: Flask-SQLAlchemy for databases, Flask-Login for authentication, Flask-WTF for forms. The request-flow diagram is the mental model for the next three slides." aria-label="Slide 18">
+<section id="flask-intro" data-section="Flask foundations: structure, routes and templates" data-transition="fade" style="background:#F6F4EE; color:#1B2438; font-family:'IBM Plex Sans', Arial, sans-serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:36px">
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#2D6F78">Flask</p>
+    <h2 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:64px; font-weight:700; line-height:1.1; color:#16223A">What Flask is, and how a request flows</h2>
+  </div>
+  <div style="display:flex; flex-direction:row; align-items:center; gap:12px">
+    <div style="flex:1; display:flex; flex-direction:column; gap:6px; background:#FFFDF8; border:1px solid #E2DED3; border-radius:12px; padding:20px 22px"><p style="font-size:26px; font-weight:700">Browser</p><p style="font-size:24px; color:#4A5366">GET /queue/12</p></div>
+    <x-shape kind="arrow-right" style="width:40px; height:20px; background:#2D6F78"></x-shape>
+    <div style="flex:1; display:flex; flex-direction:column; gap:6px; background:#E3EFF0; border-radius:12px; padding:20px 22px"><p style="font-size:26px; font-weight:700">Route</p><p style="font-size:24px; color:#1B2438">matches the URL</p></div>
+    <x-shape kind="arrow-right" style="width:40px; height:20px; background:#2D6F78"></x-shape>
+    <div style="flex:1; display:flex; flex-direction:column; gap:6px; background:#E3EFF0; border-radius:12px; padding:20px 22px"><p style="font-size:26px; font-weight:700">View function</p><p style="font-size:24px; color:#1B2438">runs your Python</p></div>
+    <x-shape kind="arrow-right" style="width:40px; height:20px; background:#2D6F78"></x-shape>
+    <div style="flex:1; display:flex; flex-direction:column; gap:6px; background:#E3EFF0; border-radius:12px; padding:20px 22px"><p style="font-size:26px; font-weight:700">Template</p><p style="font-size:24px; color:#1B2438">fills in HTML</p></div>
+    <x-shape kind="arrow-right" style="width:40px; height:20px; background:#2D6F78"></x-shape>
+    <div style="flex:1; display:flex; flex-direction:column; gap:6px; background:#16223A; border-radius:12px; padding:20px 22px"><p style="font-size:26px; font-weight:700; color:#F6F4EE">Response</p><p style="font-size:24px; color:#C5CEDD">HTML page</p></div>
+  </div>
+  <div style="display:flex; flex-direction:row; gap:24px">
+    <div style="flex:1.3; display:flex; flex-direction:column; gap:12px; background:#16223A; border-radius:16px; padding:30px">
+      <p style="font-size:24px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:#F2A46E">Flask</p>
+      <p style="font-size:28px; line-height:1.45; color:#F6F4EE">A lightweight <b>micro-framework</b> for Python web apps, created by Armin Ronacher in 2010. The core is small; you add only what you need.</p>
+    </div>
+    <div style="flex:1; display:flex; flex-direction:column; gap:10px; background:#FFFDF8; border:1px solid #E2DED3; border-radius:16px; padding:26px">
+      <h3 style="font-size:28px; font-weight:600; color:#2D6F78">Built on</h3>
+      <p style="font-size:25px; line-height:1.45"><b>Werkzeug</b>: requests, responses, routing</p>
+      <p style="font-size:25px; line-height:1.45"><b>Jinja2</b>: HTML templates</p>
+    </div>
+    <div style="flex:1; display:flex; flex-direction:column; gap:10px; background:#FFFDF8; border:1px solid #E2DED3; border-radius:16px; padding:26px">
+      <h3 style="font-size:28px; font-weight:600; color:#2D6F78">Add later</h3>
+      <p style="font-size:25px; line-height:1.45">Extensions for databases, logins and forms, when your MVP needs them</p>
+    </div>
+  </div>
+  <p style="position:absolute; left:128px; bottom:64px; width:1300px; font-size:24px; color:#5A6272">CCC181 · Git, GitHub &amp; Flask foundations</p>
+  <p style="position:absolute; right:128px; bottom:64px; width:120px; font-size:24px; color:#5A6272; text-align:right">18</p>
+</section>
+</div>
+<div class="frame" data-notes="This is the simplest structure that scales to an MVP. The folder names templates and static are conventions Flask relies on; misspelling them is a common cause of &quot;TemplateNotFound&quot;. In the template, link static files with url_for, for example url_for(&#x27;static&#x27;, filename=&#x27;css/style.css&#x27;), rather than hard-coding paths. When the app grows, routes move into blueprints and the app becomes a package with an application factory; that comes in later meetings." aria-label="Slide 19">
+<section id="structure" data-transition="fade" style="background:#F6F4EE; color:#1B2438; font-family:'IBM Plex Sans', Arial, sans-serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:36px">
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#2D6F78">Flask</p>
+    <h2 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:64px; font-weight:700; line-height:1.1; color:#16223A">A basic Flask project structure</h2>
+  </div>
+  <div style="display:flex; flex-direction:row; gap:32px">
+    <div style="flex:1; background:#16223A; border-radius:16px; padding:30px 34px">
+      <p style="font-family:'JetBrains Mono', 'Courier New', monospace; font-size:26px; line-height:1.5; color:#E6EAF2"><span style="color:#F2A46E">my-app/</span><br>├── app.py<br>├── requirements.txt<br>├── .gitignore<br>├── .venv/&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span style="color:#9AA7BD"># not committed</span><br>├── <span style="color:#F2A46E">templates/</span><br>│&#160;&#160;&#160;├── base.html<br>│&#160;&#160;&#160;└── index.html<br>└── <span style="color:#F2A46E">static/</span><br>&#160;&#160;&#160;&#160;├── css/style.css<br>&#160;&#160;&#160;&#160;└── js/main.js</p>
+    </div>
+    <div style="flex:1; display:flex; flex-direction:column; gap:14px">
+      <div style="display:flex; flex-direction:column; gap:4px; background:#FFFDF8; border-left:6px solid #B4501E; border-radius:0px 12px 12px 0px; padding:18px 24px"><p style="font-family:'JetBrains Mono', 'Courier New', monospace; font-size:24px; font-weight:700; color:#B4501E">app.py</p><p style="font-size:25px; line-height:1.4">Creates the app and defines routes</p></div>
+      <div style="display:flex; flex-direction:column; gap:4px; background:#FFFDF8; border-left:6px solid #B4501E; border-radius:0px 12px 12px 0px; padding:18px 24px"><p style="font-family:'JetBrains Mono', 'Courier New', monospace; font-size:24px; font-weight:700; color:#B4501E">templates/</p><p style="font-size:25px; line-height:1.4">Jinja2 HTML files for render_template()</p></div>
+      <div style="display:flex; flex-direction:column; gap:4px; background:#FFFDF8; border-left:6px solid #B4501E; border-radius:0px 12px 12px 0px; padding:18px 24px"><p style="font-family:'JetBrains Mono', 'Courier New', monospace; font-size:24px; font-weight:700; color:#B4501E">static/</p><p style="font-size:25px; line-height:1.4">CSS, JavaScript and images, served at /static/…</p></div>
+      <p style="font-size:24px; line-height:1.4; color:#4A5366">Flask looks for <b>templates/</b> and <b>static/</b> next to your app by default. Larger apps later split routes into blueprints.</p>
+    </div>
+  </div>
+  <p style="position:absolute; left:128px; bottom:64px; width:1300px; font-size:24px; color:#5A6272">CCC181 · Git, GitHub &amp; Flask foundations</p>
+  <p style="position:absolute; right:128px; bottom:64px; width:120px; font-size:24px; color:#5A6272; text-align:right">19</p>
+</section>
+</div>
+<div class="frame" data-notes="Run this live. The decorator registers the function for that URL; whatever the function returns becomes the response. Try /queue/12 and then /queue/abc to show that the int converter returns 404 for non-numbers. &quot;flask --app app run --debug&quot; is the current form (Flask 2.2 and later); older tutorials use the FLASK_APP environment variable. Debug mode enables auto-reload and an in-browser debugger, and must never be used in production. Also mention url_for(&quot;ticket&quot;, ticket_id=12), which builds URLs from function names so links do not break when routes change." aria-label="Slide 20">
+<section id="routes" data-transition="fade" style="background:#F6F4EE; color:#1B2438; font-family:'IBM Plex Sans', Arial, sans-serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:32px">
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#2D6F78">Flask</p>
+    <h2 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:64px; font-weight:700; line-height:1.1; color:#16223A">Routes: mapping URLs to Python</h2>
+  </div>
+  <div style="display:flex; flex-direction:row; gap:32px">
+    <div style="flex:1.3; display:flex; flex-direction:column; gap:14px">
+      <p style="font-family:'JetBrains Mono', 'Courier New', monospace; font-size:24px; font-weight:700; color:#5A6272">app.py</p>
+      <div style="background:#16223A; border-radius:16px; padding:26px 30px">
+        <p style="font-family:'JetBrains Mono', 'Courier New', monospace; font-size:24px; line-height:1.5; color:#E6EAF2"><span style="color:#F2A46E">from</span> flask <span style="color:#F2A46E">import</span> Flask<br><br>app = Flask(__name__)<br><br><span style="color:#9CC3F5">@app.route("/")</span><br><span style="color:#F2A46E">def</span> index():<br>&#160;&#160;&#160;&#160;<span style="color:#F2A46E">return</span> "Hello, CCC181!"<br><br><span style="color:#9CC3F5">@app.route("/queue/&lt;int:ticket_id&gt;")</span><br><span style="color:#F2A46E">def</span> ticket(ticket_id):<br>&#160;&#160;&#160;&#160;<span style="color:#F2A46E">return</span> f"Ticket #{ticket_id}"</p>
+      </div>
+      <div style="background:#1F2B45; border-radius:12px; padding:16px 24px">
+        <p style="font-family:'JetBrains Mono', 'Courier New', monospace; font-size:24px; color:#E6EAF2"><span style="color:#F2A46E">$</span> flask --app app run --debug</p>
+      </div>
+    </div>
+    <div style="flex:1; display:flex; flex-direction:column; gap:14px">
+      <div style="display:flex; flex-direction:column; gap:6px; background:#FFFDF8; border:1px solid #E2DED3; border-radius:12px; padding:20px 24px"><h3 style="font-size:27px; font-weight:600; color:#2D6F78">@app.route</h3><p style="font-size:24px; line-height:1.4">Connects a URL to the view function below it</p></div>
+      <div style="display:flex; flex-direction:column; gap:6px; background:#FFFDF8; border:1px solid #E2DED3; border-radius:12px; padding:20px 24px"><h3 style="font-size:27px; font-weight:600; color:#2D6F78">Variables in URLs</h3><p style="font-size:24px; line-height:1.4">&lt;int:ticket_id&gt; is passed in as an argument; also string, float, path</p></div>
+      <div style="display:flex; flex-direction:column; gap:6px; background:#FFFDF8; border:1px solid #E2DED3; border-radius:12px; padding:20px 24px"><h3 style="font-size:27px; font-weight:600; color:#2D6F78">HTTP methods</h3><p style="font-size:24px; line-height:1.4">methods=["GET", "POST"] for forms; GET is the default</p></div>
+      <p style="font-size:24px; line-height:1.4; color:#4A5366">Open <b>http://127.0.0.1:5000</b>. With --debug, the server reloads on every save.</p>
+    </div>
+  </div>
+  <p style="position:absolute; left:128px; bottom:64px; width:1300px; font-size:24px; color:#5A6272">CCC181 · Git, GitHub &amp; Flask foundations</p>
+  <p style="position:absolute; right:128px; bottom:64px; width:120px; font-size:24px; color:#5A6272; text-align:right">20</p>
+</section>
+</div>
+<div class="frame" data-notes="render_template looks in the templates folder and passes keyword arguments as variables. Template inheritance is the key idea: base.html holds the shared layout (header, navigation, CSS links); each page extends it and fills in the content block. Flask auto-escapes values in HTML templates, so user input like a script tag is displayed as text, not executed, which is an important security default. Remember to import render_template from flask. The base template is shortened for the slide; a real one has the doctype, head and a stylesheet link via url_for(&#x27;static&#x27;, ...)." aria-label="Slide 21">
+<section id="templates" data-transition="fade" style="background:#F6F4EE; color:#1B2438; font-family:'IBM Plex Sans', Arial, sans-serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:28px">
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#2D6F78">Flask</p>
+    <h2 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:64px; font-weight:700; line-height:1.1; color:#16223A">Templates with Jinja2</h2>
+  </div>
+  <div style="display:flex; flex-direction:row; gap:28px">
+    <div style="flex:1.25; display:flex; flex-direction:column; gap:10px">
+      <p style="font-family:'JetBrains Mono', 'Courier New', monospace; font-size:24px; font-weight:700; color:#5A6272">templates/base.html</p>
+      <div style="background:#16223A; border-radius:14px; padding:20px 26px">
+        <p style="font-family:'JetBrains Mono', 'Courier New', monospace; font-size:24px; line-height:1.45; color:#E6EAF2">&lt;body&gt;<br>&#160;&#160;&lt;h1&gt;ClinicQ&lt;/h1&gt;<br>&#160;&#160;<span style="color:#F2A46E">{% block content %}{% endblock %}</span><br>&lt;/body&gt;</p>
+      </div>
+      <p style="font-family:'JetBrains Mono', 'Courier New', monospace; font-size:24px; font-weight:700; color:#5A6272">templates/index.html</p>
+      <div style="background:#16223A; border-radius:14px; padding:20px 26px">
+        <p style="font-family:'JetBrains Mono', 'Courier New', monospace; font-size:24px; line-height:1.45; color:#E6EAF2"><span style="color:#F2A46E">{% extends "base.html" %}</span><br><span style="color:#F2A46E">{% block content %}</span><br>&#160;&#160;&lt;p&gt;Hello, <span style="color:#9CC3F5">{{ name }}</span>!&lt;/p&gt;<br>&#160;&#160;<span style="color:#F2A46E">{% for t in tickets %}</span><br>&#160;&#160;&#160;&#160;&lt;li&gt;#<span style="color:#9CC3F5">{{ t }}</span>&lt;/li&gt;<br>&#160;&#160;<span style="color:#F2A46E">{% endfor %}</span><br><span style="color:#F2A46E">{% endblock %}</span></p>
+      </div>
+    </div>
+    <div style="flex:1; display:flex; flex-direction:column; gap:14px">
+      <p style="font-family:'JetBrains Mono', 'Courier New', monospace; font-size:24px; font-weight:700; color:#5A6272">app.py</p>
+      <div style="background:#16223A; border-radius:14px; padding:20px 26px">
+        <p style="font-family:'JetBrains Mono', 'Courier New', monospace; font-size:24px; line-height:1.45; color:#E6EAF2"><span style="color:#F2A46E">return</span> render_template(<br>&#160;&#160;"index.html",<br>&#160;&#160;name="Ana",<br>&#160;&#160;tickets=[12, 13])</p>
+      </div>
+      <table style="font-size:24px; color:#1B2438; background:#FFFDF8; border:1px solid #E2DED3">
+        <tr style="background:#ECE8DE"><th style="width:40%">Syntax</th><th style="width:60%">Meaning</th></tr>
+        <tr><td style="font-family:'JetBrains Mono', 'Courier New', monospace; color:#1F5058">{{ x }}</td><td>Print a value</td></tr>
+        <tr style="background:#F1EEE6"><td style="font-family:'JetBrains Mono', 'Courier New', monospace; color:#8A3A14">{% ... %}</td><td>Logic: if, for, block</td></tr>
+        <tr><td style="font-family:'JetBrains Mono', 'Courier New', monospace; color:#5A6272">{# ... #}</td><td>Comment</td></tr>
+      </table>
+      <p style="font-size:24px; line-height:1.4; color:#4A5366"><b>extends</b> + <b>block</b> share one layout across pages.</p>
+    </div>
+  </div>
+  <p style="position:absolute; left:128px; bottom:64px; width:1300px; font-size:24px; color:#5A6272">CCC181 · Git, GitHub &amp; Flask foundations</p>
+  <p style="position:absolute; right:128px; bottom:64px; width:120px; font-size:24px; color:#5A6272; text-align:right">21</p>
+</section>
+</div>
+<div class="frame" data-notes="Students work in their individual CCC181 repositories. Set the target folder and deadline before class. Check points to walk around for: a git config with the right email; .venv not committed (git status should not list it after .gitignore is in place); the app runs at 127.0.0.1:5000; at least three commits with meaningful messages; a merged PR that closed the issue. Early finishers: add a static CSS file linked with url_for, or a third route based on one Must feature from their project milestone." aria-label="Slide 22">
+<section id="lab" data-section="Hands-on lab, check your understanding and recap" data-transition="fade" style="background:#16223A; color:#F6F4EE; font-family:'IBM Plex Sans', Arial, sans-serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:32px">
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#F2A46E">Hands-on lab · in your CCC181 repository</p>
+    <h2 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:64px; font-weight:700; line-height:1.1; color:#F6F4EE">Ship a “Hello, Flask” app through a pull request</h2>
+  </div>
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <div style="display:flex; flex-direction:row; gap:24px; align-items:center; background:#22304C; border-radius:12px; padding:18px 28px"><p style="font-family:'Space Grotesk', Arial, sans-serif; font-size:34px; font-weight:700; color:#F2A46E; width:48px">1</p><p style="flex:1; font-size:27px; line-height:1.35">Open an issue: <b>“Set up Flask starter app”</b></p><p style="font-family:'JetBrains Mono', 'Courier New', monospace; font-size:24px; color:#C5CEDD">GitHub</p></div>
+    <div style="display:flex; flex-direction:row; gap:24px; align-items:center; background:#22304C; border-radius:12px; padding:18px 28px"><p style="font-family:'Space Grotesk', Arial, sans-serif; font-size:34px; font-weight:700; color:#F2A46E; width:48px">2</p><p style="flex:1; font-size:27px; line-height:1.35">Pull the latest main, then create a branch</p><p style="font-family:'JetBrains Mono', 'Courier New', monospace; font-size:24px; color:#C5CEDD">git switch -c feature/flask-setup</p></div>
+    <div style="display:flex; flex-direction:row; gap:24px; align-items:center; background:#22304C; border-radius:12px; padding:18px 28px"><p style="font-family:'Space Grotesk', Arial, sans-serif; font-size:34px; font-weight:700; color:#F2A46E; width:48px">3</p><p style="flex:1; font-size:27px; line-height:1.35">Create .venv, install Flask, write requirements.txt and .gitignore</p><p style="font-family:'JetBrains Mono', 'Courier New', monospace; font-size:24px; color:#C5CEDD">venv · pip</p></div>
+    <div style="display:flex; flex-direction:row; gap:24px; align-items:center; background:#22304C; border-radius:12px; padding:18px 28px"><p style="font-family:'Space Grotesk', Arial, sans-serif; font-size:34px; font-weight:700; color:#F2A46E; width:48px">4</p><p style="flex:1; font-size:27px; line-height:1.35">Build app.py with a home route and one dynamic route, rendered with base.html and index.html</p><p style="font-family:'JetBrains Mono', 'Courier New', monospace; font-size:24px; color:#C5CEDD">Flask</p></div>
+    <div style="display:flex; flex-direction:row; gap:24px; align-items:center; background:#22304C; border-radius:12px; padding:18px 28px"><p style="font-family:'Space Grotesk', Arial, sans-serif; font-size:34px; font-weight:700; color:#F2A46E; width:48px">5</p><p style="flex:1; font-size:27px; line-height:1.35">Commit in small steps, push, open a PR with <b>Closes #N</b>, then merge</p><p style="font-family:'JetBrains Mono', 'Courier New', monospace; font-size:24px; color:#C5CEDD">GitHub</p></div>
+  </div>
+  <p style="position:absolute; left:128px; bottom:64px; width:1300px; font-size:24px; color:#C5CEDD">Folder: activities/[folder-name]/ · Due: [date]</p>
+  <p style="position:absolute; right:128px; bottom:64px; width:120px; font-size:24px; color:#C5CEDD; text-align:right">22</p>
+</section>
+</div>
+<div class="frame" data-notes="Expected answers. Q1: add moves changes into the staging area; commit saves the staged snapshot permanently. Having both lets you choose exactly what goes into each commit. Q2: .venv is large, machine-specific and rebuildable; requirements.txt is small and lets anyone recreate the environment with pip install -r. Q3: Git stops with a merge conflict and marks the file with &lt;&lt;&lt;&lt;&lt;&lt;&lt;, ======= and &gt;&gt;&gt;&gt;&gt;&gt;&gt; sections; edit to the correct version, remove the markers, add and commit. Q4: open-ended; it links today&#x27;s tools back to each student&#x27;s MVP." aria-label="Slide 23">
+<section id="check" data-transition="fade" style="background:#F6F4EE; color:#1B2438; font-family:'IBM Plex Sans', Arial, sans-serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:40px">
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#B4501E">Class discussion</p>
+    <h2 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:64px; font-weight:700; line-height:1.1; color:#16223A">Check your understanding</h2>
+  </div>
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:24px">
+    <div style="display:flex; flex-direction:column; gap:14px; background:#FFFDF8; border:1px solid #E2DED3; border-radius:16px; padding:32px 36px">
+      <p style="font-family:'Space Grotesk', Arial, sans-serif; font-size:40px; font-weight:700; color:#B4501E">Q1</p>
+      <p style="font-size:30px; line-height:1.35">What is the difference between <b>git add</b> and <b>git commit</b>, and why have both?</p>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:14px; background:#FFFDF8; border:1px solid #E2DED3; border-radius:16px; padding:32px 36px">
+      <p style="font-family:'Space Grotesk', Arial, sans-serif; font-size:40px; font-weight:700; color:#B4501E">Q2</p>
+      <p style="font-size:30px; line-height:1.35">Why do we commit <b>requirements.txt</b> but never the <b>.venv</b> folder?</p>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:14px; background:#FFFDF8; border:1px solid #E2DED3; border-radius:16px; padding:32px 36px">
+      <p style="font-family:'Space Grotesk', Arial, sans-serif; font-size:40px; font-weight:700; color:#B4501E">Q3</p>
+      <p style="font-size:30px; line-height:1.35">Two branches changed the same line of index.html. What happens on merge, and how do you fix it?</p>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:14px; background:#FFFDF8; border:1px solid #E2DED3; border-radius:16px; padding:32px 36px">
+      <p style="font-family:'Space Grotesk', Arial, sans-serif; font-size:40px; font-weight:700; color:#B4501E">Q4</p>
+      <p style="font-size:30px; line-height:1.35">Which three Must features from your milestone become your first GitHub issues and routes?</p>
+    </div>
+  </div>
+  <p style="position:absolute; left:128px; bottom:64px; width:1300px; font-size:24px; color:#5A6272">CCC181 · Git, GitHub &amp; Flask foundations</p>
+  <p style="position:absolute; right:128px; bottom:64px; width:120px; font-size:24px; color:#5A6272; text-align:right">23</p>
+</section>
+</div>
+<div class="frame" data-notes="This loop repeats for every feature of the MVP for the rest of the semester: one issue, one branch, small commits, one pull request. Next meeting: [next topic]." aria-label="Slide 24">
+<section id="recap" data-transition="fade" style="background:#16223A; color:#F6F4EE; font-family:'IBM Plex Sans', Arial, sans-serif; padding:128px; display:flex; flex-direction:column; justify-content:space-between; gap:40px">
+  <div style="display:flex; flex-direction:column; gap:12px">
+    <p style="font-size:24px; font-weight:600; letter-spacing:3px; text-transform:uppercase; color:#F2A46E">Recap</p>
+    <h2 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:64px; font-weight:700; line-height:1.1; color:#F6F4EE">Your development loop</h2>
+  </div>
+  <div style="display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:16px">
+    <div style="display:flex; flex-direction:column; gap:8px; background:#22304C; border-radius:12px; padding:24px 28px"><p style="font-size:24px; font-weight:600; color:#F2A46E">1</p><p style="font-family:'Space Grotesk', Arial, sans-serif; font-size:32px; font-weight:600">Issue</p></div>
+    <div style="display:flex; flex-direction:column; gap:8px; background:#22304C; border-radius:12px; padding:24px 28px"><p style="font-size:24px; font-weight:600; color:#F2A46E">2</p><p style="font-family:'Space Grotesk', Arial, sans-serif; font-size:32px; font-weight:600">Branch</p></div>
+    <div style="display:flex; flex-direction:column; gap:8px; background:#22304C; border-radius:12px; padding:24px 28px"><p style="font-size:24px; font-weight:600; color:#F2A46E">3</p><p style="font-family:'Space Grotesk', Arial, sans-serif; font-size:32px; font-weight:600">Activate .venv</p></div>
+    <div style="display:flex; flex-direction:column; gap:8px; background:#22304C; border-radius:12px; padding:24px 28px"><p style="font-size:24px; font-weight:600; color:#F2A46E">4</p><p style="font-family:'Space Grotesk', Arial, sans-serif; font-size:32px; font-weight:600">Route + template</p></div>
+    <div style="display:flex; flex-direction:column; gap:8px; background:#22304C; border-radius:12px; padding:24px 28px"><p style="font-size:24px; font-weight:600; color:#F2A46E">5</p><p style="font-family:'Space Grotesk', Arial, sans-serif; font-size:32px; font-weight:600">Add &amp; commit</p></div>
+    <div style="display:flex; flex-direction:column; gap:8px; background:#22304C; border-radius:12px; padding:24px 28px"><p style="font-size:24px; font-weight:600; color:#F2A46E">6</p><p style="font-family:'Space Grotesk', Arial, sans-serif; font-size:32px; font-weight:600">Push</p></div>
+    <div style="display:flex; flex-direction:column; gap:8px; background:#22304C; border-radius:12px; padding:24px 28px"><p style="font-size:24px; font-weight:600; color:#F2A46E">7</p><p style="font-family:'Space Grotesk', Arial, sans-serif; font-size:32px; font-weight:600">Pull request</p></div>
+    <div style="display:flex; flex-direction:column; gap:8px; background:#B4501E; border-radius:12px; padding:24px 28px"><p style="font-size:24px; font-weight:600; color:#FBF3EA">8</p><p style="font-family:'Space Grotesk', Arial, sans-serif; font-size:32px; font-weight:600; color:#FBF3EA">Merge</p></div>
+  </div>
+  <div style="display:flex; flex-direction:row; justify-content:space-between; align-items:end">
+    <p style="font-family:'Space Grotesk', Arial, sans-serif; font-size:44px; font-weight:600; line-height:1.25; color:#F6F4EE; width:1200px">Track everything, isolate dependencies, ship in small steps.</p>
+    <p style="font-family:'Space Grotesk', Arial, sans-serif; font-size:44px; font-weight:700; color:#F2A46E">Questions?</p>
+  </div>
+</section>
+</div>
+</div></div>
+<div id="bar"><i></i></div>
+<div id="notes" aria-live="polite"></div>
+<div id="help">← → to navigate · N notes · F full screen · Ctrl+P to save as PDF</div>
+<div id="hud">
+<button id="prev" aria-label="Previous slide">←</button>
+<span id="count"></span>
+<button id="next" aria-label="Next slide">→</button>
+<button id="nbtn" aria-label="Toggle speaker notes">Notes</button>
+<button id="fbtn" aria-label="Toggle full screen">Full screen</button>
+</div>
+<script>
+(function(){
+  var frames=[].slice.call(document.querySelectorAll('.frame'));
+  var notes=document.getElementById('notes'), cnt=document.getElementById('count'), bar=document.querySelector('#bar i');
+  var stage=document.getElementById('stage'), cur=0;
+  function fit(){var s=Math.min(window.innerWidth/1920,window.innerHeight/1080);stage.style.transform='scale('+s+')';}
+  function show(i){
+    i=Math.max(0,Math.min(frames.length-1,i));
+    frames[cur].classList.remove('active');frames[i].classList.add('active');cur=i;
+    cnt.textContent=(i+1)+' / '+frames.length;
+    bar.style.width=((i+1)/frames.length*100)+'%';
+    var n=frames[i].getAttribute('data-notes')||'';
+    notes.innerHTML='<b>Speaker notes · slide '+(i+1)+'</b><br>'+(n?n.replace(/[&<>]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;'}[c]}):'(none)');
+    if(history.replaceState)history.replaceState(null,'','#'+(i+1));
+  }
+  function toggleNotes(){notes.classList.toggle('show');}
+  function full(){if(!document.fullscreenElement){document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen();}else{document.exitFullscreen&&document.exitFullscreen();}}
+  document.addEventListener('keydown',function(e){
+    if(e.target.closest&&e.target.closest('button')&&(e.key===' '||e.key==='Enter'))return;
+    var k=e.key;
+    if(k==='ArrowRight'||k==='PageDown'||k===' '||k==='ArrowDown'){show(cur+1);e.preventDefault();}
+    else if(k==='ArrowLeft'||k==='PageUp'||k==='ArrowUp'){show(cur-1);e.preventDefault();}
+    else if(k==='Home'){show(0);}else if(k==='End'){show(frames.length-1);}
+    else if(k==='n'||k==='N'){toggleNotes();}else if(k==='f'||k==='F'){full();}
+  });
+  document.getElementById('prev').onclick=function(){show(cur-1)};
+  document.getElementById('next').onclick=function(){show(cur+1)};
+  document.getElementById('nbtn').onclick=toggleNotes;
+  document.getElementById('fbtn').onclick=full;
+  var sx=null;
+  document.addEventListener('touchstart',function(e){sx=e.touches[0].clientX},{passive:true});
+  document.addEventListener('touchend',function(e){if(sx===null)return;var dx=e.changedTouches[0].clientX-sx;if(Math.abs(dx)>50)show(cur+(dx<0?1:-1));sx=null;});
+  window.addEventListener('hashchange',function(){var h=parseInt((location.hash||'').slice(1),10);if(!isNaN(h)&&h-1!==cur)show(h-1);});
+  window.addEventListener('resize',fit);
+  window.addEventListener('beforeprint',function(){stage.style.transform='none'});
+  window.addEventListener('afterprint',fit);
+  fit();
+  var h=parseInt((location.hash||'').slice(1),10);frames[0].classList.add('active');show(isNaN(h)?0:h-1);
+  setTimeout(function(){document.body.classList.remove('fresh')},4000);
+})();
+</script>
+</body>
+</html>
