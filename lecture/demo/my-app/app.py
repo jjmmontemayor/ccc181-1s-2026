@@ -4,12 +4,12 @@ Run it with:
     flask --app app run --debug
 then open http://127.0.0.1:5000
 """
-from flask import Flask, render_template
+from flask import Flask, abort, render_template
 
 app = Flask(__name__)
 
 # Sample data for the demo. A real app would load this from a database later.
-TICKETS = [12, 13, 14]
+TICKETS = [{"number": 12, "name": "Ana"}, {"number": 13, "name": "John"}]
 
 
 @app.route("/")
@@ -21,9 +21,13 @@ def index():
 
 @app.route("/queue/<int:ticket_id>")
 def ticket(ticket_id):
-    # <int:ticket_id> only matches numbers, so /queue/abc returns 404.
-    return render_template("ticket.html", ticket_id=ticket_id)
+    for position, t in enumerate(TICKETS, start=1):
+        if t["number"] == ticket_id:
+            return render_template(
+                "ticket.html", ticket=t, position=position
+            )
 
+    abort(404)
 
 @app.route("/hello")
 def hello():
