@@ -49,3 +49,33 @@ footer {
   color: #5A6272;
   padding: 2rem 0;
 }
+
+
+/* Join-queue form */
+.button, .join-form button {
+  display: inline-block;
+  background: var(--teal);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 0.6rem 1.2rem;
+  font: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.join-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-width: 320px;
+}
+
+.join-form input {
+  padding: 0.5rem;
+  border: 1px solid #C9C4B8;
+  border-radius: 6px;
+  font: inherit;
+}
+
+.error { color: var(--orange); font-weight: 600; }
