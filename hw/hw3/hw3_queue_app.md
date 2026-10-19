@@ -1,4 +1,4 @@
-# CCC181 Week 3 Hands-on Activity: Start Your Own Queue App
+# Start Your Own Queue App
 
 | | |
 | --- | --- |
