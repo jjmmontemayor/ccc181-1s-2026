@@ -8,7 +8,6 @@
 | **Points** | 100 |
 | **Format** | Self-paced and asynchronous. Work through Parts 0 to 10 in order, at your own pace. |
 | **Released** | Monday, October 19, 2026 |
-| **Peer feedback dates** | **TBD** |
 | **Due** | **TBD** |
 | **Type** | Individual |
 
@@ -22,6 +21,8 @@ In Week 1 you chose a real setting, interviewed people who wait and people who s
 
 You will write personas for your app, design the screens for them, then build them with Flask, Jinja and Bootstrap so they work on a phone and on a laptop, check them for accessibility, add one small JavaScript behavior, and test them with a real user.
 
+Everything you build this week is the base for the rest of the semester. In Week 4 the tickets move from a Python list into PostgreSQL, in Week 6 the same data is served by a REST API, and from Week 8 your Flutter app talks to it. Build it for your setting, not for ClinicQ.
+
 **How to use this activity.** Each part ends with a **Checkpoint**. Do not move on until every box in the checkpoint is true, and commit your work at each one. ClinicQ appears in the examples only to show the idea; replace every ClinicQ name, service and field with your own.
 
 ### What you need
@@ -29,7 +30,7 @@ You will write personas for your app, design the screens for them, then build th
 - Your Week 1 proposal and interview notes (your profiles, research and requirement IDs, such as FR-01)
 - Your individual GitHub repository from Week 2
 - Python 3.11 or newer, VS Code, Git, and Google Chrome (for Lighthouse)
-- The Week 2 starter app (`my-app` with the join-queue demo), from the Week 2 
+- The Week 2 starter app (`my-app` with the join-queue demo), from the Week 2 materials
 - About 9 to 11 hours spread across the week
 
 ### Time plan
@@ -39,7 +40,7 @@ You will write personas for your app, design the screens for them, then build th
 | 0 | Turn the starter into your own app | 45 min |
 | 1 | Build the personas for your app | 1 h |
 | 2 | Wireframe your three screens | 1 h |
-| 3 | Async peer feedback on personas and wireframes | 45 min |
+| 3 | Self-review of personas and wireframes | 45 min |
 | 4 | Bootstrap layout and navigation | 1 h |
 | 5 | Join form with validation | 1.5 h |
 | 6 | My place page | 45 min |
@@ -199,31 +200,32 @@ Save the files as `docs/week3/wireframes/` (PNG, JPG or PDF), for example `join-
 
 ---
 
-## Part 3: Async peer feedback on your personas and wireframes
+## Part 3: Self-review of your personas and wireframes
 
-**Goal:** get fresh eyes on your personas and design before you build it. 
+**Goal:** check your design against your personas before you build it.
 
-**By Wednesday, Oct 21, 11:59 PM:** start a new topic in the **Week 3 Wireframe Critique forum** on Moodle.
+Put your personas and wireframes away for at least an hour, then come back and review them as if they were someone else's. Answer these questions **for each screen**, looking at both the phone and the laptop frame:
 
-- **Subject:** `<YourApp> – <your setting>`
-- **Body:** one sentence on your setting, your two personas (paste them or attach `personas.md`), your six wireframe images (attached or inline), and one specific question you want feedback on (for example *"Is the Call next button in the right place for a staff member at a busy counter?"*).
+1. Can my persona tell what to do on this screen within 5 seconds?
+2. Is the ticket status always visible where the person needs it?
+3. Do the words match what people in my setting actually say? (For example "window" or "counter", "number" or "ticket".)
+4. Is the action the staff member does most often the easiest one to reach?
+5. Does the phone version still show the most important thing first?
+6. Which of my *"Because …, my interface must …"* rules does this screen follow, and which does it break?
 
-**By Friday, Oct 23, 11:59 PM:** reply to **two classmates' topics**. Choose topics with fewer than two replies first, so everyone gets feedback. Use this format in each reply:
+Then write the review in `docs/week3/feedback.md` using this format, once per screen:
 
-> **I like:** one thing that works well and why.
-> **I wish:** one problem *their persona* would hit, linked to a usability principle (visibility of status, match with the real world, error prevention, consistency, or recognition rather than recall).
-> **What if:** one concrete suggestion.
-> **Your question:** your answer to the question they asked.
+> **Works well:** one thing that works and why.
+> **Problem:** one problem your persona would hit, linked to a usability principle (visibility of status, match with the real world, error prevention, consistency, or recognition rather than recall).
+> **Change:** what you will change in the wireframe, or why you will keep it.
 
-Then read the feedback on your own topic. In `docs/week3/feedback.md`, write down each comment you received and what you **will change**, or **why you will not**. Update your wireframes if needed.
+Update your wireframes with the changes before you start Part 4.
 
 **Checkpoint 3**
 
-- [ ] Your forum topic is posted with your two personas, six frames and one question.
-- [ ] You replied to two classmates using *I like / I wish / What if / Your question*.
-- [ ] `docs/week3/feedback.md` records the feedback you got and your response.
-
-> **If no one has replied to you by Friday**, post in the Q&A forum and your instructor will review your wireframes. Do not wait: continue with Part 4 and apply the feedback when it arrives.
+- [ ] `docs/week3/feedback.md` has a review of all three screens in the *Works well / Problem / Change* format.
+- [ ] Your wireframes are updated, or `feedback.md` explains why you kept them.
+- [ ] Committed.
 
 ---
 
@@ -533,7 +535,7 @@ Staff login comes in a later week. For now the dashboard is open; say so in your
 
 **Goal:** two small improvements that make the screens feel responsive. Do both.
 
-**7a. Stop double joining.** When the join form is submitted, disable its button and change the text, so an impatient tap does not create two tickets. In `static/js/main.js`:
+**8a. Stop double joining.** When the join form is submitted, disable its button and change the text, so an impatient tap does not create two tickets. In `static/js/main.js`:
 
 ```javascript
 const joinForm = document.getElementById("join-form");
@@ -546,7 +548,7 @@ if (joinForm) {
 }
 ```
 
-**7b. Keep My place up to date.** Add a JSON route in `app.py`:
+**8b. Keep My place up to date.** Add a JSON route in `app.py`:
 
 ```python
 @app.get("/queue/<int:ticket_id>/status.json")
@@ -599,16 +601,16 @@ Finish the two lines inside `refreshStatus` yourself. Test it with two browser w
 
 Do all three checks on **all three screens**, and record the results in `docs/week3/accessibility.md`.
 
-**8a. Lighthouse.** In Chrome, open DevTools → **Lighthouse** → select **Accessibility** and **Mobile** → **Analyze page load**. Record the score for each screen. **Aim for 90 or higher.** Fix every issue it lists that you can, and run it again. Take a screenshot of each final score.
+**9a. Lighthouse.** In Chrome, open DevTools → **Lighthouse** → select **Accessibility** and **Mobile** → **Analyze page load**. Record the score for each screen. **Aim for 90 or higher.** Fix every issue it lists that you can, and run it again. Take a screenshot of each final score.
 
-**8b. Keyboard only.** Put your mouse away. Using only Tab, Shift+Tab, Enter, Space and the arrow keys:
+**9b. Keyboard only.** Put your mouse away. Using only Tab, Shift+Tab, Enter, Space and the arrow keys:
 
 - Join the queue from the home page.
 - On the staff dashboard, filter by a service, call a ticket, and serve it.
 
 Can you see where the focus is at every step? Can you reach and use every control? Does the skip link appear on the first Tab? Write down anything that failed and how you fixed it.
 
-**8c. Manual checklist.** Check each item and mark it ✅ or ❌ (with the fix):
+**9c. Manual checklist.** Check each item and mark it ✅ or ❌ (with the fix):
 
 | Check | Join | My place | Staff |
 | --- | --- | --- | --- |
@@ -630,7 +632,7 @@ Can you see where the focus is at every step? Can you reach and use every contro
 
 ## Part 10: Usability test, one fix, and submission
 
-### 9a. Test with a real user (asynchronous)
+### 10a. Test with a real user (asynchronous)
 
 Find **one person** to try your app who matches one of your personas, ideally someone from your Week 1 setting. Not a CCC181 classmate. You can meet in person, or do it over a video call where they share their screen, or ask them to record their screen on their own phone.
 
@@ -651,11 +653,29 @@ For each task, note in `docs/week3/usability-test.md`:
 
 Ask their permission before recording, and do not include their full name or face.
 
-### 9b. Make one improvement
+### 10b. Make one improvement
 
-Pick the **most serious problem** you found, from the usability test, the peer feedback, or the accessibility check. Fix it, and in `usability-test.md` describe the problem, your fix, and a before-and-after screenshot.
+Pick the **most serious problem** you found, from the usability test, your self-review, or the accessibility check. Fix it, and in `usability-test.md` describe the problem, your fix, and a before-and-after screenshot.
 
-### 9c. Open and merge your pull request
+### 10c. Write your report in your repository
+
+Write a short report in Markdown at `docs/week3/report.md` on your `feature/week3-interface` branch, using the sections below. Put your screenshots in `docs/week3/screenshots/` and show them in the report with relative links, such as `![Join on a phone](screenshots/join-phone.png)`, so they display on GitHub.
+
+Report sections, using `##` headings:
+
+1. **Title details:** your app's name, setting, full name, student ID, section, date, and the **link to your pull request**
+2. **Personas:** a short summary of your two personas (name, one quote, top tasks), with a link to `docs/week3/personas.md`
+3. **Screens:** six screenshots (three screens, phone and laptop), each with one sentence on which persona uses it and which requirement IDs it covers
+4. **Design decisions:** three decisions you made and why, each tied to your personas, your wireframes or your self-review (for example *"I put the ticket number at the top in very large text because the waiting student in my interview said they check their phone while walking."*)
+5. **Self-review:** the main problems you found in your wireframes and what you changed (from `feedback.md`)
+6. **Accessibility:** Lighthouse scores and the most important issue you fixed
+7. **Usability test:** the results for each task and the one improvement you made, with before and after
+8. **Reflection:** what was hardest this week, and what you will change in your interface when the data moves to a database in Week 4
+9. **Declaration:** any AI tools or outside sources you used and what for. Write "None" if you used none.
+
+Commit it: `git commit -m "Add Week 3 report (#<issue>)"`. Then open your branch on GitHub and check that every heading, table and screenshot displays correctly.
+
+### 10d. Open and merge your pull request, then submit the link
 
 1. Push your branch: `git push -u origin feature/week3-interface`
 2. Open a pull request into `main`.
@@ -671,34 +691,20 @@ Pick the **most serious problem** you found, from the usability test, the peer f
    git push origin week3
    ```
 
-### 9d. Write your report and submit on MOLE
+5. **Submit on MOLE.** In the **Week 3 assignment on MOLE**, submit the link to your report at the `week3` tag:
 
-Write a short report (2 to 3 pages as a PDF, plus screenshots) using the sections below. Submit it as **two files with the same content**, exactly as in Week 1:
+   ```
+   https://github.com/<your-username>/<your-repo>/blob/week3/docs/week3/report.md
+   ```
 
-| File | Name |
-| --- | --- |
-| Markdown | `CCC181_Week3_Lastname_Firstname.md` |
-| PDF | `CCC181_Week3_Lastname_Firstname.pdf` |
-
-Report sections, using `##` headings:
-
-1. **Title details:** your app's name, setting, full name, student ID, section, date, and the **link to your merged pull request**
-2. **Personas:** a short summary of your two personas (name, one quote, top tasks), with a link to `docs/week3/personas.md`
-3. **Screens:** six screenshots (three screens, phone and laptop), each with one sentence on which persona uses it and which requirement IDs it covers
-4. **Design decisions:** three decisions you made and why, each tied to your personas, your wireframes or the peer feedback (for example *"I put the ticket number at the top in very large text because the waiting student in my interview said they check their phone while walking."*)
-5. **Peer feedback:** the feedback you received and what you changed (from `feedback.md`)
-6. **Accessibility:** Lighthouse scores and the most important issue you fixed
-7. **Usability test:** the results for each task and the one improvement you made, with before and after
-8. **Reflection:** what was hardest this week, and what you will change in your interface when the data moves to a database in Week 4
-9. **Declaration:** any AI tools or outside sources you used and what for. Write "None" if you used none.
-
-Copy the same report into your repository as `docs/week3/report.md`.
+   Linking to the tag means your instructor sees exactly the version you submitted, even if you keep working on `main` afterward. Open the link in a private browser window first to check that it works. If your repository is private, add your instructor as a collaborator so they can open it.
 
 **Checkpoint 10 (submission)**
 
 - [ ] Usability test notes and the improvement are in `docs/week3/usability-test.md`.
+- [ ] `docs/week3/report.md` is in your repository and displays correctly on GitHub.
 - [ ] Your pull request is **merged** into `main` and tagged `week3`.
-- [ ] Both report files are uploaded to the **Week 3 assignment on MOLE** before ****.
+- [ ] The link to your report at the `week3` tag is submitted to the **Week 3 assignment on MOLE** before the due date.
 
 ---
 
@@ -727,6 +733,7 @@ your-repo/
         ├── feedback.md
         ├── accessibility.md
         ├── usability-test.md
+        ├── screenshots/
         └── report.md
 ```
 
@@ -737,36 +744,36 @@ Each criterion is scored at one of four levels: **Exemplary** (100% of the point
 | Criterion | CLO | Points | Exemplary | Developing |
 | --- | --- | --- | --- | --- |
 | Personas | 1 | 10 | Two distinct personas grounded in real quotes and Week 1 research; scenario, top tasks with requirement IDs, and clear design rules | Generic or invented; copied from ClinicQ; no link to research or to the interface |
-| Wireframes and design rationale | 1 | 10 | Six frames tied to named personas and requirement IDs; design decisions clearly traced to the personas and feedback | Missing frames or sizes; decisions not explained or not linked to users |
-| Async peer critique | 1 | 10 | Posted on time; two specific, constructive reviews in the required format; feedback recorded and acted on | Late or vague reviews; feedback not recorded |
+| Wireframes and design rationale | 1 | 10 | Six frames tied to named personas and requirement IDs; design decisions clearly traced to the personas and self-review | Missing frames or sizes; decisions not explained or not linked to users |
+| Self-review | 1 | 10 | All three screens reviewed against the personas in the required format; problems linked to usability principles; wireframes updated | Vague or missing review; no changes made or explained |
 | Responsive layout and navigation | 2 | 10 | Shared Bootstrap layout; collapsing navbar; all screens work at 375 px and laptop width | Layout breaks on a phone or pages do not share a layout |
 | Forms and validation | 2 | 15 | Server-side validation of every field with clear messages; values kept on error; setting-specific field included | Validation only in the browser, or errors unclear |
 | Queue screens for your setting | 2 | 15 | My place and staff dashboard work end to end with POST actions and service filter; a ★ requirement is visible; clearly built for your own setting | Only partly working, or still ClinicQ with names changed |
 | JavaScript behavior | 2 | 5 | Double submit prevented and My place refreshes with fetch, no console errors | Only one behavior, or it errors |
 | Accessibility check | 2 | 10 | Lighthouse 90+ on every screen with evidence; keyboard test done; checklist complete with fixes | Scores missing; keyboard test skipped |
 | Usability test and improvement | 1 | 10 | Real user from or like the setting; notes for each task; most serious issue fixed with before and after | No real user, or no improvement made |
-| GitHub workflow and report | 2 | 5 | Issue, branch, regular commits, merged PR with screenshots and tag; report complete in both formats | Single commit, unmerged PR, or a missing file |
+| GitHub workflow and report | 2 | 5 | Issue, branch, regular commits, merged PR with screenshots and tag; report complete in the repository and its link submitted | Single commit, unmerged PR, missing report, or a broken link |
 | **Total** | | **100** | | |
 
 **Proficient** work is complete with minor gaps. **Beginning** work is missing, not working, or not your own.
 
 ## Academic integrity
 
-This is **individual work**. You may help classmates in the Q&A forum and give feedback in the critique forum, but your personas, code, wireframes, test and report must be your own. Code copied from ClinicQ without changing it for your setting, or from a classmate, will be scored as Beginning. The code snippets in this activity are a starting point you are expected to adapt. Declare any AI tool or outside source you used in your report.
+This is **individual work**. You may discuss ideas with classmates, but your personas, code, wireframes, test and report must be your own. Code copied from ClinicQ without changing it for your setting, or from a classmate, will be scored as Beginning. The code snippets in this activity are a starting point you are expected to adapt. Declare any AI tool or outside source you used in your report.
 
 ## Late submissions
 
-Late work follows the late policy in the course syllabus. The peer-feedback dates count toward the *Async peer critique* criterion.
+Late work follows the late policy in the course syllabus.
 
 ## Checklist before you submit
 
 - [ ] My app shows my own system's name, services and fields, not ClinicQ's.
 - [ ] `docs/week3/personas.md` has my two personas, each with a real quote, scenario, top tasks and design rules.
-- [ ] Six wireframes are in `docs/week3/wireframes/`, and I posted them with my personas in the critique forum by Wednesday.
+- [ ] Six wireframes are in `docs/week3/wireframes/`, and `feedback.md` has my self-review of all three screens.
 - [ ] Join, My place and Staff dashboard all work, on a phone width and a laptop width.
 - [ ] The join form validates every field on the server and keeps the user's input on error.
 - [ ] Staff actions use POST forms, and My place updates by itself within 10 seconds.
 - [ ] `accessibility.md` has Lighthouse scores, keyboard notes and the checklist.
 - [ ] `usability-test.md` has a real user's results and one improvement with before and after.
 - [ ] My pull request is merged into `main` and tagged `week3`.
-- [ ] I am uploading both `CCC181_Week3_Lastname_Firstname.md` and `CCC181_Week3_Lastname_Firstname.pdf`, with my PR link at the top.
+- [ ] `docs/week3/report.md` is in my repository with my PR link at the top, and I submitted its `week3` link on MOLE.
