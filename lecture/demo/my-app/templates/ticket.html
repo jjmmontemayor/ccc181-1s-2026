@@ -3,7 +3,7 @@
 {% block title %}Ticket #{{ ticket_id }} · ClinicQ{% endblock %}
 
 {% block content %}
-  <h2>Ticket #{{ ticket_id }}</h2>
-  <p>This page was built from the URL <code>/queue/{{ ticket_id }}</code>.</p>
+  <h2>Hello {{ ticket.name }}</h2>
+  <p>Your ticket number is {{ ticket.number }}.</p>
   <p><a href="{{ url_for('index') }}">&larr; Back to the queue</a></p>
 {% endblock %}
