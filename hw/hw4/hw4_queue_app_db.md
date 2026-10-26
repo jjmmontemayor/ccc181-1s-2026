@@ -1,4 +1,4 @@
-# CCC181 Week 4 Hands-on Activity: Give Your Queue App a Database
+# Give Your Queue App a Database
 
 | | |
 | --- | --- |
