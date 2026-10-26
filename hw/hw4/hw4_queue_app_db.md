@@ -29,11 +29,7 @@ In Week 3 you started your own queue app: a join form, a My place page and a sta
 
 Keep this sentence in mind all week. It is the test your app must pass: *when a person joins your queue, their ticket must still be there after the server restarts, and no one else can take their place.*
 
-Everything you build this week is used again. Your requirement IDs are used in every issue, pull request and report from now on. In Week 5 you write SQL queries for queue positions and daily reports on these tables, in Week 6 a REST API serves the same data, and in Week 7 you measure and speed up the queries.
-
-**How to use this activity.** You submit a link to your report on MOLE, and you may also be asked for a short **spot-check demonstration** (see the end of this activity). Each part ends with a **Checkpoint**. Do not move on until every box in the checkpoint is true, and commit your work at each one. ClinicQ appears in the examples only to show the idea; replace every ClinicQ table, column, service and name with your own.
-
-> **New from this week: your GitHub repository must be public.** From Week 4 on, your instructor checks your work only through the link you submit on MOLE, so anyone with the link must be able to open it without signing in. If your repository was private in Week 3, make it public in Part 0, step 4. Your Week 3 work and its `week3` tag stay as they are. A public repository means anyone can read it, so never commit passwords (Part 4 shows how), and do not put the full names or photos of the people you interviewed in it.
+Everything you build this week is used again. Your requirement IDs are used in every issue, pull request and report from now on. In Week 6 a REST API serves the same data, and in Week 7 you measure and speed up the queries.
 
 ### What you need
 
